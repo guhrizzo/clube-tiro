@@ -1,9 +1,9 @@
+"use client";
 
-export default function Home() {
-  return (
-    <div className="">
-      <h1 className=""></h1>
+import { useRouter } from "next/navigation";
+import EntryGate from "../../components/EntryGate";
 
-    </div>
-  );
+export default function Page() {
+  const router = useRouter();
+  return <EntryGate onEnter={() => router.push("/home")} />;
 }
