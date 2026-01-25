@@ -28,7 +28,7 @@ export default function NavBar() {
     <nav className="bg-[#003566ff] p-4 relative z-50">
       <div className="container mx-auto flex justify-between items-center text-[14px]">
         <div className="text-white flex items-center gap-4">
-          <Image src="/logo-horizontal-branco2.png" alt="Logo" width={120} height={50} className="mr-2" />
+          <Image src="/logo-horizontal-branco2-removebg-preview.png" alt="Logo" width={120} height={50} className="mr-2" />
 
           {/* Desktop */}
           <ul className="hidden md:flex space-x-6">
