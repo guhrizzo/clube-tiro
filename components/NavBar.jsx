@@ -97,7 +97,10 @@ export default function NavBar() {
           <div className="flex flex-col items-center gap-4 pb-4 border-b border-white/15">
             <div className="flex gap-6">
               <IconFacebook />
+              {/*
               <IconGoogle />
+              */}
+              
               <IconInstagram />
               <IconTwitter />
               <IconYoutube />
