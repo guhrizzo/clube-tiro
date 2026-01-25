@@ -101,46 +101,7 @@ export default function ServiceCarousel() {
         </Swiper>
       </div>
 
-      <style jsx global>{`
-        /* Efeito de destaque no central */
-        .swiper-slide {
-          transition: transform 0.8s ease, opacity 0.8s ease;
-          transform: scale(0.85);
-          opacity: 0.4;
-        }
-        .swiper-slide-active {
-          transform: scale(1);
-          opacity: 1;
-        }
-
-        /* Paginação - Apenas uma bolinha destacada */
-        .swiper-pagination-bullet {
-          background: rgba(255, 255, 255, 0.4) !important;
-          opacity: 1 !important;
-          width: 10px !important;
-          height: 10px !important;
-          transition: all 0.3s ease;
-          margin: 0 6px !important;
-        }
-        .swiper-pagination-bullet-active {
-          background: #ffc300ff !important;
-          transform: scale(1.4); /* Aumenta levemente a bolinha ativa */
-          box-shadow: 0 0 10px rgba(255, 195, 0, 0.5);
-        }
-
-        .swiper-button-next,
-        .swiper-button-prev {
-          color: #ffc300ff !important;
-          background: rgba(0,0,0,0.4);
-          width: 50px;
-          height: 50px;
-          border-radius: 50%;
-          backdrop-filter: blur(4px);
-        }
-        .swiper-button-next:after, .swiper-button-prev:after {
-          font-size: 18px !important;
-        }
-      `}</style>
+      
     </section>
   );
 }
