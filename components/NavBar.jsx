@@ -25,7 +25,7 @@ export default function NavBar() {
   ];
 
   return (
-    <nav className="bg-[#003566ff] p-4 relative z-50 w-full">
+    <nav className="bg-[#003566ff] p-4 relative z-50 w-full border-b border-white/10 shadow-md">
       <div className="container mx-auto flex justify-between items-center text-[14px]">
         <div className="text-white flex items-center gap-4">
           <Image src="/logo-horizontal-branco2-removebg-preview.png" alt="Logo" width={120} height={50} className="mr-2" />
@@ -83,8 +83,8 @@ export default function NavBar() {
 
           {/* Botão mobile */}
           <button onClick={() => setOpen(!open)} className="md:hidden flex flex-col justify-between w-8 h-3">
-            <span className={`h-0.5 w-full bg-white rounded-full transition-all ${open ? "rotate-45 translate-y-1" : ""}`} />
-            <span className={`h-0.5 w-full bg-white rounded-full transition-all ${open ? "-rotate-45 -translate-y-1.5" : ""}`} />
+            <span className={`h-0.75 w-full bg-white rounded-full transition-all ${open ? "rotate-45 translate-y-1" : ""}`} />
+            <span className={`h-0.75 w-full bg-white rounded-full transition-all ${open ? "-rotate-45 -translate-y-1.5" : ""}`} />
           </button>
         </div>
       </div>
