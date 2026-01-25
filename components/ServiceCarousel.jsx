@@ -76,7 +76,7 @@ export default function ServiceCarousel() {
           breakpoints={{
             1024: { slidesPerView: 1.5 }
           }}
-          className="pb-20 overflow-visible!"
+          className="pb-20 overflow-visible"
         >
           {slides.map((slide, index) => (
             <SwiperSlide key={index} className="flex justify-center">
