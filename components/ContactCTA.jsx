@@ -15,18 +15,6 @@ export default function ContactCTA() {
 
   return (
     <section className="relative overflow-hidden bg-[#ffc300ff] py-20 px-5 md:py-16">
-      
-      {/* Glow de fundo (mais central no mobile)
-      <div
-        data-aos="fade"
-        data-aos-delay="500"
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 
-                   w-105 h-105 bg-white/25 rounded-full blur-3xl 
-                   pointer-events-none"
-      />
-      */}
-      
-
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-10 relative z-10">
 
         {/* Conteúdo */}
@@ -78,13 +66,7 @@ export default function ContactCTA() {
         </div>
       </div>
 
-      <style jsx>{`
-        @keyframes shimmer {
-          100% {
-            transform: translateX(100%);
-          }
-        }
-      `}</style>
+      
     </section>
   );
 }
