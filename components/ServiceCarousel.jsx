@@ -57,7 +57,7 @@ export default function ServiceCarousel() {
           grabCursor
           centeredSlides
           slidesPerView={1.15}
-          loop={false}
+          loop
           speed={1000}
           coverflowEffect={{
             rotate: 0,
