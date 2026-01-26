@@ -12,7 +12,7 @@ export default function HomePage() {
     <div>
       <NavBar />
       {/* Conteúdo principal aqui */}
-      <ServiceCarousel />
+      
       <ScrollToTop />
       <ContactCTA />
       <Footer />
