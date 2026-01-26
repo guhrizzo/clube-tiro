@@ -1,9 +1,6 @@
 import NavBar from "../../../components/NavBar";
 import Footer from "../../../components/Footer";
-import ContactCTA from "../../../components/ContactCTA";
 
-
-import ScrollToTop from "../../../components/BackTop";
 
 
 export default function HomePage() {
@@ -12,8 +9,7 @@ export default function HomePage() {
       <NavBar />
       {/* Conteúdo principal aqui */}
       
-      <ScrollToTop />
-      <ContactCTA />
+      
       <Footer />
     </div>
   );
