@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect } from "react";
+import { FaWhatsapp } from "react-icons/fa";
+import { HiOutlineArrowNarrowRight } from "react-icons/hi";
 import AOS from "aos";
 import "aos/dist/aos.css";
 
@@ -13,60 +15,52 @@ export default function ContactCTA() {
     });
   }, []);
 
-  return (
-    <section className="relative overflow-hidden bg-[#ffc300ff] py-20 px-5 md:py-16">
-      <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-10 relative z-10">
+  const whatsappUrl = "https://wa.me/5531992118500?text=Olá%20Grupo%20Protect!%20Gostaria%20de%20mais%20informações%20sobre%20produtos%20e%20treinamentos.";
 
-        {/* Conteúdo */}
+  return (
+    <section className="relative overflow-hidden bg-[#ffb703] py-16 px-6 md:py-20">
+      {/* Elementos Decorativos de Fundo para UX Visual */}
+      <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/4 w-96 h-96 bg-white/10 rounded-full blur-3xl" />
+      
+      <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-12 relative z-10">
+        
+        {/* Lado Esquerdo: Conteúdo */}
         <div
-          data-aos="fade-up"
-          className="flex-1 text-center md:text-left space-y-5 max-w-2xl"
+          data-aos="fade-right"
+          className="flex-1 text-center md:text-left space-y-4 max-w-2xl"
         >
-          <h2 className="text-[28px] md:text-2xl font-extrabold text-white leading-tight drop-shadow-lg">
+          <h2 className="text-3xl md:text-4xl font-black text-white leading-[1.1] tracking-tight drop-shadow-sm">
             Experiência e Desempenho <br className="hidden md:block" />
             Excepcional
           </h2>
 
-          <p className="text-white/95 text-base md:text-sm leading-relaxed">
+          <p className="text-white/90 text-lg md:text-xl font-medium max-w-xl">
             Destacamo-nos a cada ano superando em atendimento e qualidade
             de serviços e produtos para você.
           </p>
         </div>
 
-        {/* CTA */}
+        {/* Lado Direito: Botão WhatsApp */}
         <div
-          data-aos="fade-up"
+          data-aos="fade-left"
           data-aos-delay="200"
-          className="w-full md:w-auto flex justify-center md:justify-end"
+          className="w-full md:w-auto flex justify-center"
         >
-          <button
-            className="group relative w-full md:w-auto inline-flex items-center justify-center 
-                       px-10 py-4 bg-white text-[#ffc300ff] font-bold text-base md:text-lg cursor-pointer
-                       uppercase tracking-wider rounded-full overflow-hidden 
-                       shadow-2xl transition-all duration-300
-                       hover:scale-105 active:scale-95"
+          <a
+            href={whatsappUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group relative inline-flex items-center gap-3 px-10 py-5 bg-white text-[#ffb703] font-extrabold text-lg uppercase tracking-widest rounded-full shadow-[0_20px_50px_rgba(0,0,0,0.1)] transition-all duration-300 hover:shadow-[0_10px_30px_rgba(0,0,0,0.2)] hover:-translate-y-1 active:scale-95"
           >
-            {/* Shimmer */}
-            <span className="absolute inset-0 bg-linear-to-r 
-                             from-transparent via-white/40 to-transparent 
-                             -translate-x-full" />
-
-            <span className="relative z-10">Contate-nos</span>
-
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="ml-2 h-5 w-5 transition-transform duration-300 group-hover:translate-x-1 relative z-10"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-            </svg>
-          </button>
+            <FaWhatsapp size={24} className="text-[#ffb703]" />
+            <span>Contate-nos</span>
+            <HiOutlineArrowNarrowRight 
+              className="transition-transform duration-300 group-hover:translate-x-2" 
+              size={22} 
+            />
+          </a>
         </div>
       </div>
-
-      
     </section>
   );
 }
