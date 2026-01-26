@@ -95,7 +95,7 @@ export default function NavBar() {
       {/* Mobile Menu com Animação Suave */}
       <div 
         className={`md:hidden overflow-hidden transition-all duration-500 ease-in-out ${
-          open ? "max-h-screen opacity-100 mt-4" : "max-h-0 opacity-0 mt-0 pointer-events-none"
+          open ? "max-h-500 opacity-100 mt-4" : "max-h-0 opacity-0 mt-0 pointer-events-none"
         }`}
       >
         <div className="flex flex-col rounded-2xl border-[#ffffff1c] border pt-4 bg-[#002855] shadow-xl">
