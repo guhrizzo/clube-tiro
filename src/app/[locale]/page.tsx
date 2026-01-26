@@ -1,4 +1,6 @@
-import NavBar from "../../../components/NavBar";
+
+{/*
+    import NavBar from "../../../components/NavBar";
 
 
 // src/app/[locale]/page.js
@@ -9,3 +11,4 @@ export default function Page() {
     </main>
   );
 }
+    */}
