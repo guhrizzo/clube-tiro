@@ -59,3 +59,8 @@
 .swiper-button-prev::after {
   font-size: 18px !important;
 }
+
+@keyframes shrink {
+  from { width: 100%; }
+  to { width: 0%; }
+}
