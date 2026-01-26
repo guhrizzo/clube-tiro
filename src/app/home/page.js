@@ -2,6 +2,7 @@ import NavBar from "../../../components/NavBar";
 import Footer from "../../../components/Footer";
 import ServiceCarousel from "../../../components/ServiceCarousel";
 import ScrollToTop from "../../../components/BackTop";
+import ContactCTA from "../../../components/ContactCTA";
 
 
 
@@ -12,7 +13,7 @@ export default function HomePage() {
       <ScrollToTop />
       {/* Conteúdo principal aqui */}
       <ServiceCarousel />
-      
+      <ContactCTA />
       <Footer />
     </div>
   );
