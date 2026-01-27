@@ -38,7 +38,7 @@ export default function QuoteSection() {
     <>
       {/* SECTION PRINCIPAL */}
       <section className="relative overflow-hidden bg-[#020b18] py-28 px-6 border-t border-white/5">
-        <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-[#ffc300]/10 blur-[160px] rounded-full -z-10" />
+        <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-125 h-125 bg-[#ffc300]/10 blur-[160px] rounded-full -z-10" />
 
         <div className="max-w-4xl mx-auto text-center">
           <div data-aos="zoom-in">
@@ -56,7 +56,7 @@ export default function QuoteSection() {
           </h2>
 
           <div data-aos="fade-up" data-aos-delay="200" className="flex flex-col items-center">
-            <div className="w-14 h-[2px] bg-[#ffc300] mb-4 rounded-full" />
+            <div className="w-14 h-0.5 bg-[#ffc300] mb-4 rounded-full" />
             <span className="text-white font-black tracking-[0.25em] uppercase text-sm">
               Major L. Caudill
             </span>
@@ -79,7 +79,7 @@ export default function QuoteSection() {
 
       {/* MODAL COM SCROLL INTERNO E BLOQUEIO EXTERNO */}
       <div
-        className={`fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 backdrop-blur-md transition-all duration-500 ${
+        className={`fixed inset-0 z-9999 flex items-center justify-center bg-black/80 backdrop-blur-md transition-all duration-500 ${
           open ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
         }`}
         onClick={() => setOpen(false)}
@@ -91,7 +91,7 @@ export default function QuoteSection() {
           }`}
         >
           {/* Header do Modal */}
-          <div className="flex items-center justify-between px-10 py-8 border-b border-white/5 bg-white/[0.01]">
+          <div className="flex items-center justify-between px-10 py-8 border-b border-white/5 bg-white/1">
             <h3 className="text-white font-black tracking-[0.2em] uppercase text-xs">
               Arma é Civilização
             </h3>
