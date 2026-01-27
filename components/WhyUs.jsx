@@ -73,6 +73,7 @@ export default function WhyUs() {
             <div
               key={i}
               data-aos="fade-up"
+              data-aos-duration="700"
               data-aos-delay={i * 120}
               className="group relative rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl p-8 
               hover:border-[#ffc300]/40 hover:shadow-[0_0_40px_rgba(255,195,0,0.12)] 
