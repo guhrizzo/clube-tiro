@@ -1,7 +1,7 @@
 "use client";
 
-import { 
-  FaWhatsapp, FaPhoneAlt, FaEnvelope, FaMapMarkerAlt, FaCheckCircle 
+import {
+  FaWhatsapp, FaPhoneAlt, FaEnvelope, FaMapMarkerAlt, FaCheckCircle
 } from "react-icons/fa";
 import { useState } from "react";
 
@@ -60,9 +60,11 @@ export default function Footer() {
 
           {/* WhatsApp */}
           <button
-            onClick={() => isMobile()
-              ? window.open("https://wa.me/5531992118500?text=Olá%20Grupo%20Protect!%20Gostaria%20de%20mais%20informações%20sobre%20produtos%20e%20treinamentos.", "_blank")
-              : handleCopy("(31) 99211-8500")
+            onClick={() =>
+              window.open(
+                "https://wa.me/5531992118500?text=Olá%20Grupo%20Protect!%20Gostaria%20de%20mais%20informações%20sobre%20produtos%20e%20treinamentos.",
+                "_blank"
+              )
             }
             className="flex cursor-pointer items-center gap-3 text-sm hover:text-[#25D366] transition-all group text-left w-full"
           >
@@ -72,17 +74,6 @@ export default function Footer() {
             <span className="font-bold">(31) 99211-8500</span>
           </button>
 
-          {/* Emails */}
-          <div className="space-y-2 pt-2">
-            <a href="mailto:loja@grupoprotect.com.br" className="flex items-center gap-3 text-sm hover:text-[#ffc300ff] transition-colors">
-              <FaEnvelope className="text-white/40" size={14} />
-              loja@grupoprotect.com.br
-            </a>
-            <a href="mailto:vendas@grupoprotect.com.br" className="flex items-center gap-3 text-sm hover:text-[#ffc300ff] transition-colors">
-              <FaEnvelope className="text-white/40" size={14} />
-              vendas@grupoprotect.com.br
-            </a>
-          </div>
         </div>
 
         {/* HORÁRIOS */}
@@ -130,24 +121,39 @@ export default function Footer() {
       </div>
 
       {/* TOAST PREMIUM */}
-      <div className={`fixed bottom-8 right-8 z-[9999] transition-all duration-500 transform ${toast ? 'translate-y-0 opacity-100 scale-100' : 'translate-y-12 opacity-0 scale-95 pointer-events-none'}`}>
-        <div className="bg-white text-[#020b18] px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-4 relative overflow-hidden border border-white/10">
-          <div className="w-10 h-10 bg-[#25D366] rounded-full flex items-center justify-center shrink-0 shadow-lg shadow-[#25D366]/20">
-            <FaCheckCircle className="text-white" size={20} />
-          </div>
-          <div>
-            <span className="text-[10px] font-black uppercase text-[#25D366] block leading-none mb-1">Sucesso</span>
-            <p className="text-sm font-bold text-[#020b18]">{toast}</p>
-          </div>
+      {/* TOAST PREMIUM REFORMULADO */}
+      <div className="fixed bottom-8 right-8 z-9999pointer-events-none">
+        <div
+          className={`transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] 
+      ${toast
+              ? "opacity-100 translate-y-0 scale-100"
+              : "opacity-0 translate-y-4 scale-95"
+            }`}
+        >
 
-          {toast && (
-            <div 
-              className="absolute bottom-0 left-0 h-1 bg-[#25D366]" 
-              style={{ animation: 'shrink 3s linear forwards' }} 
+          <div className="bg-white text-[#020b18] px-6 py-4 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.3)] flex items-center gap-4 relative overflow-hidden border border-[#020b18]/5 pointer-events-auto">
+            <div className="w-10 h-10 bg-[#25D366] rounded-full flex items-center justify-center shrink-0 shadow-lg shadow-[#25D366]/20">
+              <FaCheckCircle className="text-white" size={20} />
+            </div>
+
+            <div className="min-w-37.5">
+              <span className="text-[10px] font-black uppercase text-[#25D366] block leading-none mb-1 tracking-wider">
+                Sucesso
+              </span>
+              <p className="text-sm font-bold text-[#020b18]">
+                {toast || "Número copiado!"} {/* Fallback para o texto não sumir no fade-out */}
+              </p>
+            </div>
+
+            {/* Barra de progresso melhorada */}
+            <div
+              className={`absolute bottom-0 left-0 h-1 bg-[#25D366] transition-all
+          ${toast ? "w-full animate-[shrink_3s_linear_forwards]" : "w-0"}`}
             />
-          )}
+          </div>
         </div>
       </div>
+
     </footer>
   );
 }
