@@ -10,11 +10,7 @@ export default function Footer() {
 
   const showToast = (msg: string) => {
     setToast(msg);
-    window.dispatchEvent(new CustomEvent("toast:show"));
-    setTimeout(() => {
-      setToast("");
-      window.dispatchEvent(new CustomEvent("toast:hide"));
-    }, 3000);
+    setTimeout(() => setToast(""), 3000);
   };
 
   const handleCopy = (text: string) => {
@@ -27,7 +23,7 @@ export default function Footer() {
     /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 
   return (
-    <footer className="bg-[#0a1a2f] text-white/90 border-t border-white/10 relative overflow-hidden">
+    <footer className="bg-[#0a1a2f] text-white/90  border-t border-white/10 relative overflow-hidden">
 
       <div className="max-w-7xl mx-auto px-6 py-14 grid grid-cols-1 md:grid-cols-3 gap-10">
 
@@ -37,6 +33,7 @@ export default function Footer() {
             Grupo Protect Loja
           </h4>
 
+          {/* Endereço */}
           <a
             href="https://maps.google.com/?q=Rua+General+Andrade+Neves+622+Gutierrez+Belo+Horizonte"
             target="_blank"
@@ -50,6 +47,7 @@ export default function Footer() {
             </span>
           </a>
 
+          {/* Telefone */}
           <button
             onClick={() => isMobile() ? window.location.href = "tel:3133718500" : handleCopy("(31) 3371-8500")}
             className="flex cursor-pointer items-center gap-3 text-sm hover:text-[#00b4d8] transition-all group text-left w-full"
@@ -60,6 +58,7 @@ export default function Footer() {
             <span className="font-bold">(31) 3371-8500</span>
           </button>
 
+          {/* WhatsApp */}
           <button
             onClick={() =>
               window.open(
@@ -74,6 +73,7 @@ export default function Footer() {
             </div>
             <span className="font-bold">(31) 99211-8500</span>
           </button>
+
         </div>
 
         {/* HORÁRIOS */}
@@ -120,12 +120,17 @@ export default function Footer() {
         © {new Date().getFullYear()} GRUPO PROTECT — TODOS OS DIREITOS RESERVADOS.
       </div>
 
-      {/* TOAST */}
-      <div className="fixed top-8 right-1/2 translate-x-[50%] z-40 pointer-events-none">
+      {/* TOAST PREMIUM */}
+      {/* TOAST PREMIUM REFORMULADO */}
+      <div className="fixed top-8 right-1/2 translate-[50%] z-40 pointer-events-none">
         <div
           className={`transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] 
-          ${toast ? "opacity-100 translate-y-0 scale-100" : "opacity-0 translate-y-4 scale-95"}`}
+      ${toast
+              ? "opacity-100 translate-y-0 scale-100"
+              : "opacity-0 translate-y-4 scale-95"
+            }`}
         >
+
           <div className="bg-white text-[#020b18] px-6 py-4 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.3)] flex items-center gap-4 relative overflow-hidden border border-[#020b18]/5 pointer-events-auto">
             <div className="w-10 h-10 bg-[#25D366] rounded-full flex items-center justify-center shrink-0 shadow-lg shadow-[#25D366]/20">
               <FaCheckCircle className="text-white" size={20} />
@@ -136,13 +141,14 @@ export default function Footer() {
                 Sucesso
               </span>
               <p className="text-sm font-bold text-[#020b18]">
-                {toast || "Número copiado!"}
+                {toast || "Número copiado!"} {/* Fallback para o texto não sumir no fade-out */}
               </p>
             </div>
 
+            {/* Barra de progresso melhorada */}
             <div
               className={`absolute bottom-0 left-0 h-1 bg-[#25D366] transition-all
-              ${toast ? "w-full animate-[shrink_3s_linear_forwards]" : "w-0"}`}
+          ${toast ? "w-full animate-[shrink_3s_linear_forwards]" : "w-0"}`}
             />
           </div>
         </div>
