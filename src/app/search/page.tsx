@@ -1,29 +1,25 @@
-// app/search/page.tsx
-"use client";
+type SearchPageProps = {
+  searchParams: {
+    q?: string;
+  };
+};
 
-import { useSearchParams } from "next/navigation";
-import { useMemo } from "react";
-
-// Simulando a base de dados (o ideal é que isso venha de um arquivo de constantes ou API)
 const DATA_SOURCE = [
   { name: "Pistolas", category: "Produtos", href: "/produtos/pistolas", desc: "Confira nossa linha completa de pistolas semi-automáticas." },
   { name: "Tiro Básico", category: "Cursos", href: "/cursos/basico", desc: "Aprenda os fundamentos da segurança e manuseio de armas." },
   { name: "Exército", category: "Despachante", href: "/despachante/exercito", desc: "Documentação e processos junto ao Exército Brasileiro." },
-  // ... adicione todos os seus itens aqui
 ];
 
-export default function SearchPage() {
-  const searchParams = useSearchParams();
-  const query = searchParams.get("q") || "";
+export default function SearchPage({ searchParams }: SearchPageProps) {
+  const query = searchParams.q?.trim() || "";
 
-  const results = useMemo(() => {
-    if (!query) return [];
-    return DATA_SOURCE.filter(item =>
-      item.name.toLowerCase().includes(query.toLowerCase()) ||
-      item.category.toLowerCase().includes(query.toLowerCase()) ||
-      item.desc.toLowerCase().includes(query.toLowerCase())
-    );
-  }, [query]);
+  const results = query
+    ? DATA_SOURCE.filter(item =>
+        item.name.toLowerCase().includes(query.toLowerCase()) ||
+        item.category.toLowerCase().includes(query.toLowerCase()) ||
+        item.desc.toLowerCase().includes(query.toLowerCase())
+      )
+    : [];
 
   return (
     <main className="min-h-screen bg-gray-50 py-12">
@@ -40,8 +36,8 @@ export default function SearchPage() {
         <div className="grid gap-6">
           {results.length > 0 ? (
             results.map((item, index) => (
-              <a 
-                key={index} 
+              <a
+                key={index}
                 href={item.href}
                 className="block p-6 bg-white rounded-xl shadow-sm border border-transparent hover:border-[#ffb703] transition-all group"
               >
