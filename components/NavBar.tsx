@@ -153,7 +153,7 @@ export default function NavBar() {
             <div className="w-px h-6 bg-white/20 mx-1"></div>
             <div className="flex gap-2">
               {languages.map((lang) => (
-                <button key={lang.code} onClick={() => changeLanguage(lang.code)} className="hover:scale-110 transition-transform">
+                <button key={lang.code} onClick={() => changeLanguage(lang.code)} className="hover:scale-110 transition-transform cursor-pointer">
                   <img src={lang.src} alt={lang.label} className="w-5 h-auto rounded-sm" />
                 </button>
               ))}
