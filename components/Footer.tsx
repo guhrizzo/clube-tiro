@@ -23,7 +23,7 @@ export default function Footer() {
     /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 
   return (
-    <footer className="bg-[#0a1a2f] text-white/90 mt-24 border-t border-white/10 relative overflow-hidden">
+    <footer className="bg-[#0a1a2f] text-white/90  border-t border-white/10 relative overflow-hidden">
 
       <div className="max-w-7xl mx-auto px-6 py-14 grid grid-cols-1 md:grid-cols-3 gap-10">
 
@@ -122,7 +122,7 @@ export default function Footer() {
 
       {/* TOAST PREMIUM */}
       {/* TOAST PREMIUM REFORMULADO */}
-      <div className="fixed bottom-8 right-8 z-9999pointer-events-none">
+      <div className="fixed bottom-8 right-8 z-9999 pointer-events-none">
         <div
           className={`transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] 
       ${toast
