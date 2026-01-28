@@ -121,7 +121,7 @@ export default function Footer() {
       </div>
 
       {/* TOAST */}
-      <div className="fixed bottom-8 right-8 z-40 pointer-events-none">
+      <div className="fixed top-8 right-1/2 translate-x-[50%] z-40 pointer-events-none">
         <div
           className={`transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] 
           ${toast ? "opacity-100 translate-y-0 scale-100" : "opacity-0 translate-y-4 scale-95"}`}
