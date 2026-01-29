@@ -27,8 +27,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "Clube de Tiro",
-  description: "Site oficial do Clube de Tiro",
+  title: "Grupo Protect",
+  description: "Site oficial do Grupo Protect",
 };
 
 export default function RootLayout({ children }) {

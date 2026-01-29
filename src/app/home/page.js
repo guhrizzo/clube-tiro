@@ -5,6 +5,7 @@ import ScrollToTop from "../../../components/BackTop";
 import ContactCTA from "../../../components/ContactCTA";
 import WhyUs from "../../../components/WhyUs";
 import QuoteSection from "../../../components/QuoteSection";
+import FooterRastreamento from "../../../components/footerRastreamento";
 
 
 
@@ -18,6 +19,7 @@ export default function HomePage() {
       <ContactCTA />
       <WhyUs />
       <QuoteSection />
+      
       <Footer />
     </div>
   );
