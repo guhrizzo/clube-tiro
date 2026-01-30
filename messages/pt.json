@@ -1,15 +1,6 @@
 {
-  "menu.home": "Início",
-  "menu.truck": "Best Shot Truck",
-  "menu.courses": "Cursos",
-  "menu.products": "Produtos",
-  "menu.dispatcher": "Despachante",
-  "menu.club": "Clube",
-  "menu.blog": "Blog",
-  "menu.training": "Treinamento",
-  "menu.join": "Associe-se",
-  "menu.contact": "Contato",
-
-  "hero.title": "Excelência em treinamento tático",
-  "hero.subtitle": "Formação profissional em armamento e tiro"
+  "home": {
+    "title": "Bem-vindo ao Protect Rastreamento",
+    "subtitle": "Sua segurança em primeiro lugar"
+  }
 }
