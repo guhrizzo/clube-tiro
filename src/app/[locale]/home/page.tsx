@@ -16,7 +16,6 @@ export default function HomePage() {
       <ContactCTA />
       <WhyUs />
       <QuoteSection />
-      <FAQSection />
     </div>
   );
 }
