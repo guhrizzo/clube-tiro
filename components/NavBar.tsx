@@ -100,7 +100,7 @@ export default function NavBar() {
               {open ? <X size={28} /> : <div className="space-y-1.5 p-1">
                 <div className="w-7 h-0.5 bg-white"></div>
                 <div className="w-7 h-0.5 bg-white"></div>
-                <div className="w-7 h-0.5 bg-[#ffb703]"></div>
+                
               </div>}
             </button>
           </div>

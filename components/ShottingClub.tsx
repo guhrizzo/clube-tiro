@@ -128,8 +128,8 @@ export default function ShootingClubSection() {
              
             }}
             breakpoints={{
-              640: { slidesPerView: 1.5 },
-              768: { slidesPerView: 2.2 },
+              640: { slidesPerView: 1 },
+              768: { slidesPerView: 1},
               1024: { slidesPerView: 1 },
             }}
             className="pb-14 "
