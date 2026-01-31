@@ -11,5 +11,5 @@ export default function Page() {
       ? localStorage.getItem("lang") || "pt"
       : "pt";
 
-  return <EntryGate onEnter={() => router.push(`/${locale}/home/en`)} />;
+  return <EntryGate onEnter={() => router.push(`/${locale}/en/home`)} />;
 }
