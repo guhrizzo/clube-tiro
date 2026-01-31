@@ -32,7 +32,7 @@
 
 /* Paginação */
 .swiper-pagination-bullet {
-  background: rgba(255, 255, 255, 0.4) !important;
+  background: rgba(15, 15, 15, 0.4) !important;
   opacity: 1 !important;
   width: 10px !important;
   height: 10px !important;
@@ -63,4 +63,32 @@
 @keyframes shrink {
   from { width: 100%; }
   to { width: 0%; }
+}
+
+
+
+
+/* Ajuste de espaçamento da paginação para não colar nos cards */
+.swiper-pagination {
+  position: relative !important;
+  bottom: 0 !important;
+  margin-top: 30px !important;
+}
+.swiper-pagination-bullet:hover {
+  background: #ffb703 !important;
+  opacity: 0.7 !important;
+}
+
+.custom-pagination .swiper-pagination-bullet {
+  width: 8px;
+  height: 8px;
+  background: #d1d5db;
+  opacity: 1;
+  border-radius: 999px;
+  transition: all 0.3s ease;
+}
+
+.custom-pagination .swiper-pagination-bullet-active {
+  background: #ffb703;
+  width: 24px;
 }

@@ -13,8 +13,10 @@ import {
   FaGooglePlay,
   FaApple,
 } from "react-icons/fa";
+import { footerDict } from "../i18n/footer";
 
-export default function FooterRastreamentoLight() {
+export default function FooterRastreamentoLight({ locale = "pt" }: { locale?: "pt" | "en" | "es" }) {
+  const t = footerDict[locale];
   return (
     <footer className="relative bg-white text-[#0a0f1c] border-t border-black/10 overflow-hidden">
 

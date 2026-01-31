@@ -1,4 +1,5 @@
 import Footer from "../../../components/Footer";
+import FooterRastreamentoLight from "../../../components/footerRastreamento";
 
 export default async function LocaleLayout({
   children,
@@ -12,7 +13,7 @@ export default async function LocaleLayout({
   return (
     <>
       {children}
-      <Footer locale={locale as "pt" | "en" | "es"} />
+      <FooterRastreamentoLight locale={locale as "pt" | "en" | "es"} />
     </>
   );
 }
