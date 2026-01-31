@@ -47,8 +47,8 @@ export default function ShootingClubSection() {
   return (
     <section className="relative w-full overflow-hidden bg-[#f9fafb] py-28">
       {/* Círculos decorativos */}
-      <div className="absolute -right-48 -top-48 w-[520px] h-[520px] rounded-full border-[48px] border-[#ffb703]/20 pointer-events-none" />
-      <div className="absolute -right-24 -top-24 w-[360px] h-[360px] rounded-full border-[36px] border-[#ffb703]/10 pointer-events-none" />
+      <div className="absolute -right-48 -top-48 w-130 h-130 rounded-full border-48 border-[#ffb703]/20 pointer-events-none" />
+      <div className="absolute -right-24 -top-24 w-90 h-90 rounded-full border-36 border-[#ffb703]/10 pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-6 relative z-10 space-y-24">
 
