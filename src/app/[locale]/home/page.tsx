@@ -9,6 +9,7 @@ import FAQSection from "../../../../components/FAQsection";
 import AboutSection from "../../../../components/AboutSection";
 import ProductCatalog from "../../../../components/ProductCatalog";
 import ShootingClubDivider from "../../../../components/ShottingClub";
+import TrackingSection from "../../../../components/TrackServices";
 
 export default function HomePage() {
   return (
@@ -20,6 +21,7 @@ export default function HomePage() {
       <ShootingClubDivider />
      
       <ProductCatalog/>
+      <TrackingSection />
       <FAQSection/>
       
       
