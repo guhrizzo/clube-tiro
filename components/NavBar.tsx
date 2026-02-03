@@ -1,35 +1,47 @@
 "use client";
 
 import Image from "next/image";
-import { useState, useMemo, useRef, useEffect } from "react";
-import { usePathname, useRouter } from "next/navigation";
-import { Search, ChevronDown, X, Check, User } from "lucide-react";
+import { useState, useMemo, useEffect } from "react";
+import { usePathname } from "next/navigation";
+import {
+  ChevronDown,
+  X,
+  User,
+  FileText,
+  BadgeCheck,
+  Printer,
+  LayoutDashboard,
+  Menu,
+} from "lucide-react";
 
-// Simulando o dicionário para o exemplo rodar, mantenha seu import original
+/* ---------------- MOCK DICT ---------------- */
 const dictionaries = {
-  pt: { navbar: { home: "Início", truck: "Quem Somos", courses: "Cursos", products: "Produtos", dispatcher: "Parceiros", club: "Clientes", blog: "Blog", training: "Treinamento", join: "Associe-se", contact: "Fale Conosco", coursesMenu: [], productsMenu: [], dispatcherMenu: [], clubMenu: [], trainingMenu: [] } },
-  en: { navbar: { home: "Home", truck: "Tracking", courses: "Courses", products: "Products", dispatcher: "Partners", club: "Clients", blog: "Blog", training: "Training", join: "Join", contact: "Contact", coursesMenu: [], productsMenu: [], dispatcherMenu: [], clubMenu: [], trainingMenu: [] } },
-  es: { navbar: { home: "Inicio", truck: "Rastreo", courses: "Cursos", products: "Productos", dispatcher: "Socios", club: "Clientes", blog: "Blog", training: "Entrenamiento", join: "Únete", contact: "Contacto", coursesMenu: [], productsMenu: [], dispatcherMenu: [], clubMenu: [], trainingMenu: [] } },
+  pt: {
+    navbar: {
+      home: "Início",
+      truck: "Quem Somos",
+      courses: "Cursos",
+      products: "Produtos",
+      dispatcher: "Parceiros",
+      club: "Clientes",
+      blog: "Blog",
+      training: "Treinamento",
+      join: "Associe-se",
+      contact: "Fale Conosco",
+    },
+  },
 };
 
-const SUPPORTED_LANGS = ["pt", "en", "es"] as const;
+const SUPPORTED_LANGS = ["pt"] as const;
 type Lang = (typeof SUPPORTED_LANGS)[number];
 
 export default function NavBar() {
   const [open, setOpen] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false); // Estado para detectar o scroll
+  const [isScrolled, setIsScrolled] = useState(false);
   const pathname = usePathname();
 
-  // 🎯 Monitora o scroll para aplicar a sombra
   useEffect(() => {
-    const handleScroll = () => {
-      if (window.scrollY > 10) {
-        setIsScrolled(true);
-      } else {
-        setIsScrolled(false);
-      }
-    };
-
+    const handleScroll = () => setIsScrolled(window.scrollY > 10);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
@@ -44,109 +56,269 @@ export default function NavBar() {
 
   const menuItems = [
     { key: "home", href: "/home" },
-    { key: "truck", href: "/truck", hasSub: false },
-    { key: "dispatcher", href: "/parceiros", hasSub: true },
-    { key: "club", href: "/clientes", hasSub: true },
+    { key: "truck", href: "/truck" },
+    { key: "dispatcher", href: "/parceiros" },
+    { key: "club", href: "/clientes" },
     { key: "blog", href: "/blog" },
     { key: "contact", href: "/contato" },
   ];
 
   return (
-    <header
-      className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${isScrolled
-          ? "bg-white/90 backdrop-blur-md shadow-lg py-1" // Com sombra e blur ao rolar
-          : "bg-white py-2" // Sem sombra no topo
+    <>
+      {/* ================= HEADER ================= */}
+      <header
+        className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${
+          isScrolled
+            ? "bg-white/90 backdrop-blur-md shadow-lg"
+            : "bg-white"
         }`}
-    >
-      <div className="w-full flex flex-col items-center">
+      >
+        <div className="w-full flex flex-col items-center">
 
-        {/* 1. TOP BAR - Esconde ou reduz conforme scroll se desejar, aqui mantivemos sutil */}
-        <div className={`container mx-auto px-4 flex justify-between items-center gap-4 transition-all duration-300 ${isScrolled ? "py-2" : "py-4"
-          }`}>
-          <div className="shrink-0">
-            <Image
-              src="/LOGO1.png"
-              alt="Logo"
-              width={isScrolled ? 130 : 160} // Logo diminui levemente ao rolar
-              height={60}
-              className="object-contain transition-all duration-300"
-            />
+          {/* 🔥 TOP UTILITY BAR — DESKTOP ONLY */}
+          <div className="hidden md:block w-full bg-linear-to-r from-[#0f0f0f] via-[#151515] to-[#0f0f0f] border-b border-white/10">
+            <div className="container mx-auto px-4 h-10 flex items-center justify-center gap-6 text-[11px] sm:text-xs font-semibold tracking-widest uppercase text-white/80">
+
+              <UtilityLink
+                href="https://www.shootinghouse.com.br/login-associado/clubedetirobh.com.br/aHR0cHM6Ly93d3cuc2hvb3Rpbmdob3VzZS5jb20uYnIvYXNzb2NpYWRvL2RlY2xhcmFjYW8="
+                icon={<FileText size={14} />}
+                label="Emissão de Declarações"
+              />
+
+              <UtilityLink
+                href="https://clubedetirobh.com.br/validar-declaracao/"
+                icon={<BadgeCheck size={14} />}
+                label="Validar Declarações"
+              />
+
+              <UtilityLink
+                href="https://www.shootinghouse.com.br/login-associado/clubedetirobh.com.br/aHR0cHM6Ly93d3cuc2hvb3Rpbmdob3VzZS5jb20uYnIvYXNzb2NpYWRvL3NlY3JldGFyaWEvZGVzcGFjaGFudGUvc29saWNpdGFjb2Vz"
+                icon={<LayoutDashboard size={14} />}
+                label="Serviços de Secretaria"
+              />
+
+              <UtilityLink
+                href="https://www.shootinghouse.com.br/login-associado/clubedetirobh.com.br/aHR0cHM6Ly93d3cuc2hvb3Rpbmdob3VzZS5jb20uYnIvYXNzb2NpYWRvL2ZpbmFuY2Vpcm8vYm9sZXRv"
+                icon={<Printer size={14} />}
+                label="2ª Via de Boleto"
+              />
+
+            </div>
           </div>
 
-          <div className="flex items-center gap-6">
-            <div className="hidden md:flex gap-3 text-gray-700">
-              <IconInstagram /> <IconFacebook /> <IconWhatsapp /> <IconLinkedin /> <IconYoutube />
+          {/* 🟡 TOP BAR (LOGO + HAMBURGER MOBILE) */}
+          <div
+            className={`container mx-auto px-4 flex justify-between items-center gap-4 transition-all duration-300 ${
+              isScrolled ? "py-2" : "py-4"
+            }`}
+          >
+            <div className="shrink-0">
+              <Image
+                src="/LOGO1.png"
+                alt="Logo"
+                width={isScrolled ? 130 : 160}
+                height={60}
+                className="object-contain transition-all duration-300"
+              />
             </div>
 
-            <div className="flex gap-2 border-l border-gray-200 pl-6">
-              <FlagBtn lang="us" />
-              <FlagBtn lang="br" active />
-              <FlagBtn lang="es" />
-            </div>
+            {/* DESKTOP RIGHT SIDE */}
+            <div className="hidden lg:flex items-center gap-6">
+              <div className="flex gap-3 text-gray-700">
+                <IconInstagram /> <IconFacebook /> <IconWhatsapp />{" "}
+                <IconLinkedin /> <IconYoutube />
+              </div>
 
-            <button className="hidden sm:flex items-center gap-2 bg-[#1a1a1a] text-[#ffb703] px-5 py-2.5 rounded-md font-bold cursor-pointer text-sm hover:bg-black transition-all shadow-md">
-              <User size={16} />
-              ACESSO
-            </button>
-          </div>
-        </div>
+              <div className="flex gap-2 border-l border-gray-200 pl-6">
+                <FlagBtn lang="us" />
+                <FlagBtn lang="br" active />
+                <FlagBtn lang="es" />
+              </div>
 
-        {/* 2. NAV */}
-        <div className={`container mx-auto px-4 transition-all duration-300 ${isScrolled ? "pb-2" : "pb-4"
-          }`}>
-          <nav className="bg-[#1a1a1a] rounded-full px-6 py-1 shadow-xl">
-            <div className="flex justify-between items-center h-12">
-              <ul className="hidden lg:flex items-center gap-8 w-full justify-center">
-                {menuItems.map((item) => (
-                  <li key={item.key} className="relative group">
-                    <a
-                      href={item.href}
-                      className="text-white hover:text-[#ffb703] text-[13px] font-semibold flex items-center gap-1 transition-colors py-3 uppercase tracking-wider"
-                    >
-                      {t[item.key]}
-                      {item.hasSub && (
-                        <ChevronDown size={14} className="mt-0.5 opacity-70 group-hover:rotate-180 transition-transform" />
-                      )}
-                    </a>
-                    <span className="absolute bottom-2 left-0 w-0 h-0.5 bg-[#ffb703] transition-all group-hover:w-full"></span>
-                  </li>
-                ))}
-              </ul>
-
-              <button onClick={() => setOpen(!open)} className="lg:hidden text-white ml-auto">
-                {open ? <X size={28} /> : (
-                  <div className="space-y-1.5 p-1">
-                    <div className="w-7 h-0.5 bg-white"></div>
-                    <div className="w-7 h-0.5 bg-white"></div>
-                  </div>
-                )}
+              <button className="flex items-center gap-2 bg-[#1a1a1a] text-[#ffb703] px-5 py-2.5 rounded-md font-bold cursor-pointer text-sm hover:bg-black transition-all shadow-md">
+                <User size={16} />
+                ACESSO
               </button>
             </div>
-          </nav>
+
+            {/* MOBILE HAMBURGER */}
+            <button
+              onClick={() => setOpen(true)}
+              className="lg:hidden text-black"
+            >
+              <Menu size={28} />
+            </button>
+          </div>
+
+          {/* 🧭 NAV DESKTOP */}
+          <div
+            className={`hidden lg:block container mx-auto px-4 transition-all duration-300 ${
+              isScrolled ? "pb-2" : "pb-4"
+            }`}
+          >
+            <nav className="bg-[#1a1a1a] rounded-full px-6 py-1 shadow-xl">
+              <div className="flex justify-between items-center h-12">
+                <ul className="flex items-center gap-8 w-full justify-center">
+                  {menuItems.map((item) => (
+                    <li key={item.key} className="relative group">
+                      <a
+                        href={item.href}
+                        className="text-white hover:text-[#ffb703] text-[13px] font-semibold flex items-center gap-1 transition-colors py-3 uppercase tracking-wider"
+                      >
+                        {t[item.key]}
+                        <ChevronDown
+                          size={14}
+                          className="mt-0.5 opacity-70 group-hover:rotate-180 transition-transform"
+                        />
+                      </a>
+                      <span className="absolute bottom-2 left-0 w-0 h-0.5 bg-[#ffb703] transition-all group-hover:w-full"></span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </nav>
+          </div>
+        </div>
+      </header>
+
+      {/* ================= MOBILE DRAWER ================= */}
+      {/* OVERLAY */}
+      {open && (
+        <div
+          onClick={() => setOpen(false)}
+          className="fixed inset-0 bg-black/40 z-99"
+        />
+      )}
+
+      {/* DRAWER */}
+      <aside
+        className={`fixed top-0 right-0 h-full w-[85%] max-w-sm bg-black text-white z-100 transform transition-transform duration-300 ${
+          open ? "translate-x-0" : "translate-x-full"
+        }`}
+      >
+        {/* HEADER */}
+        <div className="flex items-center justify-end px-5 py-4 border-b border-white/10">
+          
+          <button onClick={() => setOpen(false)}>
+            <X size={26} />
+          </button>
         </div>
 
-        {/* Drawer Mobile */}
-        {open && (
-          <div className="lg:hidden w-full bg-[#1a1a1a] border-t border-white/10 animate-in slide-in-from-top duration-300">
-            {menuItems.map((item) => (
-              <a key={item.key} href={item.href} className="block px-6 py-4 text-white border-b border-white/5 font-medium uppercase text-sm">
-                {t[item.key]}
-              </a>
-            ))}
+        {/* SERVIÇOS */}
+        <div className="px-5 pt-4 grid grid-cols-2 gap-3 text-xs uppercase tracking-wide">
+          <UtilityMobile
+            href="https://www.shootinghouse.com.br/login-associado/clubedetirobh.com.br/aHR0cHM6Ly93d3cuc2hvb3Rpbmdob3VzZS5jb20uYnIvYXNzb2NpYWRvL2RlY2xhcmFjYW8="
+            icon={<FileText size={14} />}
+            label="Declarações"
+          />
+          <UtilityMobile
+            href="https://clubedetirobh.com.br/validar-declaracao/"
+            icon={<BadgeCheck size={14} />}
+            label="Validar"
+          />
+          <UtilityMobile
+            href="https://www.shootinghouse.com.br/login-associado/clubedetirobh.com.br/aHR0cHM6Ly93d3cuc2hvb3Rpbmdob3VzZS5jb20uYnIvYXNzb2NpYWRvL3NlY3JldGFyaWEvZGVzcGFjaGFudGUvc29saWNpdGFjb2Vz"
+            icon={<LayoutDashboard size={14} />}
+            label="Secretaria"
+          />
+          <UtilityMobile
+            href="https://www.shootinghouse.com.br/login-associado/clubedetirobh.com.br/aHR0cHM6Ly93d3cuc2hvb3Rpbmdob3VzZS5jb20uYnIvYXNzb2NpYWRvL2ZpbmFuY2Vpcm8vYm9sZXRv"
+            icon={<Printer size={14} />}
+            label="Boletos"
+          />
+        </div>
+
+        {/* LINKS */}
+        <nav className="mt-6 px-5 space-y-1 text-sm uppercase tracking-wide">
+          {menuItems.map((item) => (
+            <a
+              key={item.key}
+              href={item.href}
+              className="block py-3 border-b border-white/10 hover:text-[#ffb703] transition"
+            >
+              {t[item.key]}
+            </a>
+          ))}
+        </nav>
+
+        {/* FOOTER MENU — FLAGS + ACESSO */}
+        <div className="mt-auto px-5 py-5 border-t border-white/10 flex items-center justify-between">
+          <div className="flex gap-3">
+            <FlagBtn lang="br" active />
+            <FlagBtn lang="us" />
+            <FlagBtn lang="es" />
           </div>
-        )}
-      </div>
-    </header>
+
+          <button className="flex items-center gap-2 bg-[#ffb703] text-black px-4 py-2 rounded-md font-bold text-xs hover:bg-[#ffd166] transition">
+            <User size={14} />
+            ACESSO
+          </button>
+        </div>
+      </aside>
+
+      {/* SPACER */}
+      <div className="h-[80px] lg:h-[140px]" />
+    </>
   );
 }
 
-// ---------- AUX ----------
+/* ---------------- COMPONENTES AUX ---------------- */
+
+function UtilityLink({
+  href,
+  icon,
+  label,
+}: {
+  href: string;
+  icon: React.ReactNode;
+  label: string;
+}) {
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="nofollow noreferrer"
+      className="flex items-center gap-2 hover:text-[#ffb703] transition-all ease-in-out duration-200 group"
+    >
+      <span className="opacity-70 group-hover:opacity-100 transition-all">
+        {icon}
+      </span>
+      <span className="hidden sm:inline">{label}</span>
+    </a>
+  );
+}
+
+function UtilityMobile({
+  href,
+  icon,
+  label,
+}: {
+  href: string;
+  icon: React.ReactNode;
+  label: string;
+}) {
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="nofollow noreferrer"
+      className="flex items-center gap-2 px-3 py-2 rounded-md bg-white/5 hover:bg-white/10 transition-colors"
+    >
+      {icon}
+      <span>{label}</span>
+    </a>
+  );
+}
+
 function FlagBtn({ lang, active = false }: { lang: string; active?: boolean }) {
   const codes: any = { br: "BR", us: "US", es: "ES" };
   return (
     <button
-      className={`hover:scale-110 transition-transform cursor-pointer ${active ? "ring-2 ring-[#ffb703] ring-offset-2 rounded-sm" : "opacity-60"
-        }`}
+      className={`hover:scale-110 transition-transform cursor-pointer ${
+        active
+          ? "ring-2 ring-[#ffb703] ring-offset-2 ring-offset-black rounded-sm"
+          : "opacity-70"
+      }`}
     >
       <img
         src={`https://purecatamphetamine.github.io/country-flag-icons/3x2/${codes[lang]}.svg`}
@@ -156,6 +328,8 @@ function FlagBtn({ lang, active = false }: { lang: string; active?: boolean }) {
     </button>
   );
 }
+
+/* ---------------- ICONS ---------------- */
 
 function IconInstagram() {
   return (
@@ -173,7 +347,13 @@ function IconWhatsapp() {
   return (
     <a href="#" className="hover:text-[#ffb703] transition-colors">
       <div className="bg-gray-100 p-2 rounded-lg hover:bg-gray-200">
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="18"
+          height="18"
+          fill="currentColor"
+          viewBox="0 0 16 16"
+        >
           <path d="M13.601 2.326A7.85 7.85 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.9 7.9 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.9 7.9 0 0 0 13.6 2.326zM7.994 14.521a6.6 6.6 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.56 6.56 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592m3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.73.73 0 0 0-.529.247c-.182.198-.691.677-.691 1.654s.71 1.916.81 2.049c.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232" />
         </svg>
       </div>
