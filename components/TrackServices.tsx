@@ -16,6 +16,8 @@ import {
   Tractor, HardHat, Baby, Dog, Bike, Ship, Anchor, Car, Box, Heart
 } from "lucide-react";
 import AppAboutSection from "./AppAboutSection";
+import { Stats } from "node:fs";
+import StatsSection from "./StatsSection";
 
 const trackServices = [
   {
@@ -164,7 +166,7 @@ export default function TrackingSection() {
             </div>
           </div>
         </div>
-
+        <StatsSection />
         {/* ================= FEATURES GRID ================= */}
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8 mb-24">
           {trackServices.map((service, index) => (
