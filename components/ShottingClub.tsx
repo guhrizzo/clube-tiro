@@ -136,7 +136,7 @@ export default function ShootingClubSection() {
           >
             {slides.map((slide, index) => (
               <SwiperSlide key={index}>
-                <div className=" h-full cursor-text rounded-3xl overflow-hidden border border-gray-200 bg-white hover:border-[#ffb703]/40   transition-all duration-300">
+                <div className=" h-full cursor-grab rounded-3xl overflow-hidden border border-gray-200 bg-white hover:border-[#ffb703]/40   transition-all duration-300">
                   <div className="relative h-90  overflow-hidden">
                     <img
                       src={slide.img}

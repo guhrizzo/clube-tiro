@@ -12,6 +12,10 @@ import {
 import { useEffect } from "react";
 import AOS from "aos";
 import "aos/dist/aos.css";
+import {
+  Tractor, HardHat, Baby, Dog, Bike, Ship, Anchor, Car, Box, Heart
+} from "lucide-react";
+import AppAboutSection from "./AppAboutSection";
 
 const trackServices = [
   {
@@ -46,6 +50,19 @@ const trackServices = [
   },
 ];
 
+const categories = [
+  { icon: <Tractor size={32} />, label: "Tratores Agro" },
+  { icon: <HardHat size={32} />, label: "Mineração" },
+  { icon: <Heart size={32} />, label: "Idosos" },
+  { icon: <Dog size={32} />, label: "Pets" },
+  { icon: <Baby size={32} />, label: "Crianças" },
+  { icon: <Bike size={32} />, label: "Bicicletas" },
+  { icon: <Ship size={32} />, label: "Lazer" },
+  { icon: <Anchor size={32} />, label: "Pesca" },
+  { icon: <Car size={32} />, label: "Veículos" },
+  { icon: <Box size={32} />, label: "Cargas" },
+];
+
 export default function TrackingSection() {
   useEffect(() => {
     AOS.init({
@@ -59,8 +76,8 @@ export default function TrackingSection() {
   return (
     <section className="relative w-full overflow-hidden bg-white py-28">
       {/* BACKGROUND DECOR */}
-      <div className="absolute -right-60 -top-60 w-[38rem] h-[38rem] rounded-full bg-[#ffb703]/5 blur-3xl" />
-      <div className="absolute left-0 top-1/3 w-[24rem] h-[24rem] rounded-full bg-gray-100 blur-3xl" />
+      <div className="absolute -right-60 -top-60 w-152 h-152 rounded-full bg-[#ffb703]/5 blur-3xl" />
+      <div className="absolute left-0 top-1/3 w-[24rem] h-96 rounded-full bg-gray-100 blur-3xl" />
 
       <div className="max-w-7xl mx-auto px-6 relative z-10">
         {/* ================= HERO ================= */}
@@ -116,11 +133,11 @@ export default function TrackingSection() {
             data-aos="fade-left"
           >
             {/* BACK SHAPE */}
-            <div className="absolute -right-12 -top-12 w-[22rem] h-[22rem] bg-[#ffb703] rounded-[2.5rem] rotate-6 shadow-xl" />
-            <div className="absolute -right-16 -top-16 w-[22rem] h-[22rem] border-2 border-[#ffb703]/40 rounded-[2.5rem] rotate-3" />
+            <div className="absolute -right-12 -top-12 w-88 h-88 bg-[#ffb703] rounded-[2.5rem] rotate-6 shadow-xl" />
+            <div className="absolute -right-16 -top-16 w-88 h-88 border-2 border-[#ffb703]/40 rounded-[2.5rem] rotate-3" />
 
             {/* MAIN IMAGE */}
-            <div className="relative z-10 w-[18rem] md:w-[20rem] lg:w-[22rem] rounded-[2rem] overflow-hidden shadow-2xl bg-white">
+            <div className="relative z-10 w-[18rem] md:w-[20rem] lg:w-4xl rounded-4xl overflow-hidden shadow-2xl bg-white">
               <img
                 src="https://images.unsplash.com/photo-1525182008055-f88b95ff7980?q=80&w=900&auto=format&fit=crop"
                 alt="Rastreamento veicular"
@@ -175,14 +192,35 @@ export default function TrackingSection() {
               </p>
 
               {/* subtle arrow */}
-              
+
             </div>
           ))}
         </div>
+        <div className="mb-24" data-aos="fade-up">
+          <div className="text-center mb-12">
+            <h3 className="text-2xl font-bold text-gray-900">Oferecemos rastreamento de:</h3>
+            <div className="w-12 h-1 bg-[#ffb703] mx-auto mt-3 rounded-full" />
+          </div>
 
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+            {categories.map((cat, index) => (
+              <div
+                key={index}
+                className="group flex flex-col items-center justify-center p-6 rounded-2xl border border-gray-100 bg-gray-50/50 hover:bg-white hover:border-[#ffb703]/30 hover:shadow-md transition-all duration-300 cursor-auto"
+              >
+                <div className="mb-3 text-gray-400 group-hover:text-[#ffb703] transition-colors duration-300">
+                  {cat.icon}
+                </div>
+                <span className="text-sm font-semibold text-gray-600 group-hover:text-gray-900 transition-colors">
+                  {cat.label}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
         {/* ================= CTA BANNER ================= */}
         <div
-          className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-r from-gray-900 via-gray-900 to-black p-12 md:p-16 flex flex-col md:flex-row items-center justify-between gap-10"
+          className="relative overflow-hidden rounded-[2.5rem] bg-linear-to-r from-gray-900 via-gray-900 to-black p-12 md:p-16 flex flex-col md:flex-row items-center justify-between gap-10"
           data-aos="fade-up"
         >
           {/* Glow */}
@@ -207,22 +245,9 @@ export default function TrackingSection() {
           </a>
         </div>
       </div>
-
+       <AppAboutSection />     
       {/* FLOAT ANIMATION */}
-      <style jsx>{`
-        @keyframes float {
-          0%,
-          100% {
-            transform: translateY(0);
-          }
-          50% {
-            transform: translateY(-10px);
-          }
-        }
-        .animate-float {
-          animation: float 5s ease-in-out infinite;
-        }
-      `}</style>
+      
     </section>
   );
 }
