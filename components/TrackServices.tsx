@@ -135,8 +135,8 @@ export default function TrackingSection() {
             data-aos="fade-left"
           >
             {/* BACK SHAPE */}
-            <div className="absolute -right-12 -top-12 w-88 h-88 bg-[#ffb703] rounded-[2.5rem] rotate-6 shadow-xl" />
-            <div className="absolute -right-16 -top-16 w-88 h-88 border-2 border-[#ffb703]/40 rounded-[2.5rem] rotate-3" />
+            <div className="absolute -right-12 -top-12 w-125 h-88 bg-[#ffb703] rounded-[2.5rem] rotate-6 shadow-xl" />
+            <div className="absolute -right-16 -top-16 w-125 h-88 border-2 border-[#ffb703]/40 rounded-[2.5rem] rotate-3" />
 
             {/* MAIN IMAGE */}
             <div className="relative z-10 w-[18rem] md:w-[20rem] lg:w-4xl rounded-4xl overflow-hidden shadow-2xl bg-white">
