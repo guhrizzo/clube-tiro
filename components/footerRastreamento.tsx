@@ -101,7 +101,7 @@ export default function FooterRastreamentoLight({ locale = "pt" }: { locale?: "p
                 href="https://apps.apple.com/br/app/grupo-protect-rastreamento/id6738363845"
                 target="_blank"
                 about="noopener"
-                className="flex items-center gap-3 px-4 py-2 rounded-xl bg-black/5 hover:bg-black/10 transition border border-black/10"
+                className="flex items-center gap-3 px-4 py-2 rounded-xl bg-black/5 hover:bg-black/10 transition-all ease-in-out duration-400 border border-black/10"
               >
                 <FaApple className="text-xl" />
                 <div className="text-xs leading-tight">
@@ -114,7 +114,7 @@ export default function FooterRastreamentoLight({ locale = "pt" }: { locale?: "p
                 href="https://play.google.com/store/apps/details?id=com.softruck.protectrast"
                 target="_blank"
                 about="noopener"
-                className="flex items-center gap-3 px-4 py-2 rounded-xl bg-black/5 hover:bg-black/10 transition border border-black/10"
+                className="flex items-center gap-3 px-4 py-2 rounded-xl bg-black/5 hover:bg-black/10 transition-all duration-400 ease-in-out border border-black/10"
               >
                 <FaGooglePlay className="text-xl" />
                 <div className="text-xs leading-tight">
@@ -142,7 +142,7 @@ export default function FooterRastreamentoLight({ locale = "pt" }: { locale?: "p
                   key={i}
                   href={item.href}
                   target={item.href.startsWith("http") ? "_blank" : undefined}
-                  className="w-11 h-11 flex items-center justify-center rounded-xl bg-black/5 hover:bg-[#ffc300] hover:text-black transition-all shadow-sm"
+                  className="w-11 h-11 flex items-center justify-center rounded-xl bg-black/5 hover:bg-[#ffc300] hover:text-black transition-all ease-in-out duration-400 shadow-sm"
                 >
                   <item.icon />
                 </a>

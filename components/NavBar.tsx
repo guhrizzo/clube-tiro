@@ -12,6 +12,7 @@ import {
   Printer,
   LayoutDashboard,
   Menu,
+  Target,
 } from "lucide-react";
 
 /* ---------------- MOCK DICT ---------------- */
@@ -57,7 +58,7 @@ export default function NavBar() {
   const menuItems = [
     { key: "home", href: "/home" },
     { key: "truck", href: "/truck" },
-    { key: "dispatcher", href: "/parceiros" },
+    { key: "dispatcher", href: "/parceiros", Target: "_blank" },
     { key: "club", href: "/clientes" },
     { key: "blog", href: "/blog" },
     { key: "contact", href: "/contato" },
@@ -67,11 +68,10 @@ export default function NavBar() {
     <>
       {/* ================= HEADER ================= */}
       <header
-        className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${
-          isScrolled
-            ? "bg-white/90 backdrop-blur-md shadow-lg"
-            : "bg-white"
-        }`}
+        className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${isScrolled
+          ? "bg-white/90 backdrop-blur-md shadow-lg"
+          : "bg-white"
+          }`}
       >
         <div className="w-full flex flex-col items-center">
 
@@ -108,9 +108,8 @@ export default function NavBar() {
 
           {/* 🟡 TOP BAR (LOGO + HAMBURGER MOBILE) */}
           <div
-            className={`container mx-auto px-4 flex justify-between items-center gap-4 transition-all duration-300 ${
-              isScrolled ? "py-2" : "py-4"
-            }`}
+            className={`container mx-auto px-4 flex justify-between items-center gap-4 transition-all duration-300 ${isScrolled ? "py-2" : "py-4"
+              }`}
           >
             <div className="shrink-0">
               <Image
@@ -135,10 +134,32 @@ export default function NavBar() {
                 <FlagBtn lang="es" />
               </div>
 
-              <button className="flex items-center gap-2 bg-[#1a1a1a] text-[#ffb703] px-5 py-2.5 rounded-md font-bold cursor-pointer text-sm hover:bg-black transition-all shadow-md">
-                <User size={16} />
-                ACESSO
-              </button>
+
+
+              <a
+                href="https://app.shootinghouse.com.br/login/clubedetirobh.com.br"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group inline-block"
+              >
+                <button
+                  className="relative overflow-hidden flex items-center gap-2 bg-[#1a1a1a] text-[#ffb703]
+    px-5 py-2.5 rounded-md font-bold text-sm cursor-pointer
+    shadow-md transition-all duration-300
+    hover:bg-black hover:shadow-lg hover:shadow-[#ffb703]/20 hover:-translate-y-px
+    active:scale-95"
+                >
+                  {/* Glow sweep */}
+                  <span className="absolute inset-0 bg-linear-to-r from-transparent via-[#ffb703]/20 to-transparent
+    translate-x-[-120%] group-hover:translate-x-[120%] transition-transform duration-700" />
+
+                  <User size={16} className="relative z-10 group-hover:scale-110 transition-transform" />
+                  <span className="relative z-10">ACESSO C.A.C</span>
+                </button>
+              </a>
+
+
+
             </div>
 
             {/* MOBILE HAMBURGER */}
@@ -152,9 +173,8 @@ export default function NavBar() {
 
           {/* 🧭 NAV DESKTOP */}
           <div
-            className={`hidden lg:block container mx-auto px-4 transition-all duration-300 ${
-              isScrolled ? "pb-2" : "pb-4"
-            }`}
+            className={`hidden lg:block container mx-auto px-4 transition-all duration-300 ${isScrolled ? "pb-2" : "pb-4"
+              }`}
           >
             <nav className="bg-[#1a1a1a] rounded-full px-6 py-1 shadow-xl">
               <div className="flex justify-between items-center h-12">
@@ -192,13 +212,12 @@ export default function NavBar() {
 
       {/* DRAWER */}
       <aside
-        className={`fixed top-0 right-0 h-full w-[85%] max-w-sm bg-black text-white z-100 transform transition-transform duration-300 ${
-          open ? "translate-x-0" : "translate-x-full"
-        }`}
+        className={`fixed top-0 right-0 h-full w-[85%] max-w-sm bg-black text-white z-100 transform transition-transform duration-300 ${open ? "translate-x-0" : "translate-x-full"
+          }`}
       >
         {/* HEADER */}
         <div className="flex items-center justify-end px-5 py-4 border-b border-white/10">
-          
+
           <button onClick={() => setOpen(false)}>
             <X size={26} />
           </button>
@@ -251,7 +270,7 @@ export default function NavBar() {
 
           <button className="flex items-center gap-2 bg-[#ffb703] text-black px-4 py-2 rounded-md font-bold text-xs hover:bg-[#ffd166] transition">
             <User size={14} />
-            ACESSO
+            ACESSO C.A.C
           </button>
         </div>
       </aside>
@@ -314,11 +333,10 @@ function FlagBtn({ lang, active = false }: { lang: string; active?: boolean }) {
   const codes: any = { br: "BR", us: "US", es: "ES" };
   return (
     <button
-      className={`hover:scale-110 transition-transform cursor-pointer ${
-        active
-          ? "ring-2 ring-[#ffb703] ring-offset-2 ring-offset-black rounded-sm"
-          : "opacity-70"
-      }`}
+      className={`hover:scale-110 transition-transform cursor-pointer ${active
+        ? "ring-2 ring-[#ffb703] ring-offset-2 ring-offset-black rounded-sm"
+        : "opacity-70"
+        }`}
     >
       <img
         src={`https://purecatamphetamine.github.io/country-flag-icons/3x2/${codes[lang]}.svg`}

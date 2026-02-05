@@ -19,7 +19,7 @@ function Counter({ value, divisor, suffix }) {
     if (inView) {
       const node = ref.current;
       const controls = animate(0, value / divisor, {
-        duration: 2.5,
+        duration: 1,
         ease: "easeOut",
         onUpdate: (value) => {
           node.textContent = Math.round(value).toLocaleString() + suffix;

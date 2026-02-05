@@ -12,6 +12,7 @@ import {
 import { useEffect } from "react";
 import AOS from "aos";
 import "aos/dist/aos.css";
+import Image from "next/image";
 import {
   Tractor, HardHat, Baby, Dog, Bike, Ship, Anchor, Car, Box, Heart
 } from "lucide-react";
@@ -83,7 +84,7 @@ export default function TrackingSection() {
 
       <div className="max-w-7xl mx-auto px-6 relative z-10">
         {/* ================= HERO ================= */}
-        <div className="grid lg:grid-cols-2 gap-16 items-center mb-24">
+        <div className="grid lg:grid-cols-2 gap-16 items-center  mb-24">
           {/* TEXT SIDE */}
           <div className="space-y-6" data-aos="fade-right">
             <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#ffb703]/10 text-[#ffb703] text-xs font-bold uppercase tracking-[0.2em]">
@@ -131,24 +132,33 @@ export default function TrackingSection() {
 
           {/* IMAGE SIDE */}
           <div
-            className="relative flex justify-center lg:justify-end"
+            className="relative flex ml-16 justify-center lg:justify-end"
             data-aos="fade-left"
           >
-            {/* BACK SHAPE */}
-            <div className="absolute -right-12 -top-12 w-125 h-88 bg-[#ffb703] rounded-[2.5rem] rotate-6 shadow-xl" />
-            <div className="absolute -right-16 -top-16 w-125 h-88 border-2 border-[#ffb703]/40 rounded-[2.5rem] rotate-3" />
+            <div className="relative w-full max-w-sm mx-auto mt-10">
+              {/* Shape amarelo inclinado */}
+              <div className="absolute inset-0 bg-[#ffb703] rounded-[2.5rem] rotate-[-4deg] shadow-xl lg:scale-135" />
 
-            {/* MAIN IMAGE */}
-            <div className="relative z-10 w-[18rem] md:w-[20rem] lg:w-4xl rounded-4xl overflow-hidden shadow-2xl bg-white">
-              <img
-                src="https://images.unsplash.com/photo-1525182008055-f88b95ff7980?q=80&w=900&auto=format&fit=crop"
-                alt="Rastreamento veicular"
-                className="w-full h-full object-cover"
-              />
+              {/* Card imagem */}
+              <div className="relative bg-white rounded-[2.2rem] overflow-hidden lg:scale-130 shadow-lg">
+                <Image
+                  src="/TRACKING.jpg" // troque pela sua imagem
+                  alt="Rastreamento"
+                  width={500}
+                  height={350}
+                  className="object-cover  w-full max-h-130"
+                />
+
+               
+                
+              </div>
             </div>
 
+
+            
+
             {/* FLOATING MAP CARD */}
-            <div className="absolute -left-8 bottom-12 bg-white rounded-2xl p-4 shadow-xl w-44 z-20 animate-float">
+            <div className="lg:absolute fixed lg:-left-8 lg:bottom-12 -bottom-16 left-4 bg-white rounded-2xl p-4 shadow-xl w-44 z-20 animate-float">
               <div className="flex items-center gap-3 mb-2">
                 <div className="w-8 h-8 rounded-full bg-[#ffb703]/15 flex items-center justify-center text-[#ffb703]">
                   <MapPin size={16} />
@@ -166,6 +176,128 @@ export default function TrackingSection() {
             </div>
           </div>
         </div>
+        <section className="relative py-12 ">
+          <div className="max-w-6xl mx-auto px-6">
+            <div className="relative rounded-[3rem] bg-white px-10 py-16 text-center
+      shadow-[0_25px_70px_-35px_rgba(0,0,0,0.1)] overflow-hidden">
+
+              {/* Glow decorativo */}
+              <div className="absolute -top-32 -left-32 w-96 h-96 bg-[#ffb703]/10 blur-[160px] rounded-full" />
+              <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-[#ffb703]/5 blur-[160px] rounded-full" />
+
+              <div className="relative z-10 space-y-6 max-w-3xl mx-auto">
+                <h2 className="text-2xl md:text-3xl xl:text-4xl font-bold text-gray-900 leading-tight">
+                  Rastreamento veicular:{" "}
+                  <span className="text-[#ffb703]">proteção completa</span> do seu veículo 24 horas por dia
+                </h2>
+
+                <p className="text-gray-600 text-lg">
+                  Custa bem menos do que você imagina!
+                </p>
+
+                <a href="/contratar" className="inline-block group">
+                  <button
+                    className="relative overflow-hidden bg-[#ffb703] text-black px-10 py-4 rounded-full font-bold
+            shadow-lg transition-all duration-300
+            hover:-translate-y-1 cursor-pointer hover:shadow-xl hover:shadow-[#ffb703]/40 active:scale-95"
+                  >
+                    {/* Ripple radial */}
+                    <span className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.45),transparent_60%)]
+              opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
+                    {/* Glow ring */}
+                    <span className="absolute inset-0 rounded-full ring-2 ring-[#ffb703]/40 opacity-0
+              group-hover:opacity-100 transition-opacity duration-300" />
+
+                    <span className="relative z-10">CONTRATE AGORA</span>
+                  </button>
+                </a>
+              </div>
+            </div>
+          </div>
+        </section>
+        <section className="relative py-24">
+          <div className="max-w-6xl mx-auto px-6">
+            <div
+              className="relative rounded-[3rem] bg-white px-10 py-16 text-center
+      shadow-[0_25px_70px_-35px_rgba(0,0,0,0.1)] overflow-hidden"
+              style={{
+                backgroundImage: "url('/images/instalador-rastreador.jpg')",
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+              }}
+            >
+              {/* Overlay claro */}
+              <div className="absolute inset-0 bg-white/85" />
+
+              {/* Glow decorativo */}
+              <div className="absolute -top-32 -left-32 w-96 h-96 bg-[#ffb703]/5 blur-[160px] rounded-full" />
+              <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-[#ffb703]/10 blur-[160px] rounded-full" />
+
+              <div className="relative z-10 space-y-6 max-w-3xl mx-auto">
+                <h2 className="text-2xl md:text-3xl xl:text-4xl font-bold text-gray-900 leading-tight">
+                  Você é técnico em{" "}
+                  <span className="text-[#ffb703]">instalação de rastreador</span> veicular?
+                </h2>
+
+                <p className="text-gray-600 text-lg">
+                  Cadastre-se gratuitamente e receba serviços disponíveis em todo o
+                  <strong> Brasil</strong>.
+                </p>
+
+                <a href="/cadastro" className="inline-block group">
+                  <button
+                    className="relative overflow-hidden bg-[#ffb703] text-black px-10 py-4 rounded-full font-bold
+            shadow-lg transition-all duration-300
+            hover:-translate-y-1 cursor-pointer hover:shadow-xl hover:shadow-[#ffb703]/40 active:scale-95"
+                  >
+                    {/* Ripple radial */}
+                    <span className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.45),transparent_60%)]
+            opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
+                    {/* Glow ring */}
+                    <span className="absolute inset-0 rounded-full ring-2 ring-[#ffb703]/40 opacity-0
+            group-hover:opacity-100 transition-opacity duration-300" />
+
+                    <span className="relative z-10">CADASTRE-SE</span>
+                  </button>
+                </a>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="relative border-t border-gray-100 w-full py-28 overflow-hidden">
+          {/* Glow decorativo sutil */}
+          <div className="absolute -top-32 -left-32 w-96 h-96  rounded-full" />
+          <div className="absolute -bottom-32 -right-32 w-96 h-96 rounded-full" />
+
+          <div className="max-w-5xl mx-auto px-6 text-center relative z-10 space-y-6">
+
+            {/* Badge */}
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#ffb703]/15 text-[#ffb703] text-xs font-bold uppercase tracking-[0.25em]">
+              Compatibilidade Total
+            </div>
+
+            {/* Título */}
+            <h2 className="text-3xl md:text-4xl xl:text-5xl font-extrabold text-gray-900 leading-tight">
+              Compatível com os principais dispositivos{" "}
+              <span className="text-[#ffb703]">de rastreamento do mercado</span>
+            </h2>
+
+            {/* Linha decorativa */}
+            <div className="w-24 h-0.75 bg-[#ffb703] mx-auto rounded-full" />
+
+            {/* Subtítulo */}
+            <p className="text-gray-600 text-lg leading-relaxed max-w-3xl mx-auto">
+              Mais de <strong className="text-gray-900">1.400 dispositivos homologados</strong>.
+              Instale um rastreador GPS no seu veículo e acompanhe tudo em tempo real no seu
+              smartphone, de forma simples, rápida e segura.
+            </p>
+
+          </div>
+        </section>
+
         <StatsSection />
         {/* ================= FEATURES GRID ================= */}
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8 mb-24">
@@ -247,9 +379,12 @@ export default function TrackingSection() {
           </a>
         </div>
       </div>
-       <AppAboutSection />     
+
+      <AppAboutSection />
       {/* FLOAT ANIMATION */}
-      
+
+
+
     </section>
   );
 }

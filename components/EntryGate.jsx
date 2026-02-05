@@ -30,7 +30,7 @@ export default function EntryGate({ onEnter }) {
       >
         {/* Logo */}
         <div data-aos="fade-down">
-          <img src="/logo.png" alt="Grupo Protect" className="h-48 object-contain" />
+          <img src="/LOGO1.png" alt="Grupo Protect" className="h-28 object-contain" />
         </div>
 
         {/* Título */}
