@@ -20,9 +20,7 @@ export default function FooterRastreamentoLight({ locale = "pt" }: { locale?: "p
   return (
     <footer className="relative bg-white text-[#0a0f1c] border-t border-black/10 overflow-hidden">
 
-      {/* Background decorativo suave */}
-      <div className="absolute -top-40 -left-40 w-96 h-96 bg-[#ffc300]/20 rounded-full blur-3xl" />
-      <div className="absolute bottom-0 right-0 w-96 h-96 bg-[#ffc300]/10 rounded-full blur-3xl" />
+      
 
       <div className="relative max-w-7xl mx-auto px-6 py-20 grid grid-cols-1 lg:grid-cols-3 gap-16">
 

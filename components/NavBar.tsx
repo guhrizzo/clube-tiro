@@ -54,15 +54,20 @@ export default function NavBar() {
   }, [pathname]);
 
   const t = (dictionaries as any)[currentLang].navbar;
+  const withLang = (path: string) =>
+  path.startsWith(`/${currentLang}`) ? path : `/${currentLang}${path}`;
+
+
 
   const menuItems = [
     { key: "home", href: "/home" },
     { key: "truck", href: "/truck" },
-    { key: "dispatcher", href: "/parceiros", Target: "_blank" },
-    { key: "club", href: "/clientes" },
+    { key: "dispatcher", href: "/parceiros", target: "_blank" },
+    { key: "club", href: "/clients", target: "_blank" },
     { key: "blog", href: "/blog" },
     { key: "contact", href: "/contato" },
   ];
+
 
   return (
     <>
@@ -182,16 +187,14 @@ export default function NavBar() {
                   {menuItems.map((item) => (
                     <li key={item.key} className="relative group">
                       <a
-                        href={item.href}
-                        className="text-white hover:text-[#ffb703] text-[13px] font-semibold flex items-center gap-1 transition-colors py-3 uppercase tracking-wider"
+                        href={withLang(item.href)}
+
+                        className="text-white hover:text-[#ffb703] text-[13px] font-semibold flex items-center gap-1 duration-300 transition-all py-3 origin- uppercase tracking-wider"
                       >
                         {t[item.key]}
-                        <ChevronDown
-                          size={14}
-                          className="mt-0.5 opacity-70 group-hover:rotate-180 transition-transform"
-                        />
+                        
                       </a>
-                      <span className="absolute bottom-2 left-0 w-0 h-0.5 bg-[#ffb703] transition-all group-hover:w-full"></span>
+                      <span className="absolute bottom-2 left-0 w-full scale-x-0 h-0.5 rounded-2xl bg-[#ffb703] duration-300 origin-left transition-all group-hover:scale-x-100"></span>
                     </li>
                   ))}
                 </ul>
@@ -252,7 +255,8 @@ export default function NavBar() {
           {menuItems.map((item) => (
             <a
               key={item.key}
-              href={item.href}
+              href={withLang(item.href)}
+
               className="block py-3 border-b border-white/10 hover:text-[#ffb703] transition"
             >
               {t[item.key]}

@@ -2,6 +2,8 @@
 
 import Image from "next/image";
 import NavBar from "../../../../components/NavBar";
+import StatsAndCompatibility from "../../../../components/Support";
+import ContactPremium from "../../../../components/Contact";
 
 const clients = [
     { name: "Taurus", logo: "/logos/Taurus-Logo.jpg" },
@@ -22,8 +24,7 @@ export default function ClientsPage() {
     return (
         <section className="relative bg-white py-24 overflow-hidden">
             <NavBar />
-            {/* Glow decorativo */}
-            <div className="absolute -top-24 -right-24 w-96 h-96 bg-yellow-400/20 rounded-full blur-3xl" />
+            
 
             <div className="relative max-w-7xl mx-auto px-6">
                 {/* Header */}
@@ -32,7 +33,7 @@ export default function ClientsPage() {
                         Clientes
                     </span>
                     <h2 className="text-4xl md:text-5xl font-extrabold text-slate-900 leading-tight">
-                        Empresas que confiam no nosso <span className="text-yellow-400">
+                        Empresas que confiam no nosso <span className="text-yellow-500">
                             trabalho  </span>
                     </h2>
                     <p className="mt-4 text-slate-500 text-lg">
@@ -63,6 +64,8 @@ export default function ClientsPage() {
                     ))}
                 </div>
             </div>
+            <StatsAndCompatibility />
+            <ContactPremium />
         </section>
     );
 }
