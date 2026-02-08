@@ -79,8 +79,7 @@ export default function TrackingSection() {
   return (
     <section className="relative w-full overflow-hidden bg-white py-28">
       {/* BACKGROUND DECOR */}
-      <div className="absolute -right-60 -top-60 w-152 h-152 rounded-full bg-[#ffb703]/5 blur-3xl" />
-      <div className="absolute left-0 top-1/3 w-[24rem] h-96 rounded-full bg-gray-100 blur-3xl" />
+      
 
       <div className="max-w-7xl mx-auto px-6 relative z-10">
         {/* ================= HERO ================= */}
@@ -149,13 +148,13 @@ export default function TrackingSection() {
                   className="object-cover  w-full max-h-130"
                 />
 
-               
-                
+
+
               </div>
             </div>
 
 
-            
+
 
             {/* FLOATING MAP CARD */}
             <div className="lg:absolute fixed lg:-left-8 lg:bottom-12 -bottom-16 left-4 bg-white rounded-2xl p-4 shadow-xl w-44 z-20 animate-float">
@@ -176,101 +175,87 @@ export default function TrackingSection() {
             </div>
           </div>
         </div>
-        <section className="relative py-12 ">
-          <div className="max-w-6xl mx-auto px-6">
-            <div className="relative rounded-[3rem] bg-white px-10 py-16 text-center
-      shadow-[0_25px_70px_-35px_rgba(0,0,0,0.1)] overflow-hidden">
+        {/* --- SEÇÃO: CONTRATAR --- */}
+        <section className="relative border-t border-gray-100 w-full py-28 overflow-hidden">
+          
 
-              {/* Glow decorativo */}
-              <div className="absolute -top-32 -left-32 w-96 h-96 bg-[#ffb703]/10 blur-[160px] rounded-full" />
-              <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-[#ffb703]/5 blur-[160px] rounded-full" />
+          <div className="max-w-5xl mx-auto px-6 text-center relative z-10 space-y-6">
 
-              <div className="relative z-10 space-y-6 max-w-3xl mx-auto">
-                <h2 className="text-2xl md:text-3xl xl:text-4xl font-bold text-gray-900 leading-tight">
-                  Rastreamento veicular:{" "}
-                  <span className="text-[#ffb703]">proteção completa</span> do seu veículo 24 horas por dia
-                </h2>
+            {/* Badge */}
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#ffb703]/15 text-[#ffb703] text-xs font-bold uppercase tracking-[0.25em]">
+              Proteção Total
+            </div>
 
-                <p className="text-gray-600 text-lg">
-                  Custa bem menos do que você imagina!
-                </p>
+            {/* Título */}
+            <h2 className="text-3xl md:text-4xl xl:text-5xl font-extrabold text-gray-900 leading-tight">
+              Rastreamento veicular:{" "}
+              <span className="text-[#ffb703]">proteção completa</span> do seu veículo 24h
+            </h2>
 
-                <a href="/contratar" className="inline-block group">
-                  <button
-                    className="relative overflow-hidden bg-[#ffb703] text-black px-10 py-4 rounded-full font-bold
-            shadow-lg transition-all duration-300
-            hover:-translate-y-1 cursor-pointer hover:shadow-xl hover:shadow-[#ffb703]/40 active:scale-95"
-                  >
-                    {/* Ripple radial */}
-                    <span className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.45),transparent_60%)]
-              opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            {/* Linha decorativa */}
+            <div className="w-24 h-0.75 bg-[#ffb703] mx-auto rounded-full" />
 
-                    {/* Glow ring */}
-                    <span className="absolute inset-0 rounded-full ring-2 ring-[#ffb703]/40 opacity-0
-              group-hover:opacity-100 transition-opacity duration-300" />
+            {/* Subtítulo */}
+            <p className="text-gray-600 text-lg leading-relaxed max-w-3xl mx-auto">
+              Custa bem menos do que você imagina! Tenha o controle total na palma da sua mão
+              e garanta a segurança que sua família merece.
+            </p>
 
-                    <span className="relative z-10">CONTRATE AGORA</span>
-                  </button>
-                </a>
-              </div>
+            {/* Botão */}
+            <div className="pt-4">
+              <a href="/contratar" className="inline-block group">
+                <button className="relative overflow-hidden bg-[#ffb703] text-black px-10 py-4 rounded-full font-bold shadow-lg transition-all duration-300 hover:-translate-y-1 cursor-pointer hover:shadow-xl hover:shadow-[#ffb703]/40 active:scale-95">
+                  <span className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.45),transparent_60%)] opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  <span className="relative z-10">CONTRATE AGORA</span>
+                </button>
+              </a>
             </div>
           </div>
         </section>
-        <section className="relative py-24">
-          <div className="max-w-6xl mx-auto px-6">
-            <div
-              className="relative rounded-[3rem] bg-white px-10 py-16 text-center
-      shadow-[0_25px_70px_-35px_rgba(0,0,0,0.1)] overflow-hidden"
-              style={{
-                backgroundImage: "url('/images/instalador-rastreador.jpg')",
-                backgroundSize: "cover",
-                backgroundPosition: "center",
-              }}
-            >
-              {/* Overlay claro */}
-              <div className="absolute inset-0 bg-white/85" />
 
-              {/* Glow decorativo */}
-              <div className="absolute -top-32 -left-32 w-96 h-96 bg-[#ffb703]/5 blur-[160px] rounded-full" />
-              <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-[#ffb703]/10 blur-[160px] rounded-full" />
+        {/* --- SEÇÃO: TÉCNICO (COM BACKGROUND) --- */}
+        <section className="relative border-t border-gray-100 w-full py-28 overflow-hidden">
+          
+          
+          
 
-              <div className="relative z-10 space-y-6 max-w-3xl mx-auto">
-                <h2 className="text-2xl md:text-3xl xl:text-4xl font-bold text-gray-900 leading-tight">
-                  Você é técnico em{" "}
-                  <span className="text-[#ffb703]">instalação de rastreador</span> veicular?
-                </h2>
+          <div className="max-w-5xl mx-auto px-6 text-center relative z-10 space-y-6">
 
-                <p className="text-gray-600 text-lg">
-                  Cadastre-se gratuitamente e receba serviços disponíveis em todo o
-                  <strong> Brasil</strong>.
-                </p>
+            {/* Badge */}
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#ffb703]/15 text-[#ffb703] text-xs font-bold uppercase tracking-[0.25em]">
+              Parceria
+            </div>
 
-                <a href="/cadastro" className="inline-block group">
-                  <button
-                    className="relative overflow-hidden bg-[#ffb703] text-black px-10 py-4 rounded-full font-bold
-            shadow-lg transition-all duration-300
-            hover:-translate-y-1 cursor-pointer hover:shadow-xl hover:shadow-[#ffb703]/40 active:scale-95"
-                  >
-                    {/* Ripple radial */}
-                    <span className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.45),transparent_60%)]
-            opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            {/* Título */}
+            <h2 className="text-3xl md:text-4xl xl:text-5xl font-extrabold text-gray-900 leading-tight">
+              Você é técnico em{" "}
+              <span className="text-[#ffb703]">instalação de rastreador?</span>
+            </h2>
 
-                    {/* Glow ring */}
-                    <span className="absolute inset-0 rounded-full ring-2 ring-[#ffb703]/40 opacity-0
-            group-hover:opacity-100 transition-opacity duration-300" />
+            {/* Linha decorativa */}
+            <div className="w-24 h-0.75 bg-[#ffb703] mx-auto rounded-full" />
 
-                    <span className="relative z-10">CADASTRE-SE</span>
-                  </button>
-                </a>
-              </div>
+            {/* Subtítulo */}
+            <p className="text-gray-600 text-lg leading-relaxed max-w-3xl mx-auto">
+              Cadastre-se gratuitamente e receba serviços disponíveis em todo o
+              <strong className="text-gray-900"> Brasil</strong>. Aumente seu faturamento com a nossa plataforma.
+            </p>
+
+            {/* Botão */}
+            <div className="pt-4">
+              <a href="/cadastro" className="inline-block group">
+                <button className="relative overflow-hidden bg-[#ffb703] text-black px-10 py-4 rounded-full font-bold shadow-lg transition-all duration-300 hover:-translate-y-1 cursor-pointer hover:shadow-xl hover:shadow-[#ffb703]/40 active:scale-95">
+                  <span className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.45),transparent_60%)] opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  <span className="relative z-10">CADASTRE-SE</span>
+                </button>
+              </a>
             </div>
           </div>
         </section>
 
         <section className="relative border-t border-gray-100 w-full py-28 overflow-hidden">
           {/* Glow decorativo sutil */}
-          <div className="absolute -top-32 -left-32 w-96 h-96  rounded-full" />
-          <div className="absolute -bottom-32 -right-32 w-96 h-96 rounded-full" />
+          
 
           <div className="max-w-5xl mx-auto px-6 text-center relative z-10 space-y-6">
 
