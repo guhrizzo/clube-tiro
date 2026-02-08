@@ -92,3 +92,38 @@
   background: #ffb703;
   width: 24px;
 }
+
+/* Estilos para renderizar o conteúdo do Quill corretamente */
+.ql-editor pre.ql-syntax {
+    background-color: #23241f; /* Cor padrão do tema Snow do Quill */
+    color: #f8f8f2;
+    overflow: visible;
+    white-space: pre-wrap;
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    border-radius: 0.75rem;
+    font-family: Monaco, MonacoRegular, "Courier New", monospace;
+}
+
+/* Garante que links dentro do conteúdo sejam visíveis */
+.ql-editor a {
+    color: #ca8a04 !important; /* text-yellow-600 */
+   
+    font-weight: 600;
+   
+    
+}
+
+.ql-editor a:hover {
+    text-decoration: underline;
+}
+
+/* Ajuste para listas que o Quill gera */
+.ql-editor ul {
+    list-style-type: disc;
+    padding-left: 1.5rem;
+}
+.ql-editor ol {
+    list-style-type: decimal;
+    padding-left: 1.5rem;
+}

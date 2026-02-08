@@ -47,7 +47,7 @@ export default function NoticiaCompleta() {
   return (
     <main className="bg-white  min-h-screen">
       <NavBar />
-      
+
       {/* Banner da Notícia */}
       <header className="relative h-[60vh] w-full ">
         <Image
@@ -74,11 +74,18 @@ export default function NoticiaCompleta() {
 
       {/* Conteúdo */}
       <article className="max-w-4xl mx-auto px-6 py-16">
-        <div 
+        <div
           className="prose prose-lg prose-slate max-w-none 
-                     prose-headings:text-slate-900 prose-p:text-slate-600
-                     prose-yellow prose-img:rounded-3xl"
-          dangerouslySetInnerHTML={{ __html: noticia.conteudo }} 
+               /* Estilização para Links */
+               prose-a:text-yellow-600 prose-a:font-bold prose-a:no-underline hover:prose-a:underline
+               /* Estilização para Código (pre e code) */
+               prose-pre:bg-slate-900 prose-pre:text-white prose-pre:rounded-2xl
+               prose-code:text-yellow-500 prose-code:bg-slate-100 prose-code:px-1 prose-code:rounded
+               /* Estilização para Listas */
+               prose-li:marker:text-yellow-500
+               /* Classe necessária para o Quill */
+               ql-editor"
+          dangerouslySetInnerHTML={{ __html: noticia.conteudo }}
         />
       </article>
 
