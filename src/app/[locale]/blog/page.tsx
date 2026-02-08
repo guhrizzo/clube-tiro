@@ -204,12 +204,7 @@ export default function BlogPage() {
         {!carregando && noticiasFiltradas.length === 0 && (
           <div className="text-center py-20 bg-slate-50 rounded-[40px] border-2 border-dashed border-slate-200">
             <p className="text-slate-500 font-bold text-lg">Nenhum post encontrado nesta categoria.</p>
-            <button
-              onClick={() => setCategoriaAtiva("Todas")}
-              className="mt-4 text-yellow-600 font-bold hover:underline"
-            >
-              Ver todos os posts
-            </button>
+            
           </div>
         )}
       </div>
