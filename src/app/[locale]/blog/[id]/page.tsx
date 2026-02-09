@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Image from "next/image";
-import { db } from "../../../../../lib/firebase"; // Ajuste os pontos se necessário
+import { db } from "../../../../../lib/firebase";
 import { doc, getDoc } from "firebase/firestore";
 import NavBar from "../../../../../components/NavBar";
 import ContactPremium from "../../../../../components/Contact";
@@ -45,11 +45,11 @@ export default function NoticiaCompleta() {
   if (!noticia) return <div className="py-20 text-center">Notícia não encontrada.</div>;
 
   return (
-    <main className="bg-white  min-h-screen">
+    <main className="bg-white min-h-screen overflow-x-hidden">
       <NavBar />
 
       {/* Banner da Notícia */}
-      <header className="relative h-[60vh] w-full ">
+      <header className="relative h-[60vh] w-full">
         <Image
           src={noticia.imagem_URL}
           alt={noticia.titulo}
@@ -58,11 +58,11 @@ export default function NoticiaCompleta() {
           priority
         />
         <div className="absolute inset-0 bg-black/40 flex items-end">
-          <div className="max-w-4xl mx-auto px-6 mb-12 text-white">
+          <div className="max-w-4xl mx-auto px-6 mb-12 text-white w-full">
             <span className="bg-yellow-500 px-3 py-1 rounded-full text-sm font-bold uppercase">
               {noticia.categoria}
             </span>
-            <h1 className="text-4xl md:text-6xl font-extrabold mt-4 leading-tight">
+            <h1 className="text-4xl md:text-6xl font-extrabold mt-4 leading-tight wrap-break-word">
               {noticia.titulo}
             </h1>
             <p className="mt-4 text-slate-200">
@@ -73,18 +73,25 @@ export default function NoticiaCompleta() {
       </header>
 
       {/* Conteúdo */}
-      <article className="max-w-4xl mx-auto px-6 py-16">
+      {/* Conteúdo da Notícia */}
+      <article className="max-w-5xl mx-auto  py-16">
         <div
           className="prose prose-lg prose-slate max-w-none 
-               /* Estilização para Links */
-               prose-a:text-yellow-600 prose-a:font-bold prose-a:no-underline hover:prose-a:underline
-               /* Estilização para Código (pre e code) */
-               prose-pre:bg-slate-900 prose-pre:text-white prose-pre:rounded-2xl
-               prose-code:text-yellow-500 prose-code:bg-slate-100 prose-code:px-1 prose-code:rounded
-               /* Estilização para Listas */
-               prose-li:marker:text-yellow-500
-               /* Classe necessária para o Quill */
-               ql-editor"
+         /* 1. CORREÇÃO DA LARGURA: impede que o texto fuja para os lados */
+         wrap-break-word 
+         
+         /* 2. CORREÇÃO DO ESPAÇO (ENTER): força margem entre parágrafos */
+         [&_p]:mb-8 
+         
+         /* 3. CORREÇÃO DA QUEBRA: faz o texto respeitar o Enter caso não haja tags <p> */
+         whitespace-pre-wrap 
+
+         /* Estilização de Links e Listas */
+         prose-a:text-yellow-600 prose-a:font-bold prose-a:no-underline hover:prose-a:underline
+         prose-li:marker:text-yellow-500
+         
+         /* Mantém a compatibilidade com o editor Quill */
+         ql-editor"
           dangerouslySetInnerHTML={{ __html: noticia.conteudo }}
         />
       </article>
