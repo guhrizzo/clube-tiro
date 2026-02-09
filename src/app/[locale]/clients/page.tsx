@@ -3,6 +3,7 @@
 import Image from "next/image";
 import NavBar from "../../../../components/NavBar";
 import StatsAndCompatibility from "../../../../components/Support";
+import { Crown } from "lucide-react";
 import ContactPremium from "../../../../components/Contact";
 
 const clients = [
@@ -29,10 +30,11 @@ export default function ClientsPage() {
             <div className="relative max-w-7xl mx-auto px-6">
                 {/* Header */}
                 <div className="text-center max-w-2xl mx-auto mb-16">
-                    <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-yellow-100 text-yellow-700 text-sm font-semibold mb-4 border border-yellow-300">
+                    <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#ffb703]/10 text-[#ffb703] text-xs font-bold uppercase tracking-[0.25em] border border-[#ffb703]/20">
+                        <Crown size={14} />
                         Clientes
                     </span>
-                    <h2 className="text-4xl md:text-5xl font-extrabold text-slate-900 leading-tight">
+                    <h2 className="text-4xl md:text-5xl font-extrabold text-slate-900 leading-tight mt-4">
                         Empresas que confiam no nosso <span className="text-yellow-500">
                             trabalho  </span>
                     </h2>

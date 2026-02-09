@@ -3,6 +3,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { NotebookPen } from "lucide-react";
 import { useParams } from "next/navigation";
 import { db } from "../../../../lib/firebase";
 import { collection, query, orderBy, getDocs } from "firebase/firestore";
@@ -77,11 +78,12 @@ export default function BlogPage() {
             <div className="relative max-w-7xl mx-auto px-6">
                 {/* Header */}
                 <div className="text-center max-w-2xl mx-auto mb-14">
-                    <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-yellow-100 text-yellow-700 text-sm font-semibold mb-4 border border-yellow-300">
-                        Nosso Blog
-                    </span>
-                    <h2 className="text-4xl md:text-5xl font-extrabold text-slate-900 leading-tight">
-                        Fique por dentro das nossas <span className="text-yellow-500">atualizações</span>
+                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#ffb703]/10 text-[#ffb703] text-xs font-bold uppercase tracking-[0.25em] border border-[#ffb703]/20">
+                        
+                    <NotebookPen size={14}/> Nosso Blog
+                    </div>
+                    <h2 className="text-4xl md:text-5xl xl:text-6xl  font-extrabold text-slate-900 leading-tight mt-4">
+                        Fique por dentro das nossas <span className="text-[#ffb703]">atualizações</span>
                     </h2>
                 </div>
 

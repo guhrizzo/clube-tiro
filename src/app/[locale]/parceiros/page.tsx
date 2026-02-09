@@ -42,7 +42,7 @@ export default function PartnersPage() {
                 <div className="absolute -bottom-40 -right-40 w-xl h-xl bg-[#ffb703]/5 blur-[160px] rounded-full" />
 
                 <div className="max-w-7xl mx-auto px-6 text-center relative z-10 space-y-6">
-                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#ffb703]/10 text-[#ffb703] text-xs font-bold uppercase tracking-[0.25em]">
+                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#ffb703]/10 text-[#ffb703] text-xs font-bold uppercase tracking-[0.25em] border border-[#ffb703]/20">
                         <Handshake size={14} />
                         Parceiros Estratégicos
                     </div>
