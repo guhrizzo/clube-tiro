@@ -66,7 +66,8 @@ export default function NoticiaCompleta() {
               {noticia.titulo}
             </h1>
             <p className="mt-4 text-slate-200">
-              {new Date(noticia.data).toLocaleDateString('pt-BR')}
+              {/* O split('T')[0] pega apenas a parte YYYY-MM-DD e o replace garante a formatação correta */}
+              {new Date(noticia.data.replace(/-/g, '\/').split('T')[0]).toLocaleDateString('pt-BR')}
             </p>
           </div>
         </div>
