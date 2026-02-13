@@ -31,9 +31,38 @@ const dictionaries = {
       contact: "Fale Conosco",
     },
   },
+  en: {
+    navbar: {
+      home: "Home",
+      truck: "About Us",
+      courses: "Courses",
+      products: "Products",
+      dispatcher: "Partners",
+      club: "Clients",
+      blog: "Blog",
+      training: "Training",
+      join: "Join Us",
+      contact: "Contact",
+    },
+  },
+  es: {
+    navbar: {
+      home: "Inicio",
+      truck: "Quiénes Somos",
+      courses: "Cursos",
+      products: "Productos",
+      dispatcher: "Socios",
+      club: "Clientes",
+      blog: "Blog",
+      training: "Entrenamiento",
+      join: "Únete",
+      contact: "Contacto",
+    },
+  },
 };
 
-const SUPPORTED_LANGS = ["pt"] as const;
+
+const SUPPORTED_LANGS = ["pt", "en", "es"] as const;
 type Lang = (typeof SUPPORTED_LANGS)[number];
 
 export default function NavBar() {

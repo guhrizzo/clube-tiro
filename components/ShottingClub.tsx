@@ -117,7 +117,7 @@ export default function ShootingClubSection() {
           <Swiper
             onSwiper={(swiper) => (swiperRef.current = swiper)}
             modules={[Pagination, Autoplay]}
-            slidesPerView={1.15}
+            slidesPerView={1}
             spaceBetween={28}
             loop
             speed={700}
