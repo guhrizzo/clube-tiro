@@ -4,10 +4,9 @@ import { useState, useEffect } from "react";
 import { Search, ArrowUpRight, ShoppingCart, Loader2 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { db } from "../lib/firebase"; // Ajuste o caminho conforme seu projeto
+import { db } from "../lib/firebase"; 
 import { collection, query, orderBy, onSnapshot } from "firebase/firestore";
 
-// Definição do tipo do produto vindo do Firebase
 type Produto = {
   id: string;
   nome: string;
@@ -26,24 +25,30 @@ export default function ProductCatalog() {
 
   const categories = ["Todos", "Pistolas", "Revólveres", "Rifles e Carabinas", "Espingardas", "Acessórios", "Cursos"];
 
-  // 1. Busca os produtos em tempo real do Firebase
   useEffect(() => {
     const q = query(collection(db, "produtos"), orderBy("createdAt", "desc"));
-    
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const pData = snapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
       })) as Produto[];
-      
       setProducts(pData);
       setLoading(false);
     });
-
     return () => unsubscribe();
   }, []);
 
-  // 2. Lógica de Filtro e Busca combinados
+  // --- FUNÇÃO PARA GERAR O LINK DO WHATSAPP ---
+  const gerarLinkZap = (produto: Produto) => {
+    // Se você salvou apenas o número no Firebase, use: `https://wa.me/${produto.linkCompra}...`
+    // Se salvou o link completo, vamos garantir que a mensagem seja anexada.
+    const baseUrl = produto.linkCompra || "https://wa.me/+553133718600"; // Substitua pelo seu padrão se o campo estiver vazio
+    const mensagem = encodeURIComponent(`Olá! Tenho interesse no produto: ${produto.nome}. Gostaria de mais informações.`);
+    
+    // Verifica se já existe um '?' no link para não quebrar a URL
+    return baseUrl.includes("?") ? `${baseUrl}&text=${mensagem}` : `${baseUrl}?text=${mensagem}`;
+  };
+
   const filteredProducts = products.filter((p) => {
     const matchesCategory = activeCategory === "Todos" || p.categoria === activeCategory;
     const matchesSearch = p.nome.toLowerCase().includes(searchTerm.toLowerCase()) || 
@@ -58,15 +63,12 @@ export default function ProductCatalog() {
         {/* Header */}
         <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
           <div className="space-y-3">
-            <h2 className="text-xs font-bold tracking-widest uppercase text-gray-400">
-              Catálogo Online
-            </h2>
+            <h2 className="text-xs font-bold tracking-widest uppercase text-gray-400">Catálogo Online</h2>
             <h3 className="text-4xl font-extrabold text-gray-900">
               Produtos <span className="text-yellow-500">em Destaque</span>
             </h3>
           </div>
 
-          {/* Busca Funcional */}
           <div className="relative w-full md:w-80">
             <input
               type="text"
@@ -86,9 +88,7 @@ export default function ProductCatalog() {
               key={cat}
               onClick={() => setActiveCategory(cat)}
               className={`cursor-pointer px-5 py-2 rounded-full text-sm font-semibold transition-all border ${
-                activeCategory === cat
-                  ? "bg-gray-900 text-white border-gray-900 shadow-md"
-                  : "bg-white text-gray-600 border-gray-200 hover:border-gray-400"
+                activeCategory === cat ? "bg-gray-900 text-white border-gray-900 shadow-md" : "bg-white text-gray-600 border-gray-200 hover:border-gray-400"
               }`}
             >
               {cat}
@@ -96,22 +96,16 @@ export default function ProductCatalog() {
           ))}
         </div>
 
-        {/* Loading State */}
         {loading ? (
           <div className="flex flex-col items-center justify-center py-20">
             <Loader2 className="animate-spin text-yellow-500 mb-4" size={40} />
             <p className="text-gray-500 font-medium">Carregando catálogo...</p>
           </div>
         ) : (
-          /* Grid de Produtos */
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
             {filteredProducts.map((product) => (
-              <div
-                key={product.id}
-                className="group bg-white rounded-3xl border border-gray-200 overflow-hidden flex flex-col
-                transition-all duration-300 hover:shadow-2xl hover:-translate-y-1"
-              >
-                {/* Imagem Real do Firebase */}
+              <div key={product.id} className="group bg-white rounded-3xl border border-gray-200 overflow-hidden flex flex-col transition-all duration-300 hover:shadow-2xl hover:-translate-y-1">
+                
                 <div className="relative aspect-square bg-gray-50 flex items-center justify-center overflow-hidden">
                   <span className="absolute top-4 left-4 z-10 bg-white/90 backdrop-blur-sm text-[10px] font-bold px-3 py-1 rounded-full border border-gray-200 text-gray-600 uppercase">
                     {product.categoria}
@@ -124,11 +118,10 @@ export default function ProductCatalog() {
                     className="object-cover transition-transform duration-500 group-hover:scale-110"
                   />
 
-                  {/* Overlay com Link */}
-                  <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity 
-                  flex items-center justify-center">
+                  {/* Overlay chamando a função do zap */}
+                  <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                     <Link 
-                      href={product.linkCompra || "#"} 
+                      href={gerarLinkZap(product)} 
                       target="_blank"
                       className="bg-white text-gray-900 p-3 rounded-full shadow-lg hover:scale-110 transition-transform"
                     >
@@ -137,13 +130,10 @@ export default function ProductCatalog() {
                   </div>
                 </div>
 
-                {/* Conteúdo Dinâmico */}
                 <div className="p-6 flex flex-col grow">
-                  <div className="flex justify-between items-start mb-2">
-                    <h4 className="text-lg font-bold text-gray-900 group-hover:text-yellow-600 transition-colors">
-                      {product.nome}
-                    </h4>
-                  </div>
+                  <h4 className="text-lg font-bold text-gray-900 group-hover:text-yellow-600 transition-colors mb-2">
+                    {product.nome}
+                  </h4>
                   
                   <p className="text-sm text-gray-500 mb-4 line-clamp-2">
                     {product.descricao}
@@ -158,11 +148,11 @@ export default function ProductCatalog() {
                       )}
                     </p>
 
+                    {/* Botão Principal chamando a função do zap */}
                     <Link 
-                      href={product.linkCompra || "#"} 
+                      href={gerarLinkZap(product)} 
                       target="_blank"
-                      className="w-full border-2 border-gray-900 text-gray-900 font-bold py-3 rounded-xl 
-                      hover:bg-gray-900 hover:text-white transition-all flex items-center justify-center gap-2"
+                      className="w-full border-2 border-gray-900 text-gray-900 font-bold py-3 rounded-xl hover:bg-gray-900 hover:text-white transition-all flex items-center justify-center gap-2"
                     >
                       <ShoppingCart size={18} />
                       Tenho Interesse
@@ -174,10 +164,9 @@ export default function ProductCatalog() {
           </div>
         )}
 
-        {/* Empty State */}
         {!loading && filteredProducts.length === 0 && (
           <div className="text-center py-20">
-            <p className="text-gray-400 text-lg">Nenhum produto encontrado nesta categoria.</p>
+            <p className="text-gray-400 text-lg">Nenhum produto encontrado.</p>
           </div>
         )}
       </div>
