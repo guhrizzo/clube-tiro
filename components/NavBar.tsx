@@ -67,6 +67,8 @@ type Lang = (typeof SUPPORTED_LANGS)[number];
 
 export default function NavBar() {
   const [open, setOpen] = useState(false);
+  const [openSub, setOpenSub] = useState<string | null>(null);
+
   const [isScrolled, setIsScrolled] = useState(false);
   const pathname = usePathname();
 
@@ -83,19 +85,96 @@ export default function NavBar() {
   }, [pathname]);
 
   const t = (dictionaries as any)[currentLang].navbar;
-  const withLang = (path: string) =>
-  path.startsWith(`/${currentLang}`) ? path : `/${currentLang}${path}`;
+  const withLang = (path?: string) => {
+    if (!path) return "#";
+    return path.startsWith(`/${currentLang}`)
+      ? path
+      : `/${currentLang}${path}`;
+  };
+
+
 
 
 
   const menuItems = [
-    { key: "home", href: "/home" },
-    { key: "truck", href: "/truck" },
-    { key: "dispatcher", href: "/parceiros", target: "_blank" },
-    { key: "club", href: "/clients", target: "_blank" },
+    { key: "home", label: "Apresentação", href: "/apresentacao" },
+
+    {
+      key: "loja",
+      label: "Loja",
+      children: [
+        { label: "Pistolas", href: "/loja/pistolas" },
+        { label: "Revólveres", href: "/loja/revolveres" },
+        { label: "Espingardas", href: "/loja/espingardas" },
+        { label: "Rifles", href: "/loja/rifles" },
+        { label: "Defesa Pessoal", href: "/loja/defesa-pessoal" },
+        { label: "Outros", href: "/loja/outros" },
+      ],
+    },
+
+    {
+      key: "clube",
+      label: "Clube",
+      children: [
+        { label: "BH - Gutierrez", href: "/clube/gutierrez" },
+        { label: "BH - Raja", href: "/clube/raja" },
+        { label: "Nova Lima - Alphaville", href: "/clube/alphaville" },
+        { label: "Calendário", href: "/clube/calendario" },
+        { label: "Mídias", href: "/clube/midias" },
+      ],
+    },
+
+    {
+      key: "rastreamento",
+      label: "Rastreamento",
+      href: "/rastreamento",
+    },
+
+    {
+      key: "cursos",
+      label: "Cursos",
+      children: [
+        { label: "Capacitação de Guardas e Agentes", href: "/cursos/capacitacao" },
+        { label: "Defensivo", href: "/cursos/defensivo" },
+        { label: "Desportivo", href: "/cursos/desportivo" },
+        { label: "Outros", href: "/cursos/outros" },
+      ],
+    },
+
+    {
+      key: "despachante",
+      label: "Despachante",
+      children: [
+        { label: "Polícia Federal", href: "/despachante/pf" },
+        { label: "Exército Brasileiro", href: "/despachante/exercito" },
+      ],
+    },
+
+    {
+      key: "midias",
+      label: "Mídias",
+      children: [
+        { label: "Galeria", href: "/midias/galeria" },
+        { label: "Vídeos", href: "/midias/videos" },
+      ],
+    },
+
+    {
+      key: "museu",
+      label: "Museu da Paz",
+      href: "/museu-da-paz",
+    },
+
+    {
+      key: "bigtruck",
+      label: "Big Truck METATRON",
+      href: "/big-truck-metatron",
+    },
+
     { key: "blog", href: "/blog" },
     { key: "contact", href: "/contato" },
   ];
+
 
 
   return (
@@ -215,17 +294,44 @@ export default function NavBar() {
                 <ul className="flex items-center gap-8 w-full justify-center">
                   {menuItems.map((item) => (
                     <li key={item.key} className="relative group">
-                      <a
-                        href={withLang(item.href)}
 
-                        className="text-white hover:text-[#ffb703] text-[13px] font-semibold flex items-center gap-1 duration-300 transition-all py-3 origin- uppercase tracking-wider"
-                      >
-                        {t[item.key]}
-                        
-                      </a>
+                      {/* ITEM NORMAL */}
+                      {item.href ? (
+                        <a
+                          href={withLang(item.href)}
+                          className="text-white hover:text-[#ffb703] text-[13px] font-semibold flex items-center gap-1 duration-300 transition-all py-3 uppercase tracking-wider"
+                        >
+                          {item.label || t[item.key]}
+                        </a>
+                      ) : (
+                        /* ITEM COM DROPDOWN */
+                        <span className="text-white text-[13px] font-semibold flex items-center gap-1 py-3 uppercase tracking-wider cursor-pointer">
+                          {item.label}
+                        </span>
+                      )}
+
+                      {/* LINHA AMARELA */}
                       <span className="absolute bottom-2 left-0 w-full scale-x-0 h-0.5 rounded-2xl bg-[#ffb703] duration-300 origin-left transition-all group-hover:scale-x-100"></span>
+
+                      {/* DROPDOWN */}
+                      {item.children && (
+                        <ul className="absolute left-0 top-full mt-2 w-56 bg-[#1a1a1a] rounded-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 py-3 z-50">
+                          {item.children.map((child, index) => (
+                            <li key={index}>
+                              <a
+                                href={withLang(child.href)}
+                                className="block px-4 py-2 text-sm text-white hover:text-[#ffb703] hover:bg-white/5 transition-all"
+                              >
+                                {child.label}
+                              </a>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+
                     </li>
                   ))}
+
                 </ul>
               </div>
             </nav>
@@ -254,7 +360,18 @@ export default function NavBar() {
             <X size={26} />
           </button>
         </div>
+          <div className="mt-auto px-5 py-5 border-t border-white/10 flex items-center justify-between">
+          <div className="flex gap-3">
+            <FlagBtn lang="br" active />
+            <FlagBtn lang="us" />
+            <FlagBtn lang="es" />
+          </div>
 
+          <button className="flex items-center gap-2 bg-[#ffb703] text-black px-4 py-2 rounded-md font-bold text-xs hover:bg-[#ffd166] transition">
+            <User size={14} />
+            ACESSO C.A.C
+          </button>
+        </div>
         {/* SERVIÇOS */}
         <div className="px-5 pt-4 grid grid-cols-2 gap-3 text-xs uppercase tracking-wide">
           <UtilityMobile
@@ -281,31 +398,61 @@ export default function NavBar() {
 
         {/* LINKS */}
         <nav className="mt-6 px-5 space-y-1 text-sm uppercase tracking-wide">
-          {menuItems.map((item) => (
-            <a
-              key={item.key}
-              href={withLang(item.href)}
 
-              className="block py-3 border-b border-white/10 hover:text-[#ffb703] transition"
-            >
-              {t[item.key]}
-            </a>
+          {menuItems.map((item) => (
+            <div key={item.key} className="border-b border-white/10">
+
+              {/* ITEM NORMAL */}
+              {item.href ? (
+                <a
+                  href={withLang(item.href)}
+                  className="block py-3 hover:text-[#ffb703] transition"
+                  onClick={() => setOpen(false)}
+                >
+                  {item.label || t[item.key]}
+                </a>
+              ) : (
+                /* ITEM COM SUBMENU */
+                <button
+                  onClick={() =>
+                    setOpenSub(openSub === item.key ? null : item.key)
+                  }
+                  className="w-full flex justify-between items-center py-3 hover:text-[#ffb703] transition"
+                >
+                  <span>{item.label}</span>
+                  <span
+                    className={`transition-transform duration-300 ${openSub === item.key ? "rotate-180" : ""
+                      }`}
+                  >
+                    ▼
+                  </span>
+                </button>
+              )}
+
+              {/* SUBMENU */}
+              {item.children && openSub === item.key && (
+                <div className="pl-4 pb-3 space-y-2 text-xs text-white/80">
+                  {item.children.map((child, index) => (
+                    <a
+                      key={index}
+                      href={withLang(child.href)}
+                      className="block py-1 hover:text-[#ffb703] transition"
+                      onClick={() => setOpen(false)}
+                    >
+                      {child.label}
+                    </a>
+                  ))}
+                </div>
+              )}
+
+            </div>
           ))}
+
         </nav>
 
-        {/* FOOTER MENU — FLAGS + ACESSO */}
-        <div className="mt-auto px-5 py-5 border-t border-white/10 flex items-center justify-between">
-          <div className="flex gap-3">
-            <FlagBtn lang="br" active />
-            <FlagBtn lang="us" />
-            <FlagBtn lang="es" />
-          </div>
 
-          <button className="flex items-center gap-2 bg-[#ffb703] text-black px-4 py-2 rounded-md font-bold text-xs hover:bg-[#ffd166] transition">
-            <User size={14} />
-            ACESSO C.A.C
-          </button>
-        </div>
+        {/* FOOTER MENU — FLAGS + ACESSO */}
+        
       </aside>
 
       {/* SPACER */}
