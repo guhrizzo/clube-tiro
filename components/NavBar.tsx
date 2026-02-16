@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useState, useMemo, useEffect } from "react";
+ 
 import { usePathname } from "next/navigation";
 import {
   ChevronDown,
@@ -350,7 +351,7 @@ export default function NavBar() {
 
       {/* DRAWER */}
       <aside
-        className={`fixed top-0 right-0 h-full w-[85%] max-w-sm bg-black text-white z-100 transform transition-transform duration-300 ${open ? "translate-x-0" : "translate-x-full"
+        className={`fixed top-0 right-0 h-100dvh overflow-y-auto w-[85%] max-w-sm bg-black text-white z-100 transform transition-transform duration-300 ${open ? "translate-x-0" : "translate-x-full"
           }`}
       >
         {/* HEADER */}
