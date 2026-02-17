@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useState, useMemo, useEffect } from "react";
- 
+
 import { usePathname } from "next/navigation";
 import {
   ChevronDown,
@@ -351,8 +351,10 @@ export default function NavBar() {
 
       {/* DRAWER */}
       <aside
-        className={`fixed top-0 right-0 h-auto overflow-y-auto w-100dvw bg-black text-white z-100 transform transition-transform duration-300 ${open ? "translate-x-0" : "translate-x-full"
-          }`}
+        className={`fixed inset-0 h-dvh w-screen bg-black text-white z-[100]
+  transform transition-transform duration-300
+  ${open ? "translate-x-0" : "translate-x-full"}
+  flex flex-col`}
       >
         {/* HEADER */}
         <div className="flex items-center justify-end px-5 py-4 border-b border-white/10">
@@ -361,7 +363,7 @@ export default function NavBar() {
             <X size={26} />
           </button>
         </div>
-          <div className="mt-auto px-5 py-5 border-t border-white/10 flex items-center justify-between">
+        <div className="mt-auto px-5 py-5 border-t border-white/10 flex items-center justify-between">
           <div className="flex gap-3">
             <FlagBtn lang="br" active />
             <FlagBtn lang="us" />
@@ -453,7 +455,7 @@ export default function NavBar() {
 
 
         {/* FOOTER MENU — FLAGS + ACESSO */}
-        
+
       </aside>
 
       {/* SPACER */}
