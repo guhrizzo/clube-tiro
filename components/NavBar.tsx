@@ -351,19 +351,23 @@ export default function NavBar() {
 
       {/* DRAWER */}
       <aside
-        className={`fixed inset-0 h-dvh w-screen bg-black text-white z-[100]
+        className={`fixed inset-y-0 right-0 h-dvh w-[85%] max-w-sm
+  bg-black text-white z-99999
   transform transition-transform duration-300
   ${open ? "translate-x-0" : "translate-x-full"}
   flex flex-col`}
       >
+
         {/* HEADER */}
         <div className="flex items-center justify-end px-5 py-4 border-b border-white/10">
-
           <button onClick={() => setOpen(false)}>
             <X size={26} />
           </button>
         </div>
-        <div className="mt-auto px-5 py-5 border-t border-white/10 flex items-center justify-between">
+
+        {/* CONTEÚDO ROLÁVEL */}
+        <div className="flex-1 overflow-y-auto">
+          <div className="px-5 py-5 border-t border-white/10 flex items-center justify-between">
           <div className="flex gap-3">
             <FlagBtn lang="br" active />
             <FlagBtn lang="us" />
@@ -375,88 +379,85 @@ export default function NavBar() {
             ACESSO C.A.C
           </button>
         </div>
-        {/* SERVIÇOS */}
-        <div className="px-5 pt-4 grid grid-cols-2 gap-3 text-xs uppercase tracking-wide">
-          <UtilityMobile
-            href="https://www.shootinghouse.com.br/login-associado/clubedetirobh.com.br/aHR0cHM6Ly93d3cuc2hvb3Rpbmdob3VzZS5jb20uYnIvYXNzb2NpYWRvL2RlY2xhcmFjYW8="
-            icon={<FileText size={14} />}
-            label="Declarações"
-          />
-          <UtilityMobile
-            href="https://clubedetirobh.com.br/validar-declaracao/"
-            icon={<BadgeCheck size={14} />}
-            label="Validar"
-          />
-          <UtilityMobile
-            href="https://www.shootinghouse.com.br/login-associado/clubedetirobh.com.br/aHR0cHM6Ly93d3cuc2hvb3Rpbmdob3VzZS5jb20uYnIvYXNzb2NpYWRvL3NlY3JldGFyaWEvZGVzcGFjaGFudGUvc29saWNpdGFjb2Vz"
-            icon={<LayoutDashboard size={14} />}
-            label="Secretaria"
-          />
-          <UtilityMobile
-            href="https://www.shootinghouse.com.br/login-associado/clubedetirobh.com.br/aHR0cHM6Ly93d3cuc2hvb3Rpbmdob3VzZS5jb20uYnIvYXNzb2NpYWRvL2ZpbmFuY2Vpcm8vYm9sZXRv"
-            icon={<Printer size={14} />}
-            label="Boletos"
-          />
+          {/* SERVIÇOS */}
+          <div className="px-5 pt-4 grid grid-cols-2 gap-3 text-xs uppercase tracking-wide">
+            <UtilityMobile
+              href="https://www.shootinghouse.com.br/login-associado/clubedetirobh.com.br/aHR0cHM6Ly93d3cuc2hvb3Rpbmdob3VzZS5jb20uYnIvYXNzb2NpYWRvL2RlY2xhcmFjYW8="
+              icon={<FileText size={14} />}
+              label="Declarações"
+            />
+            <UtilityMobile
+              href="https://clubedetirobh.com.br/validar-declaracao/"
+              icon={<BadgeCheck size={14} />}
+              label="Validar"
+            />
+            <UtilityMobile
+              href="https://www.shootinghouse.com.br/login-associado/clubedetirobh.com.br/aHR0cHM6Ly93d3cuc2hvb3Rpbmdob3VzZS5jb20uYnIvYXNzb2NpYWRvL3NlY3JldGFyaWEvZGVzcGFjaGFudGUvc29saWNpdGFjb2Vz"
+              icon={<LayoutDashboard size={14} />}
+              label="Secretaria"
+            />
+            <UtilityMobile
+              href="https://www.shootinghouse.com.br/login-associado/clubedetirobh.com.br/aHR0cHM6Ly93d3cuc2hvb3Rpbmdob3VzZS5jb20uYnIvYXNzb2NpYWRvL2ZpbmFuY2Vpcm8vYm9sZXRv"
+              icon={<Printer size={14} />}
+              label="Boletos"
+            />
+          </div>
+          
+          {/* LINKS */}
+          <nav className="mt-6 px-5 space-y-1 text-sm uppercase tracking-wide">
+            {menuItems.map((item) => (
+              <div key={item.key} className="border-b border-white/10">
+
+                {item.href ? (
+                  <a
+                    href={withLang(item.href)}
+                    className="block py-3 hover:text-[#ffb703] transition"
+                    onClick={() => setOpen(false)}
+                  >
+                    {item.label || t[item.key]}
+                  </a>
+                ) : (
+                  <button
+                    onClick={() =>
+                      setOpenSub(openSub === item.key ? null : item.key)
+                    }
+                    className="w-full flex justify-between items-center py-3 hover:text-[#ffb703] transition"
+                  >
+                    <span>{item.label}</span>
+                    <span
+                      className={`transition-transform duration-300 ${openSub === item.key ? "rotate-180" : ""
+                        }`}
+                    >
+                      ▼
+                    </span>
+                  </button>
+                )}
+
+                {item.children && openSub === item.key && (
+                  <div className="pl-4 pb-3 space-y-2 text-xs text-white/80">
+                    {item.children.map((child, index) => (
+                      <a
+                        key={index}
+                        href={withLang(child.href)}
+                        className="block py-1 hover:text-[#ffb703] transition"
+                        onClick={() => setOpen(false)}
+                      >
+                        {child.label}
+                      </a>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
+          </nav>
+
         </div>
 
-        {/* LINKS */}
-        <nav className="mt-6 px-5 space-y-1 text-sm uppercase tracking-wide">
-
-          {menuItems.map((item) => (
-            <div key={item.key} className="border-b border-white/10">
-
-              {/* ITEM NORMAL */}
-              {item.href ? (
-                <a
-                  href={withLang(item.href)}
-                  className="block py-3 hover:text-[#ffb703] transition"
-                  onClick={() => setOpen(false)}
-                >
-                  {item.label || t[item.key]}
-                </a>
-              ) : (
-                /* ITEM COM SUBMENU */
-                <button
-                  onClick={() =>
-                    setOpenSub(openSub === item.key ? null : item.key)
-                  }
-                  className="w-full flex justify-between items-center py-3 hover:text-[#ffb703] transition"
-                >
-                  <span>{item.label}</span>
-                  <span
-                    className={`transition-transform duration-300 ${openSub === item.key ? "rotate-180" : ""
-                      }`}
-                  >
-                    ▼
-                  </span>
-                </button>
-              )}
-
-              {/* SUBMENU */}
-              {item.children && openSub === item.key && (
-                <div className="pl-4 pb-3 space-y-2 text-xs text-white/80">
-                  {item.children.map((child, index) => (
-                    <a
-                      key={index}
-                      href={withLang(child.href)}
-                      className="block py-1 hover:text-[#ffb703] transition"
-                      onClick={() => setOpen(false)}
-                    >
-                      {child.label}
-                    </a>
-                  ))}
-                </div>
-              )}
-
-            </div>
-          ))}
-
-        </nav>
-
-
-        {/* FOOTER MENU — FLAGS + ACESSO */}
+        {/* FOOTER FIXO */}
+        
 
       </aside>
+
 
       {/* SPACER */}
       <div className="h-20 lg:h-35" />
