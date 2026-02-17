@@ -351,7 +351,7 @@ export default function NavBar() {
 
       {/* DRAWER */}
       <aside
-        className={`fixed top-0 right-0 h-auto overflow-y-auto w-full max-w-sm bg-black text-white z-100 transform transition-transform duration-300 ${open ? "translate-x-0" : "translate-x-full"
+        className={`fixed top-0 right-0 h-auto overflow-y-auto w-100dvw bg-black text-white z-100 transform transition-transform duration-300 ${open ? "translate-x-0" : "translate-x-full"
           }`}
       >
         {/* HEADER */}
