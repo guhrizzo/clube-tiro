@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useState, useMemo, useEffect } from "react";
-
+import { useRouter } from "next/navigation";
 import { usePathname } from "next/navigation";
 import {
   ChevronDown,
@@ -69,7 +69,7 @@ type Lang = (typeof SUPPORTED_LANGS)[number];
 export default function NavBar() {
   const [open, setOpen] = useState(false);
   const [openSub, setOpenSub] = useState<string | null>(null);
-
+  const router = useRouter();
   const [isScrolled, setIsScrolled] = useState(false);
   const pathname = usePathname();
 
@@ -79,11 +79,54 @@ export default function NavBar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  useEffect(() => {
+    if (!pathname) return;
+
+    const segments = pathname.split("/").filter(Boolean);
+
+    // Se não tiver idioma na URL
+    if (!SUPPORTED_LANGS.includes(segments[0] as Lang)) {
+      const savedLang = localStorage.getItem("lang") as Lang | null;
+
+      if (savedLang && SUPPORTED_LANGS.includes(savedLang)) {
+        router.replace(`/${savedLang}${pathname}`);
+        return;
+      }
+
+      const browserLang = navigator.language.slice(0, 2) as Lang;
+
+      if (SUPPORTED_LANGS.includes(browserLang)) {
+        router.replace(`/${browserLang}${pathname}`);
+      } else {
+        router.replace(`/pt${pathname}`);
+      }
+    }
+  }, []);
+
+
   const currentLang = useMemo<Lang>(() => {
     if (!pathname) return "pt";
     const seg = pathname.split("/").filter(Boolean)[0];
     return SUPPORTED_LANGS.includes(seg as Lang) ? (seg as Lang) : "pt";
   }, [pathname]);
+
+  const changeLang = (lang: Lang) => {
+    if (!pathname) return;
+
+    localStorage.setItem("lang", lang);
+
+    const segments = pathname.split("/").filter(Boolean);
+
+    // remove idioma atual se existir
+    if (SUPPORTED_LANGS.includes(segments[0] as Lang)) {
+      segments.shift();
+    }
+
+    const newPath = `/${lang}/${segments.join("/")}`;
+
+    router.replace(newPath);
+  };
+
 
   const t = (dictionaries as any)[currentLang].navbar;
   const withLang = (path?: string) => {
@@ -243,9 +286,24 @@ export default function NavBar() {
               </div>
 
               <div className="flex gap-2 border-l border-gray-200 pl-6">
-                <FlagBtn lang="us" />
-                <FlagBtn lang="br" active />
-                <FlagBtn lang="es" />
+                <FlagBtn
+                  lang="en"
+                  active={currentLang === "en"}
+                  onClick={() => changeLang("en")}
+                />
+
+                <FlagBtn
+                  lang="pt"
+                  active={currentLang === "pt"}
+                  onClick={() => changeLang("pt")}
+                />
+
+                <FlagBtn
+                  lang="es"
+                  active={currentLang === "es"}
+                  onClick={() => changeLang("es")}
+                />
+
               </div>
 
 
@@ -368,17 +426,32 @@ export default function NavBar() {
         {/* CONTEÚDO ROLÁVEL */}
         <div className="flex-1 overflow-y-auto">
           <div className="px-5 py-5 border-t border-white/10 flex items-center justify-between">
-          <div className="flex gap-3">
-            <FlagBtn lang="br" active />
-            <FlagBtn lang="us" />
-            <FlagBtn lang="es" />
-          </div>
+            <div className="flex gap-3">
+              <FlagBtn
+                lang="en"
+                active={currentLang === "en"}
+                onClick={() => changeLang("en")}
+              />
 
-          <button className="flex items-center gap-2 bg-[#ffb703] text-black px-4 py-2 rounded-md font-bold text-xs hover:bg-[#ffd166] transition">
-            <User size={14} />
-            ACESSO C.A.C
-          </button>
-        </div>
+              <FlagBtn
+                lang="pt"
+                active={currentLang === "pt"}
+                onClick={() => changeLang("pt")}
+              />
+
+              <FlagBtn
+                lang="es"
+                active={currentLang === "es"}
+                onClick={() => changeLang("es")}
+              />
+
+            </div>
+
+            <button className="flex items-center gap-2 bg-[#ffb703] text-black px-4 py-2 rounded-md font-bold text-xs hover:bg-[#ffd166] transition">
+              <User size={14} />
+              ACESSO C.A.C
+            </button>
+          </div>
           {/* SERVIÇOS */}
           <div className="px-5 pt-4 grid grid-cols-2 gap-3 text-xs uppercase tracking-wide">
             <UtilityMobile
@@ -402,7 +475,7 @@ export default function NavBar() {
               label="Boletos"
             />
           </div>
-          
+
           {/* LINKS */}
           <nav className="mt-6 px-5 space-y-1 text-sm uppercase tracking-wide">
             {menuItems.map((item) => (
@@ -454,7 +527,7 @@ export default function NavBar() {
         </div>
 
         {/* FOOTER FIXO */}
-        
+
 
       </aside>
 
@@ -513,13 +586,27 @@ function UtilityMobile({
   );
 }
 
-function FlagBtn({ lang, active = false }: { lang: string; active?: boolean }) {
-  const codes: any = { br: "BR", us: "US", es: "ES" };
+function FlagBtn({
+  lang,
+  active = false,
+  onClick,
+}: {
+  lang: Lang;
+  active?: boolean;
+  onClick?: () => void;
+}) {
+  const codes: Record<Lang, string> = {
+    pt: "BR",
+    en: "US",
+    es: "ES",
+  };
+
   return (
     <button
-      className={`hover:scale-110 transition-transform cursor-pointer ${active
+      onClick={onClick}
+      className={`hover:scale-110 transition-all duration-300 cursor-pointer ${active
         ? "ring-2 ring-[#ffb703] ring-offset-2 ring-offset-black rounded-sm"
-        : "opacity-70"
+        : "opacity-60 hover:opacity-100"
         }`}
     >
       <img
@@ -530,6 +617,7 @@ function FlagBtn({ lang, active = false }: { lang: string; active?: boolean }) {
     </button>
   );
 }
+
 
 /* ---------------- ICONS ---------------- */
 
