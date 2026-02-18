@@ -6,10 +6,10 @@ import EntryGate from "../../components/EntryGate";
 export default function Page() {
   const router = useRouter();
 
-  const locale =
-    typeof window !== "undefined"
-      ? localStorage.getItem("lang") || "pt"
-      : "pt";
+  const handleEnter = () => {
+    const locale = localStorage.getItem("lang") || "pt";
+    router.push(`/${locale}/home`);
+  };
 
-  return <EntryGate onEnter={() => router.push(`/${locale}/home`)} />;
+  return <EntryGate onEnter={handleEnter} />;
 }
