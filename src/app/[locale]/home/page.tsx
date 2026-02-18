@@ -11,12 +11,15 @@ import ProductCatalog from "../../../../components/ProductCatalog";
 import ShootingClubDivider from "../../../../components/ShottingClub";
 import TrackingSection from "../../../../components/TrackServices";
 
+
 export default function HomePage() {
   return (
     <div>
       <NavBar />
       <ScrollToTop />
+      
       <AboutSection />
+
 
       <ShootingClubDivider />
      
