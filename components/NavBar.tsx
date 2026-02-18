@@ -364,7 +364,7 @@ export default function NavBar() {
                         </a>
                       ) : (
                         /* ITEM COM DROPDOWN */
-                        <span className="text-white text-[13px] font-semibold flex items-center gap-1 py-3 uppercase tracking-wider cursor-pointer">
+                        <span className="text-white text-[13px] hover:text-[#ffb703] duration-300 transition-all font-semibold flex items-center gap-1 py-3 uppercase tracking-wider cursor-pointer">
                           {item.label}
                         </span>
                       )}
