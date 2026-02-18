@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import EntryGate from "../../components/EntryGate";
+import EntryGate from "./EntryGate";
 
 export default function Page() {
   const router = useRouter();
