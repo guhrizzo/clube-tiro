@@ -27,7 +27,7 @@ export default function FooterRastreamentoLight({ locale = "pt" }: { locale?: "p
           <div className="flex items-center gap-4">
             <div>
               {/* NOME ATUALIZADO: GRUPO PROTECT */}
-              <Image src={"/LOGO1.png"} width={200} height={200}/>
+              <Image src={"/LOGO1.png"} width={200} height={200} alt="Logo Grupo Protect"/>
               <p className="text-black/60 text-sm">
                 Tecnologia em segurança veicular
               </p>
