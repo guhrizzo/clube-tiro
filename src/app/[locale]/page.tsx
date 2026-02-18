@@ -1,13 +1,14 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import EntryGate from "./[locale]/EntryGate";
+import { useRouter, useParams } from "next/navigation";
+import EntryGate from "./EntryGate"
 
 export default function Page() {
   const router = useRouter();
+  const params = useParams();
+  const locale = params.locale;
 
   const handleEnter = () => {
-    const locale = localStorage.getItem("lang") || "pt";
     router.push(`/${locale}/home`);
   };
 
