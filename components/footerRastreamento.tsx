@@ -1,5 +1,5 @@
 "use client";
-
+import Image from "next/image";
 import { Target } from "lucide-react";
 import {
   FaWhatsapp,
@@ -20,18 +20,14 @@ export default function FooterRastreamentoLight({ locale = "pt" }: { locale?: "p
   return (
     <footer className="relative bg-white text-[#0a0f1c] border-t border-black/10 overflow-hidden">
 
-      
-
       <div className="relative max-w-7xl mx-auto px-6 py-20 grid grid-cols-1 lg:grid-cols-3 gap-16">
 
         {/* LOGO + BRAND */}
         <div className="space-y-6">
           <div className="flex items-center gap-4">
-            
             <div>
-              <h3 className="text-xl font-extrabold tracking-wide text-[#0a0f1c]">
-                Protect Rastreamento
-              </h3>
+              {/* NOME ATUALIZADO: GRUPO PROTECT */}
+              <Image src={"/LOGO1.png"} width={200} height={200}/>
               <p className="text-black/60 text-sm">
                 Tecnologia em segurança veicular
               </p>
@@ -98,8 +94,8 @@ export default function FooterRastreamentoLight({ locale = "pt" }: { locale?: "p
               <a
                 href="https://apps.apple.com/br/app/grupo-protect-rastreamento/id6738363845"
                 target="_blank"
-                about="noopener"
-                className="flex items-center gap-3 px-4 py-2 rounded-xl bg-black/5 hover:bg-black/10 transition-all ease-in-out duration-400 border border-black/10"
+                rel="noopener noreferrer"
+                className="flex items-center gap-3 px-4 py-2 rounded-xl bg-black/5 hover:bg-black/10 transition-all border border-black/10"
               >
                 <FaApple className="text-xl" />
                 <div className="text-xs leading-tight">
@@ -111,8 +107,8 @@ export default function FooterRastreamentoLight({ locale = "pt" }: { locale?: "p
               <a
                 href="https://play.google.com/store/apps/details?id=com.softruck.protectrast"
                 target="_blank"
-                about="noopener"
-                className="flex items-center gap-3 px-4 py-2 rounded-xl bg-black/5 hover:bg-black/10 transition-all duration-400 ease-in-out border border-black/10"
+                rel="noopener noreferrer"
+                className="flex items-center gap-3 px-4 py-2 rounded-xl bg-black/5 hover:bg-black/10 transition-all border border-black/10"
               >
                 <FaGooglePlay className="text-xl" />
                 <div className="text-xs leading-tight">
@@ -130,17 +126,18 @@ export default function FooterRastreamentoLight({ locale = "pt" }: { locale?: "p
 
             <div className="flex gap-4">
               {[
-                { icon: FaFacebookF, href: "https://www.facebook.com/profile.php?id=61567757725049&mibextid=LQQJ4d", target: "_blank" },
-                { icon: FaInstagram, href: "https://www.instagram.com/protect.rastreamento/", target: "_blank" },
-                { icon: FaWhatsapp, href: "https://wa.me/553133718600?text=Olá%20Protect%20Rastreamento!%20Vim%20pelo%20site%20e%20gostaria%20de%20receber%20mais%20informações%20sobre%20rastreamento%20veicular.", target: "_blank" },
-                { icon: FaLinkedinIn, href: "https://www.linkedin.com/in/protect-rastreamento-a97106350", target: "_blank" },
-                { icon: FaYoutube, href: "https://www.youtube.com/@ProtectRastreamento", target: "_blank" },
+                { icon: FaFacebookF, href: "https://www.facebook.com/profile.php?id=61567757725049" },
+                { icon: FaInstagram, href: "https://www.instagram.com/protect.rastreamento/" },
+                { icon: FaWhatsapp, href: "https://wa.me/553133718600" },
+                { icon: FaLinkedinIn, href: "https://www.linkedin.com/in/protect-rastreamento-a97106350" },
+                { icon: FaYoutube, href: "https://www.youtube.com/@ProtectRastreamento" },
               ].map((item, i) => (
                 <a
                   key={i}
                   href={item.href}
-                  target={item.href.startsWith("http") ? "_blank" : undefined}
-                  className="w-11 h-11 flex items-center justify-center rounded-xl bg-black/5 hover:bg-[#ffc300] hover:text-black transition-all ease-in-out duration-400 shadow-sm"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-11 h-11 flex items-center justify-center rounded-xl bg-black/5 hover:bg-[#ffc300] hover:text-black transition-all shadow-sm"
                 >
                   <item.icon />
                 </a>
@@ -151,9 +148,24 @@ export default function FooterRastreamentoLight({ locale = "pt" }: { locale?: "p
 
       </div>
 
-      {/* COPYRIGHT */}
-      <div className="relative border-t border-black/10 py-6 text-center text-xs text-black/50 tracking-widest">
-        © {new Date().getFullYear()} PROTECT RASTREAMENTO — TODOS OS DIREITOS RESERVADOS
+      {/* COPYRIGHT + CREDITS */}
+      <div className="relative border-t border-black/10 py-8 text-center space-y-2">
+        <div className="text-[10px] md:text-xs text-black/50 tracking-[0.2em] uppercase font-medium">
+          © {new Date().getFullYear()} GRUPO PROTECT — TODOS OS DIREITOS RESERVADOS
+        </div>
+        
+        {/* CRÉDITO XF FAMILY */}
+        <div className="text-[10px] md:text-xs text-black/40 tracking-widest">
+          Desenvolvido por{" "}
+          <a 
+            href="https://xffamily.com.br" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="font-bold hover:text-[#b8860b] transition-colors"
+          >
+            XF FAMILY
+          </a>
+        </div>
       </div>
 
     </footer>
