@@ -141,7 +141,7 @@ export default function NavBar() {
 
 
   const menuItems = [
-    { key: "home", label: "Apresentação", href: "/apresentacao" },
+    { key: "home", label: "Apresentação", href: "/home" },
 
     {
       key: "loja",
