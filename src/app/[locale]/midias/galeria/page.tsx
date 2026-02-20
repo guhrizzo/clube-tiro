@@ -2,8 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { Camera, Maximize2, X, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
-import AOS from "aos";
-import "aos/dist/aos.css";
 
 // Importações do Firebase
 import { db } from "../../../../../lib/firebase";
@@ -26,8 +24,6 @@ export default function PhotoGallerySection() {
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState<number | null>(null);
 
   useEffect(() => {
-    AOS.init({ duration: 800, once: true });
-
     // 1. Criar a query para buscar fotos do Firebase
     const q = query(collection(db, "galeria"), orderBy("createdAt", "desc"));
 
