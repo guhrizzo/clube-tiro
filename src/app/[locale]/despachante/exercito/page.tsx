@@ -76,7 +76,7 @@ export default function ArmyDispatcherPage() {
       <section className="relative w-full h-[60vh] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 z-0">
           <img 
-            src="/eb.jpeg" 
+            src="/eb.jpg" 
             alt="Exército Brasileiro" 
             className="w-full h-full object-cover object-top"
           />
