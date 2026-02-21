@@ -7,6 +7,7 @@ import { Camera, Maximize2, X, ChevronLeft, ChevronRight, Loader2 } from "lucide
 import { db } from "../../../../../lib/firebase";
 import { collection, onSnapshot, query, orderBy } from "firebase/firestore";
 import NavBar from "components/NavBar";
+import ScrollToTop from "components/BackTop";
 
 interface PhotoItem {
   id: string; // Alterado para string (ID do Firestore)
@@ -64,6 +65,7 @@ export default function PhotoGallerySection() {
 
   return (
     <section className="relative w-full bg-white py-24 overflow-hidden">
+      <ScrollToTop />
       <NavBar />
       <div className="absolute top-0 right-0 w-96 h-96 bg-[#ffb703]/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
       

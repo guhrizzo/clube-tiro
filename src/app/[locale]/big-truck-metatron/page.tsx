@@ -5,6 +5,7 @@ import { Truck, ChevronRight, Maximize2, X, PlayCircle } from "lucide-react";
 
 import NavBar from "components/NavBar";
 import MetratonFinalPhase from "components/5phase";
+import ScrollToTop from "components/BackTop";
 
 const projectSteps = [
   {
@@ -42,6 +43,7 @@ export default function MetratonGallery() {
 
   return (
     <main className="bg-[#0a0a0a] min-h-screen text-white">
+      <ScrollToTop />
       <NavBar />
       {/* HEADER MINIMALISTA */}
       <section className="pt-32 px-6 text-center">

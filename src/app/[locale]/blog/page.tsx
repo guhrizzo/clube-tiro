@@ -10,6 +10,7 @@ import { collection, query, orderBy, getDocs } from "firebase/firestore";
 import NavBar from "../../../../components/NavBar";
 import ContactPremium from "../../../../components/Contact";
 import { ChevronDown, Filter } from "lucide-react";
+import ScrollToTop from "components/BackTop";
 
 type Noticia = {
     id: string;
@@ -73,6 +74,7 @@ export default function BlogPage() {
 
     return (
         <section className="relative bg-white py-24 overflow-hidden">
+            <ScrollToTop />
             <NavBar />
 
             <div className="relative max-w-7xl mx-auto px-6">
@@ -211,10 +213,6 @@ export default function BlogPage() {
 
                     </div>
                 )}
-            </div>
-
-            <div className="mt-24">
-                <ContactPremium />
             </div>
         </section>
     );

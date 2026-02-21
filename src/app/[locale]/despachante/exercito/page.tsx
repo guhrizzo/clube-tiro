@@ -15,7 +15,7 @@ import {
   Stamp,
   BadgeCheck
 } from "lucide-react";
-
+import ScrollToTop from "components/BackTop";
 import NavBar from "components/NavBar";
 
 const servicesEB = [
@@ -70,6 +70,7 @@ export default function ArmyDispatcherPage() {
 
   return (
     <main className="bg-[#f9fafb] min-h-screen">
+      <ScrollToTop />
       <NavBar />
 
       {/* ================= SEÇÃO HERO (EB TOPO) ================= */}

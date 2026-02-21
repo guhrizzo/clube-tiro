@@ -13,6 +13,7 @@ import {
   FileBadge
 } from "lucide-react";
 import NavBar from "components/NavBar";
+import ScrollToTop from "components/BackTop";
 
 const services = [
   {
@@ -55,6 +56,7 @@ export default function DispatcherCards() {
 
   return (
     <main className="bg-[#f9fafb] min-h-screen">
+      <ScrollToTop />
       <NavBar />
 
       {/* ================= SEÇÃO HERO (FOTO NO TOPO) ================= */}

@@ -6,6 +6,7 @@ import NavBar from "components/NavBar";
 // Importe a configuração do seu firebase
 import { db } from "../../../../../lib/firebase"; 
 import { collection, onSnapshot, query, orderBy } from "firebase/firestore";
+import ScrollToTop from "components/BackTop";
 
 interface VideoItem {
   id: string;
@@ -46,6 +47,7 @@ export default function VideoGallerySection() {
 
   return (
     <section className="relative w-full bg-[#f9fafb] py-24 min-h-screen">
+      <ScrollToTop />
       <NavBar />
       <div className="absolute -left-48 -bottom-48 w-130 h-130 rounded-full border-48 border-[#ffb703]/10 pointer-events-none" />
 
