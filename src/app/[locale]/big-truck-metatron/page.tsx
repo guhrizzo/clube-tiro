@@ -41,7 +41,7 @@ export default function MetratonGallery() {
   const [selectedImg, setSelectedImg] = useState<string | null>(null);
 
   return (
-    <main className="bg-[#0a0a0a] min-h-screen text-white pb-20">
+    <main className="bg-[#0a0a0a] min-h-screen text-white">
       <NavBar />
       {/* HEADER MINIMALISTA */}
       <section className="pt-32 px-6 text-center">

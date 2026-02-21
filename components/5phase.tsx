@@ -29,7 +29,7 @@ export default function MetratonFinalPhase() {
     const videoUrl = "https://firebasestorage.googleapis.com/v0/b/meublog-da849.firebasestorage.app/o/videos%2Fvideo-metatron.mp4?alt=media&token=86094138-9f5d-41fe-bd16-3e7b94c4e23f";
 
     return (
-        <main className="bg-[#0a0a0a] min-h-screen text-white pb-20">
+        <main className="bg-[#0a0a0a] pb-20 text-white">
             
 
             <section className="text-center">
@@ -38,7 +38,7 @@ export default function MetratonFinalPhase() {
             {/* SEÇÃO DO VÍDEO */}
             <section className="max-w-300 mx-auto px-6">
                 {/* INFO BOX */}
-                <div className="mt-12 flex flex-col md:flex-row items-center justify-between gap-8 border-t border-white/5 pt-12">
+                <div className="mt-12 flex flex-col md:flex-row items-center justify-between gap-8 border-t border-white/5 ">
                     <div className="flex items-center gap-4">
                         <Shield className="text-[#ffb703]" size={32} />
                         <div>
