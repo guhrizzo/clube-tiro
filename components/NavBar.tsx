@@ -145,7 +145,7 @@ export default function NavBar() {
 
     {
       key: "loja",
-      label: "Loja",
+      label: "LOJA",
       children: [
         { label: "Pistolas", href: "/loja/pistolas" },
         { label: "Revólveres", href: "/loja/revolveres" },
@@ -158,7 +158,7 @@ export default function NavBar() {
 
     {
       key: "clube",
-      label: "Clube",
+      label: "CLUBE",
       children: [
         { label: "BH - Gutierrez", href: "/clube/gutierrez" },
         { label: "BH - Raja", href: "/clube/raja" },
@@ -176,7 +176,7 @@ export default function NavBar() {
 
     {
       key: "cursos",
-      label: "Cursos",
+      label: "CURSOS",
       children: [
         { label: "Capacitação de Guardas e Agentes", href: "/cursos/capacitacao" },
         { label: "Defensivo", href: "/cursos/defensivo" },
@@ -187,7 +187,7 @@ export default function NavBar() {
 
     {
       key: "despachante",
-      label: "Despachante",
+      label: "DESPACHANTE",
       children: [
         { label: "Polícia Federal", href: "/despachante/pf" },
         { label: "Exército Brasileiro", href: "/despachante/exercito" },
@@ -196,7 +196,7 @@ export default function NavBar() {
 
     {
       key: "midias",
-      label: "Mídias",
+      label: "MÍDIAS",
       children: [
         { label: "Galeria", href: "/midias/galeria" },
         { label: "Vídeos", href: "/midias/videos" },
@@ -348,7 +348,7 @@ export default function NavBar() {
             className={`hidden lg:block container mx-auto px-4 transition-all duration-300 ${isScrolled ? "pb-2" : "pb-4"
               }`}
           >
-            <nav className="bg-[#1a1a1a] rounded-full px-6 py-1 shadow-xl">
+            <nav className="bg-[#1a1a1a] rounded-full px-6 py-1 uppercase shadow-xl">
               <div className="flex justify-between items-center h-12">
                 <ul className="flex items-center gap-8 w-full justify-center">
                   {menuItems.map((item) => (
@@ -374,12 +374,12 @@ export default function NavBar() {
 
                       {/* DROPDOWN */}
                       {item.children && (
-                        <ul className="absolute left-0 top-full mt-2 w-56 bg-[#1a1a1a] rounded-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 py-3 z-50">
+                        <ul className="absolute left-0 top-full mt-2 w-56 bg-[#1a1a1a] uppercase rounded-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 py-3 z-50">
                           {item.children.map((child, index) => (
                             <li key={index}>
                               <a
                                 href={withLang(child.href)}
-                                className="block px-4 py-2 text-sm text-white hover:text-[#ffb703] hover:bg-white/5 transition-all"
+                                className="block px-4 py-2 uppercase text-sm text-white hover:text-[#ffb703] hover:bg-white/5 transition-all"
                               >
                                 {child.label}
                               </a>
@@ -410,21 +410,21 @@ export default function NavBar() {
       {/* DRAWER */}
       <aside
         className={`fixed inset-y-0 right-0 h-dvh w-[85%] max-w-sm
-  bg-black text-white z-99999
+  bg-black text-white uppercase z-99999
   transform transition-transform duration-300
   ${open ? "translate-x-0" : "translate-x-full"}
   flex flex-col`}
       >
 
         {/* HEADER */}
-        <div className="flex items-center justify-end px-5 py-4 border-b border-white/10">
+        <div className="flex items-center justify-end px-5 py-4 uppercase border-b border-white/10">
           <button onClick={() => setOpen(false)}>
             <X size={26} />
           </button>
         </div>
 
         {/* CONTEÚDO ROLÁVEL */}
-        <div className="flex-1 overflow-y-auto">
+        <div className="flex-1 uppercase overflow-y-auto">
           <div className="px-5 py-5 border-t border-white/10 flex items-center justify-between">
             <div className="flex gap-3">
               <FlagBtn
@@ -479,12 +479,12 @@ export default function NavBar() {
           {/* LINKS */}
           <nav className="mt-6 px-5 space-y-1 text-sm uppercase tracking-wide">
             {menuItems.map((item) => (
-              <div key={item.key} className="border-b border-white/10">
+              <div key={item.key} className="border-b uppercase border-white/10">
 
                 {item.href ? (
                   <a
                     href={withLang(item.href)}
-                    className="block py-3 hover:text-[#ffb703] transition"
+                    className="block uppercase py-3 hover:text-[#ffb703] transition"
                     onClick={() => setOpen(false)}
                   >
                     {item.label || t[item.key]}
@@ -498,7 +498,7 @@ export default function NavBar() {
                   >
                     <span>{item.label}</span>
                     <span
-                      className={`transition-transform duration-300 ${openSub === item.key ? "rotate-180" : ""
+                      className={`transition-transform duration-300 uppercase ${openSub === item.key ? "rotate-180" : ""
                         }`}
                     >
                       ▼
@@ -507,12 +507,12 @@ export default function NavBar() {
                 )}
 
                 {item.children && openSub === item.key && (
-                  <div className="pl-4 pb-3 space-y-2 text-xs text-white/80">
+                  <div className="pl-4 pb-3 space-y-2 uppercase text-xs text-white/80">
                     {item.children.map((child, index) => (
                       <a
                         key={index}
                         href={withLang(child.href)}
-                        className="block py-1 hover:text-[#ffb703] transition"
+                        className="block uppercase py-1 hover:text-[#ffb703] transition"
                         onClick={() => setOpen(false)}
                       >
                         {child.label}
