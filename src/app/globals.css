@@ -17,6 +17,14 @@
   --gold: #ffd60aff;
 }
 
+/* No seu globals.css */
+@layer base {
+  ::selection {
+    background-color: #ffc300; /* Cor de fundo da seleção */
+    color: #020b18;            /* Cor do texto ao ser selecionado */
+  }
+}
+
 /* ===== Swiper Premium UI ===== */
 
 /* Slide central em destaque */
