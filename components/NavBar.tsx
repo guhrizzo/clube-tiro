@@ -62,7 +62,6 @@ const dictionaries = {
   },
 };
 
-
 const SUPPORTED_LANGS = ["pt", "en", "es"] as const;
 type Lang = (typeof SUPPORTED_LANGS)[number];
 
@@ -81,28 +80,21 @@ export default function NavBar() {
 
   useEffect(() => {
     if (!pathname) return;
-
     const segments = pathname.split("/").filter(Boolean);
-
-    // Se não tiver idioma na URL
     if (!SUPPORTED_LANGS.includes(segments[0] as Lang)) {
       const savedLang = localStorage.getItem("lang") as Lang | null;
-
       if (savedLang && SUPPORTED_LANGS.includes(savedLang)) {
         router.replace(`/${savedLang}${pathname}`);
         return;
       }
-
       const browserLang = navigator.language.slice(0, 2) as Lang;
-
       if (SUPPORTED_LANGS.includes(browserLang)) {
         router.replace(`/${browserLang}${pathname}`);
       } else {
         router.replace(`/pt${pathname}`);
       }
     }
-  }, []);
-
+  }, [pathname, router]);
 
   const currentLang = useMemo<Lang>(() => {
     if (!pathname) return "pt";
@@ -112,37 +104,23 @@ export default function NavBar() {
 
   const changeLang = (lang: Lang) => {
     if (!pathname) return;
-
     localStorage.setItem("lang", lang);
-
     const segments = pathname.split("/").filter(Boolean);
-
-    // remove idioma atual se existir
     if (SUPPORTED_LANGS.includes(segments[0] as Lang)) {
       segments.shift();
     }
-
     const newPath = `/${lang}/${segments.join("/")}`;
-
     router.replace(newPath);
   };
-
 
   const t = (dictionaries as any)[currentLang].navbar;
   const withLang = (path?: string) => {
     if (!path) return "#";
-    return path.startsWith(`/${currentLang}`)
-      ? path
-      : `/${currentLang}${path}`;
+    return path.startsWith(`/${currentLang}`) ? path : `/${currentLang}${path}`;
   };
-
-
-
-
 
   const menuItems = [
     { key: "home", label: "Apresentação", href: "/home" },
-
     {
       key: "loja",
       label: "LOJA",
@@ -155,7 +133,6 @@ export default function NavBar() {
         { label: "Outros", href: "/loja/outros" },
       ],
     },
-
     {
       key: "clube",
       label: "CLUBE",
@@ -167,13 +144,7 @@ export default function NavBar() {
         { label: "Mídias", href: "/clube/midias" },
       ],
     },
-
-    {
-      key: "rastreamento",
-      label: "Rastreamento",
-      href: "/rastreamento",
-    },
-
+    { key: "rastreamento", label: "Rastreamento", href: "/rastreamento" },
     {
       key: "cursos",
       label: "CURSOS",
@@ -184,7 +155,6 @@ export default function NavBar() {
         { label: "Outros", href: "/cursos/outros" },
       ],
     },
-
     {
       key: "despachante",
       label: "DESPACHANTE",
@@ -193,7 +163,6 @@ export default function NavBar() {
         { label: "Exército Brasileiro", href: "/despachante/exercito" },
       ],
     },
-
     {
       key: "midias",
       label: "MÍDIAS",
@@ -202,73 +171,53 @@ export default function NavBar() {
         { label: "Vídeos", href: "/midias/videos" },
       ],
     },
-
-    {
-      key: "museu",
-      label: "Museu da Paz",
-      href: "/museu-da-paz",
-    },
-
-    {
-      key: "bigtruck",
-      label: "Big Truck METATRON",
-      href: "/big-truck-metatron",
-    },
-
+    { key: "museu", label: "Museu da Paz", href: "/museu-da-paz" },
+    { key: "bigtruck", label: "Big Truck METATRON", href: "/big-truck-metatron" },
     { key: "blog", href: "/blog" },
     { key: "contact", href: "/contato" },
   ];
 
-
-
   return (
     <>
-      {/* ================= HEADER ================= */}
       <header
-        className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${isScrolled
-          ? "bg-white/90 backdrop-blur-md shadow-lg"
-          : "bg-white"
-          }`}
+        className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${
+          isScrolled ? "bg-white/90 backdrop-blur-md shadow-lg" : "bg-white"
+        }`}
       >
         <div className="w-full flex flex-col items-center">
-
-          {/* 🔥 TOP UTILITY BAR — DESKTOP ONLY */}
+          {/* TOP UTILITY BAR — DESKTOP */}
           <div className="hidden md:block w-full bg-linear-to-r from-[#0f0f0f] via-[#151515] to-[#0f0f0f] border-b border-white/10">
             <div className="container mx-auto px-4 h-10 flex items-center justify-center gap-6 text-[11px] sm:text-xs font-semibold tracking-widest uppercase text-white/80">
-
               <UtilityLink
                 href="https://www.shootinghouse.com.br/login-associado/clubedetirobh.com.br/aHR0cHM6Ly93d3cuc2hvb3Rpbmdob3VzZS5jb20uYnIvYXNzb2NpYWRvL2RlY2xhcmFjYW8="
                 icon={<FileText size={14} />}
                 label="Emissão de Declarações"
               />
-
               <UtilityLink
                 href="https://clubedetirobh.com.br/validar-declaracao/"
                 icon={<BadgeCheck size={14} />}
                 label="Validar Declarações"
               />
-
               <UtilityLink
                 href="https://www.shootinghouse.com.br/login-associado/clubedetirobh.com.br/aHR0cHM6Ly93d3cuc2hvb3Rpbmdob3VzZS5jb20uYnIvYXNzb2NpYWRvL3NlY3JldGFyaWEvZGVzcGFjaGFudGUvc29saWNpdGFjb2Vz"
                 icon={<LayoutDashboard size={14} />}
                 label="Serviços de Secretaria"
               />
-
               <UtilityLink
                 href="https://www.shootinghouse.com.br/login-associado/clubedetirobh.com.br/aHR0cHM6Ly93d3cuc2hvb3Rpbmdob3VzZS5jb20uYnIvYXNzb2NpYWRvL2ZpbmFuY2Vpcm8vYm9sZXRv"
                 icon={<Printer size={14} />}
                 label="2ª Via de Boleto"
               />
-
             </div>
           </div>
 
-          {/* 🟡 TOP BAR (LOGO + HAMBURGER MOBILE) */}
+          {/* LOGO + SOCIAL + TOOLS */}
           <div
-            className={`container mx-auto px-4 flex justify-between items-center gap-4 transition-all duration-300 ${isScrolled ? "py-2" : "py-4"
-              }`}
+            className={`container mx-auto px-4 flex justify-between items-center gap-4 transition-all duration-300 ${
+              isScrolled ? "py-2" : "py-4"
+            }`}
           >
-            <div className="shrink-0">
+            <div className="shrink-0 flex items-center gap-8 justify-center">
               <Image
                 src="/LOGO1.png"
                 alt="Logo"
@@ -276,37 +225,24 @@ export default function NavBar() {
                 height={60}
                 className="object-contain transition-all duration-300"
               />
+              <div className="flex gap-2  border-gray-200 pr-6">
+                <IconInstagram />
+                <IconFacebook />
+                <IconWhatsapp />
+                <IconLinkedin />
+                <IconYoutube />
+              </div>
             </div>
 
-            {/* DESKTOP RIGHT SIDE */}
             <div className="hidden lg:flex items-center gap-6">
-              <div className="flex gap-3 text-gray-700">
-                <IconInstagram /> <IconFacebook /> <IconWhatsapp />{" "}
-                <IconLinkedin /> <IconYoutube />
+              {/* SOCIAL ICONS LEFT-ALIGNED IN THIS SECTION */}
+              
+
+              <div className="flex gap-2">
+                <FlagBtn lang="en" active={currentLang === "en"} onClick={() => changeLang("en")} />
+                <FlagBtn lang="pt" active={currentLang === "pt"} onClick={() => changeLang("pt")} />
+                <FlagBtn lang="es" active={currentLang === "es"} onClick={() => changeLang("es")} />
               </div>
-
-              <div className="flex gap-2 border-l border-gray-200 pl-6">
-                <FlagBtn
-                  lang="en"
-                  active={currentLang === "en"}
-                  onClick={() => changeLang("en")}
-                />
-
-                <FlagBtn
-                  lang="pt"
-                  active={currentLang === "pt"}
-                  onClick={() => changeLang("pt")}
-                />
-
-                <FlagBtn
-                  lang="es"
-                  active={currentLang === "es"}
-                  onClick={() => changeLang("es")}
-                />
-
-              </div>
-
-
 
               <a
                 href="https://app.shootinghouse.com.br/login/clubedetirobh.com.br"
@@ -316,143 +252,99 @@ export default function NavBar() {
               >
                 <button
                   className="relative overflow-hidden flex items-center gap-2 bg-[#1a1a1a] text-[#ffb703]
-    px-5 py-2.5 rounded-md font-bold text-sm cursor-pointer
-    shadow-md transition-all duration-300
-    hover:bg-black hover:shadow-lg hover:shadow-[#ffb703]/20 hover:-translate-y-px
-    active:scale-95"
+                    px-5 py-2.5 rounded-md font-bold text-sm cursor-pointer shadow-md transition-all duration-300
+                    hover:bg-black hover:shadow-lg hover:shadow-[#ffb703]/20 hover:-translate-y-px active:scale-95"
                 >
-                  {/* Glow sweep */}
-                  <span className="absolute inset-0 bg-linear-to-r from-transparent via-[#ffb703]/20 to-transparent
-    translate-x-[-120%] group-hover:translate-x-[120%] transition-transform duration-700" />
-
+                  <span className="absolute inset-0 bg-linear-to-r from-transparent via-[#ffb703]/20 to-transparent translate-x-[-120%] group-hover:translate-x-[120%] transition-transform duration-700" />
                   <User size={16} className="relative z-10 group-hover:scale-110 transition-transform" />
                   <span className="relative z-10">ACESSO C.A.C</span>
                 </button>
               </a>
-
-
-
             </div>
 
-            {/* MOBILE HAMBURGER */}
-            <button
-              onClick={() => setOpen(true)}
-              className="lg:hidden text-black"
-            >
+            <button onClick={() => setOpen(true)} className="lg:hidden text-black">
               <Menu size={28} />
             </button>
           </div>
 
-          {/* 🧭 NAV DESKTOP */}
-          <div
-            className={`hidden lg:block container mx-auto px-4 transition-all duration-300 ${isScrolled ? "pb-2" : "pb-4"
-              }`}
-          >
+          {/* NAV DESKTOP */}
+          <div className={`hidden lg:block container mx-auto px-4 transition-all duration-300 ${isScrolled ? "pb-2" : "pb-4"}`}>
             <nav className="bg-[#1a1a1a] rounded-full px-6 py-1 uppercase shadow-xl">
-              <div className="flex justify-between items-center h-12">
-                <ul className="flex items-center gap-8 w-full justify-center">
-                  {menuItems.map((item) => (
-                    <li key={item.key} className="relative group">
-
-                      {/* ITEM NORMAL */}
-                      {item.href ? (
-                        <a
-                          href={withLang(item.href)}
-                          className="text-white hover:text-[#ffb703] text-[13px] font-semibold flex items-center gap-1 duration-300 transition-all py-3 uppercase tracking-wider"
-                        >
-                          {item.label || t[item.key]}
-                        </a>
-                      ) : (
-                        /* ITEM COM DROPDOWN */
-                        <span className="text-white text-[13px] hover:text-[#ffb703] duration-300 transition-all font-semibold flex items-center gap-1 py-3 uppercase tracking-wider cursor-pointer">
-                          {item.label}
-                        </span>
-                      )}
-
-                      {/* LINHA AMARELA */}
-                      <span className="absolute bottom-2 left-0 w-full scale-x-0 h-0.5 rounded-2xl bg-[#ffb703] duration-300 origin-left transition-all group-hover:scale-x-100"></span>
-
-                      {/* DROPDOWN */}
-                      {item.children && (
-                        <ul className="absolute left-0 top-full mt-2 w-56 bg-[#1a1a1a] uppercase rounded-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 py-3 z-50">
-                          {item.children.map((child, index) => (
-                            <li key={index}>
-                              <a
-                                href={withLang(child.href)}
-                                className="block px-4 py-2 uppercase text-sm text-white hover:text-[#ffb703] hover:bg-white/5 transition-all"
-                              >
-                                {child.label}
-                              </a>
-                            </li>
-                          ))}
-                        </ul>
-                      )}
-
-                    </li>
-                  ))}
-
-                </ul>
-              </div>
+              <ul className="flex items-center gap-8 w-full justify-center h-12">
+                {menuItems.map((item) => (
+                  <li key={item.key} className="relative group">
+                    {item.href ? (
+                      <a
+                        href={withLang(item.href)}
+                        className="text-white hover:text-[#ffb703] text-[13px] font-semibold flex items-center gap-1 duration-300 transition-all py-3 uppercase tracking-wider"
+                      >
+                        {item.label || t[item.key]}
+                      </a>
+                    ) : (
+                      <span className="text-white text-[13px] hover:text-[#ffb703] duration-300 transition-all font-semibold flex items-center gap-1 py-3 uppercase tracking-wider cursor-pointer">
+                        {item.label}
+                      </span>
+                    )}
+                    <span className="absolute bottom-2 left-0 w-full scale-x-0 h-0.5 rounded-2xl bg-[#ffb703] duration-300 origin-left transition-all group-hover:scale-x-100"></span>
+                    {item.children && (
+                      <ul className="absolute left-0 top-full mt-2 w-56 bg-[#1a1a1a] uppercase rounded-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 py-3 z-50 border border-white/5">
+                        {item.children.map((child, index) => (
+                          <li key={index}>
+                            <a
+                              href={withLang(child.href)}
+                              className="block px-4 py-2 uppercase text-sm text-white hover:text-[#ffb703] hover:bg-white/5 transition-all"
+                            >
+                              {child.label}
+                            </a>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </li>
+                ))}
+              </ul>
             </nav>
           </div>
         </div>
       </header>
 
-      {/* ================= MOBILE DRAWER ================= */}
-      {/* OVERLAY */}
-      {open && (
-        <div
-          onClick={() => setOpen(false)}
-          className="fixed inset-0 bg-black/40 z-99"
-        />
-      )}
+      {/* MOBILE DRAWER */}
+      {open && <div onClick={() => setOpen(false)} className="fixed inset-0 bg-black/60 backdrop-blur-sm z-99" />}
 
-      {/* DRAWER */}
       <aside
-        className={`fixed inset-y-0 right-0 h-dvh w-[85%] max-w-sm
-  bg-black text-white uppercase z-99999
-  transform transition-transform duration-300
-  ${open ? "translate-x-0" : "translate-x-full"}
-  flex flex-col`}
+        className={`fixed inset-y-0 right-0 h-dvh w-[85%] max-w-sm bg-black text-white uppercase z-99999 transform transition-transform duration-300 ${
+          open ? "translate-x-0" : "translate-x-full"
+        } flex flex-col`}
       >
-
-        {/* HEADER */}
-        <div className="flex items-center justify-end px-5 py-4 uppercase border-b border-white/10">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-white/10">
+          <Image src="/LOGO1.png" alt="Logo" width={100} height={40} className="" />
           <button onClick={() => setOpen(false)}>
             <X size={26} />
           </button>
         </div>
 
-        {/* CONTEÚDO ROLÁVEL */}
-        <div className="flex-1 uppercase overflow-y-auto">
-          <div className="px-5 py-5 border-t border-white/10 flex items-center justify-between">
+        <div className="flex-1 overflow-y-auto">
+          {/* MOBILE SOCIALS */}
+          <div className="px-5 py-6 flex justify-center gap-4 bg-white/5">
+            <IconInstagram />
+            <IconFacebook />
+            <IconWhatsapp />
+            <IconLinkedin />
+            <IconYoutube />
+          </div>
+
+          <div className="px-5 py-5 border-b border-white/10 flex items-center justify-between">
             <div className="flex gap-3">
-              <FlagBtn
-                lang="en"
-                active={currentLang === "en"}
-                onClick={() => changeLang("en")}
-              />
-
-              <FlagBtn
-                lang="pt"
-                active={currentLang === "pt"}
-                onClick={() => changeLang("pt")}
-              />
-
-              <FlagBtn
-                lang="es"
-                active={currentLang === "es"}
-                onClick={() => changeLang("es")}
-              />
-
+              <FlagBtn lang="en" active={currentLang === "en"} onClick={() => changeLang("en")} />
+              <FlagBtn lang="pt" active={currentLang === "pt"} onClick={() => changeLang("pt")} />
+              <FlagBtn lang="es" active={currentLang === "es"} onClick={() => changeLang("es")} />
             </div>
-
             <button className="flex items-center gap-2 bg-[#ffb703] text-black px-4 py-2 rounded-md font-bold text-xs hover:bg-[#ffd166] transition">
               <User size={14} />
               ACESSO C.A.C
             </button>
           </div>
-          {/* SERVIÇOS */}
+
           <div className="px-5 pt-4 grid grid-cols-2 gap-3 text-xs uppercase tracking-wide">
             <UtilityMobile
               href="https://www.shootinghouse.com.br/login-associado/clubedetirobh.com.br/aHR0cHM6Ly93d3cuc2hvb3Rpbmdob3VzZS5jb20uYnIvYXNzb2NpYWRvL2RlY2xhcmFjYW8="
@@ -476,43 +368,35 @@ export default function NavBar() {
             />
           </div>
 
-          {/* LINKS */}
-          <nav className="mt-6 px-5 space-y-1 text-sm uppercase tracking-wide">
+          <nav className="mt-6 px-5 pb-10 space-y-1 text-sm uppercase tracking-wide">
             {menuItems.map((item) => (
-              <div key={item.key} className="border-b uppercase border-white/10">
-
+              <div key={item.key} className="border-b border-white/10">
                 {item.href ? (
                   <a
                     href={withLang(item.href)}
-                    className="block uppercase py-3 hover:text-[#ffb703] transition"
+                    className="block py-3 hover:text-[#ffb703] transition"
                     onClick={() => setOpen(false)}
                   >
                     {item.label || t[item.key]}
                   </a>
                 ) : (
                   <button
-                    onClick={() =>
-                      setOpenSub(openSub === item.key ? null : item.key)
-                    }
+                    onClick={() => setOpenSub(openSub === item.key ? null : item.key)}
                     className="w-full flex justify-between items-center py-3 hover:text-[#ffb703] transition"
                   >
                     <span>{item.label}</span>
-                    <span
-                      className={`transition-transform duration-300 uppercase ${openSub === item.key ? "rotate-180" : ""
-                        }`}
-                    >
+                    <span className={`transition-transform duration-300 ${openSub === item.key ? "rotate-180" : ""}`}>
                       ▼
                     </span>
                   </button>
                 )}
-
                 {item.children && openSub === item.key && (
-                  <div className="pl-4 pb-3 space-y-2 uppercase text-xs text-white/80">
+                  <div className="pl-4 pb-3 space-y-2 text-xs text-white/80">
                     {item.children.map((child, index) => (
                       <a
                         key={index}
                         href={withLang(child.href)}
-                        className="block uppercase py-1 hover:text-[#ffb703] transition"
+                        className="block py-1 hover:text-[#ffb703] transition"
                         onClick={() => setOpen(false)}
                       >
                         {child.label}
@@ -523,166 +407,111 @@ export default function NavBar() {
               </div>
             ))}
           </nav>
-
         </div>
-
-        {/* FOOTER FIXO */}
-
-
       </aside>
 
-
-      {/* SPACER */}
-      <div className="h-20 lg:h-35" />
+      <div className="h-24 lg:h-40" />
     </>
   );
 }
 
 /* ---------------- COMPONENTES AUX ---------------- */
 
-function UtilityLink({
-  href,
-  icon,
-  label,
-}: {
-  href: string;
-  icon: React.ReactNode;
-  label: string;
-}) {
+function SocialIcon({ href, children }: { href: string; children: React.ReactNode }) {
   return (
-    <a
-      href={href}
-      target="_blank"
-      rel="nofollow noreferrer"
-      className="flex items-center gap-2 hover:text-[#ffb703] transition-all ease-in-out duration-200 group"
-    >
-      <span className="opacity-70 group-hover:opacity-100 transition-all">
-        {icon}
-      </span>
+    <a href={href} target="_blank" rel="noopener noreferrer" className="group">
+      <div className="bg-[#1a1a1a] p-2 rounded-lg text-[#ffb703] transition-all duration-300 
+                      group-hover:bg-[#ffb703] group-hover:text-black shadow-sm group-active:scale-90">
+        {children}
+      </div>
+    </a>
+  );
+}
+
+function UtilityLink({ href, icon, label }: { href: string; icon: React.ReactNode; label: string }) {
+  return (
+    <a href={href} target="_blank" rel="nofollow noreferrer" className="flex items-center gap-2 hover:text-[#ffb703] transition-all duration-200 group">
+      <span className="opacity-70 group-hover:opacity-100 transition-all">{icon}</span>
       <span className="hidden sm:inline">{label}</span>
     </a>
   );
 }
 
-function UtilityMobile({
-  href,
-  icon,
-  label,
-}: {
-  href: string;
-  icon: React.ReactNode;
-  label: string;
-}) {
+function UtilityMobile({ href, icon, label }: { href: string; icon: React.ReactNode; label: string }) {
   return (
-    <a
-      href={href}
-      target="_blank"
-      rel="nofollow noreferrer"
-      className="flex items-center gap-2 px-3 py-2 rounded-md bg-white/5 hover:bg-white/10 transition-colors"
-    >
+    <a href={href} target="_blank" rel="nofollow noreferrer" className="flex items-center gap-2 px-3 py-2 rounded-md bg-white/5 hover:bg-white/10 transition-colors">
       {icon}
       <span>{label}</span>
     </a>
   );
 }
 
-function FlagBtn({
-  lang,
-  active = false,
-  onClick,
-}: {
-  lang: Lang;
-  active?: boolean;
-  onClick?: () => void;
-}) {
-  const codes: Record<Lang, string> = {
-    pt: "BR",
-    en: "US",
-    es: "ES",
-  };
-
+function FlagBtn({ lang, active = false, onClick }: { lang: Lang; active?: boolean; onClick?: () => void }) {
+  const codes: Record<Lang, string> = { pt: "BR", en: "US", es: "ES" };
   return (
     <button
       onClick={onClick}
-      className={`hover:scale-110 transition-all duration-300 cursor-pointer ${active
-        ? "ring-2 ring-[#ffb703] ring-offset-2 ring-offset-black rounded-sm"
-        : "opacity-60 hover:opacity-100"
-        }`}
+      className={`hover:scale-110 transition-all duration-300 cursor-pointer ${
+        active ? "ring-2 ring-[#ffb703] ring-offset-2 ring-offset-white rounded-sm" : "opacity-60 hover:opacity-100"
+      }`}
     >
       <img
         src={`https://purecatamphetamine.github.io/country-flag-icons/3x2/${codes[lang]}.svg`}
-        className="w-6 h-auto rounded-sm"
+        className="w-6 h-auto rounded-sm shadow-sm"
         alt={lang}
       />
     </button>
   );
 }
 
-
 /* ---------------- ICONS ---------------- */
 
 function IconInstagram() {
   return (
-    <a href="#" className="hover:text-[#ffb703] transition-all ease-in-out duration-300">
-      <div className="bg-gray-100 p-2 rounded-lg hover:bg-gray-200 transition-all ease-in-out duration-300">
-        <svg width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
-          <path d="M8 0C5.829 0 5.556.01 4.703.048 3.85.088 3.269.222 2.76.42a3.9 3.9 0 0 0-1.417.923A3.9 3.9 0 0 0 .42 2.76C.222 3.268.087 3.85.048 4.7.01 5.555 0 5.827 0 8.001c0 2.172.01 2.444.048 3.297.04.852.174 1.433.372 1.942.205.526.478.972.923 1.417.444.445.89.719 1.416.923.51.198 1.09.333 1.942.372C5.555 15.99 5.827 16 8 16s2.444-.01 3.298-.048c.851-.04 1.434-.174 1.943-.372a3.9 3.9 0 0 0 1.416-.923c.445-.445.718-.891.923-1.417.197-.509.332-1.09.372-1.942C15.99 10.445 16 10.173 16 8s-.01-2.445-.048-3.299c-.04-.851-.175-1.433-.372-1.941a3.9 3.9 0 0 0-.923-1.417A3.9 3.9 0 0 0 13.24.42c-.51-.198-1.092-.333-1.943-.372C10.443.01 10.172 0 7.998 0zm-.717 1.442h.718c2.136 0 2.389.007 3.232.046.78.035 1.204.166 1.486.275.373.145.64.319.92.599s.453.546.598.92c.11.281.24.705.275 1.485.039.843.047 1.096.047 3.231s-.008 2.389-.047 3.232c-.035.78-.166 1.203-.275 1.485a2.5 2.5 0 0 1-.599.919c-.28.28-.546.453-.92.598-.28.11-.704.24-1.485.276-.843.038-1.096.047-3.232.047s-2.39-.009-3.233-.047c-.78-.036-1.203-.166-1.485-.276a2.5 2.5 0 0 1-.92-.598 2.5 2.5 0 0 1-.6-.92c-.109-.281-.24-.705-.275-1.485-.038-.843-.046-1.096-.046-3.233s.008-2.388.046-3.231c.036-.78.166-1.204.276-1.486.145-.373.319-.64.599-.92s.546-.453.92-.598c.282-.11.705-.24 1.485-.276.738-.034 1.024-.044 2.515-.045zm4.988 1.328a.96.96 0 1 0 0 1.92.96.96 0 0 0 0-1.92m-4.27 1.122a4.109 4.109 0 1 0 0 8.217 4.109 4.109 0 0 0 0-8.217m0 1.441a2.667 2.667 0 1 1 0 5.334 2.667 2.667 0 0 1 0-5.334" />
-        </svg>
-      </div>
-    </a>
+    <SocialIcon href="#">
+      <svg width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
+        <path d="M8 0C5.829 0 5.556.01 4.703.048 3.85.088 3.269.222 2.76.42a3.9 3.9 0 0 0-1.417.923A3.9 3.9 0 0 0 .42 2.76C.222 3.268.087 3.85.048 4.7.01 5.555 0 5.827 0 8.001c0 2.172.01 2.444.048 3.297.04.852.174 1.433.372 1.942.205.526.478.972.923 1.417.444.445.89.719 1.416.923.51.198 1.09.333 1.942.372C5.555 15.99 5.827 16 8 16s2.444-.01 3.298-.048c.851-.04 1.434-.174 1.943-.372a3.9 3.9 0 0 0 1.416-.923c.445-.445.718-.891.923-1.417.197-.509.332-1.09.372-1.942C15.99 10.445 16 10.173 16 8s-.01-2.445-.048-3.299c-.04-.851-.175-1.433-.372-1.941a3.9 3.9 0 0 0-.923-1.417A3.9 3.9 0 0 0 13.24.42c-.51-.198-1.092-.333-1.943-.372C10.443.01 10.172 0 7.998 0zm-.717 1.442h.718c2.136 0 2.389.007 3.232.046.78.035 1.204.166 1.486.275.373.145.64.319.92.599s.453.546.598.92c.11.281.24.705.275 1.485.039.843.047 1.096.047 3.231s-.008 2.389-.047 3.232c-.035.78-.166 1.203-.275 1.485a2.5 2.5 0 0 1-.599.919c-.28.28-.546.453-.92.598-.28.11-.704.24-1.485.276-.843.038-1.096.047-3.232.047s-2.39-.009-3.233-.047c-.78-.036-1.203-.166-1.485-.276a2.5 2.5 0 0 1-.92-.598 2.5 2.5 0 0 1-.6-.92c-.109-.281-.24-.705-.275-1.485-.038-.843-.046-1.096-.046-3.233s.008-2.388.046-3.231c.036-.78.166-1.204.276-1.486.145-.373.319-.64.599-.92s.546-.453.92-.598c.282-.11.705-.24 1.485-.276.738-.034 1.024-.044 2.515-.045zm4.988 1.328a.96.96 0 1 0 0 1.92.96.96 0 0 0 0-1.92m-4.27 1.122a4.109 4.109 0 1 0 0 8.217 4.109 4.109 0 0 0 0-8.217m0 1.441a2.667 2.667 0 1 1 0 5.334 2.667 2.667 0 0 1 0-5.334" />
+      </svg>
+    </SocialIcon>
   );
 }
 
 function IconWhatsapp() {
   return (
-    <a href="#" className="hover:text-[#ffb703] transition-all ease-in-out duration-300">
-      <div className="bg-gray-100 p-2 rounded-lg hover:bg-gray-200 transition-all ease-in-out duration-300">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="18"
-          height="18"
-          fill="currentColor"
-          viewBox="0 0 16 16"
-        >
-          <path d="M13.601 2.326A7.85 7.85 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.9 7.9 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.9 7.9 0 0 0 13.6 2.326zM7.994 14.521a6.6 6.6 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.56 6.56 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592m3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.73.73 0 0 0-.529.247c-.182.198-.691.677-.691 1.654s.71 1.916.81 2.049c.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232" />
-        </svg>
-      </div>
-    </a>
+    <SocialIcon href="#">
+      <svg width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
+        <path d="M13.601 2.326A7.85 7.85 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.9 7.9 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.9 7.9 0 0 0 13.6 2.326zM7.994 14.521a6.6 6.6 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.56 6.56 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592m3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.73.73 0 0 0-.529.247c-.182.198-.691.677-.691 1.654s.71 1.916.81 2.049c.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232" />
+      </svg>
+    </SocialIcon>
   );
 }
 
 function IconLinkedin() {
   return (
-    <a href="#" className="hover:text-[#ffb703] transition-all ease-in-out duration-300">
-      <div className="bg-gray-100 p-2 rounded-lg hover:bg-gray-200 transition-all ease-in-out duration-300">
-        <svg width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
-          <path d="M0 1.146C0 .513.526 0 1.175 0h13.65C15.474 0 16 .513 16 1.146v13.708c0 .633-.526 1.146-1.175 1.146H1.175C.526 16 0 15.487 0 14.854V1.146zm4.943 12.248V6.169H2.542v7.225h2.401zm-1.2-8.212c.837 0 1.358-.554 1.358-1.248-.015-.709-.52-1.248-1.342-1.248-.822 0-1.359.54-1.359 1.248 0 .694.521 1.248 1.327 1.248h.016zm4.908 8.212V9.359c0-.216.016-.432.08-.586.173-.431.568-.878 1.232-.878.869 0 1.216.662 1.216 1.634v3.865h2.401V9.25c0-2.22-1.184-3.252-2.764-3.252-1.274 0-1.845.7-2.165 1.193v.025h-.016a5.54 5.54 0 0 1 .016-.025V6.169h-2.4c.03.678 0 7.225 0 7.225h2.4z" />
-        </svg>
-      </div>
-    </a>
+    <SocialIcon href="#">
+      <svg width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
+        <path d="M0 1.146C0 .513.526 0 1.175 0h13.65C15.474 0 16 .513 16 1.146v13.708c0 .633-.526 1.146-1.175 1.146H1.175C.526 16 0 15.487 0 14.854V1.146zm4.943 12.248V6.169H2.542v7.225h2.401zm-1.2-8.212c.837 0 1.358-.554 1.358-1.248-.015-.709-.52-1.248-1.342-1.248-.822 0-1.359.54-1.359 1.248 0 .694.521 1.248 1.327 1.248h.016zm4.908 8.212V9.359c0-.216.016-.432.08-.586.173-.431.568-.878 1.232-.878.869 0 1.216.662 1.216 1.634v3.865h2.401V9.25c0-2.22-1.184-3.252-2.764-3.252-1.274 0-1.845.7-2.165 1.193v.025h-.016a5.54 5.54 0 0 1 .016-.025V6.169h-2.4c.03.678 0 7.225 0 7.225h2.4z" />
+      </svg>
+    </SocialIcon>
   );
 }
 
 function IconYoutube() {
   return (
-    <a href="#" className="hover:text-[#ffb703] transition-all ease-in-out duration-300">
-      <div className="bg-gray-100 p-2 rounded-lg hover:bg-gray-200 transition-all ease-in-out duration-300">
-        <svg width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
-          <path d="M8.051 1.999h.089c.822.003 4.987.033 6.11.335a2.01 2.01 0 0 1 1.415 1.42c.101.38.172.883.22 1.402l.01.104.022.26.008.104c.065.914.073 1.77.074 1.957v.075c-.001.194-.01 1.108-.082 2.06l-.008.105-.009.104c-.05.572-.124 1.14-.235 1.558a2.01 2.01 0 0 1-1.415 1.42c-1.16.312-5.569.334-6.18.335h-.142c-.309 0-1.587-.006-2.927-.052l-.17-.006-.087-.004-.171-.007-.171-.007c-1.11-.049-2.167-.128-2.654-.26a2.01 2.01 0 0 1-1.415-1.419c-.111-.417-.185-.986-.235-1.558L.09 9.82l-.008-.104A31 31 0 0 1 0 7.68v-.123c.002-.215.01-.958.064-1.778l.007-.103.003-.052.008-.104.022-.26.01-.104c.048-.519.119-1.023.22-1.402a2.01 2.01 0 0 1 1.415-1.42c.487-.13 1.544-.21 2.654-.26l.17-.007.172-.006.086-.003.171-.007A100 100 0 0 1 7.858 2zM6.4 5.209v4.818l4.157-2.408z" />
-        </svg>
-      </div>
-    </a>
+    <SocialIcon href="#">
+      <svg width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
+        <path d="M8.051 1.999h.089c.822.003 4.987.033 6.11.335a2.01 2.01 0 0 1 1.415 1.42c.101.38.172.883.22 1.402l.01.104.022.26.008.104c.065.914.073 1.77.074 1.957v.075c-.001.194-.01 1.108-.082 2.06l-.008.105-.009.104c-.05.572-.124 1.14-.235 1.558a2.01 2.01 0 0 1-1.415 1.42c-1.16.312-5.569.334-6.18.335h-.142c-.309 0-1.587-.006-2.927-.052l-.17-.006-.087-.004-.171-.007-.171-.007c-1.11-.049-2.167-.128-2.654-.26a2.01 2.01 0 0 1-1.415-1.419c-.111-.417-.185-.986-.235-1.558L.09 9.82l-.008-.104A31 31 0 0 1 0 7.68v-.123c.002-.215.01-.958.064-1.778l.007-.103.003-.052.008-.104.022-.26.01-.104c.048-.519.119-1.023.22-1.402a2.01 2.01 0 0 1 1.415-1.42c.487-.13 1.544-.21 2.654-.26l.17-.007.172-.006.086-.003.171-.007A100 100 0 0 1 7.858 2zM6.4 5.209v4.818l4.157-2.408z" />
+      </svg>
+    </SocialIcon>
   );
 }
 
 function IconFacebook() {
   return (
-    <a href="#" className="hover:text-[#ffb703] transition-all ease-in-out duration-300">
-      <div className="bg-gray-100 p-2 rounded-lg hover:bg-gray-200 transition-all ease-in-out duration-300">
-        <svg width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
-          <path d="M16 8.049c0-4.446-3.582-8.05-8-8.05C3.58 0-.002 3.603-.002 8.05c0 4.017 2.926 7.347 6.75 7.951v-5.625h-2.03V8.05H6.75V6.275c0-2.017 1.195-3.131 3.022-3.131.876 0 1.791.157 1.791.157v1.98h-1.009c-.993 0-1.303.621-1.303 1.258v1.51h2.218l-.354 2.326H9.25V16c3.824-.604 6.75-3.934 6.75-7.951" />
-        </svg>
-      </div>
-    </a>
+    <SocialIcon href="#">
+      <svg width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
+        <path d="M16 8.049c0-4.446-3.582-8.05-8-8.05C3.58 0-.002 3.603-.002 8.05c0 4.017 2.926 7.347 6.75 7.951v-5.625h-2.03V8.05H6.75V6.275c0-2.017 1.195-3.131 3.022-3.131.876 0 1.791.157 1.791.157v1.98h-1.009c-.993 0-1.303.621-1.303 1.258v1.51h2.218l-.354 2.326H9.25V16c3.824-.604 6.75-3.934 6.75-7.951" />
+      </svg>
+    </SocialIcon>
   );
 }
