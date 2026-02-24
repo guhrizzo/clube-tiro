@@ -46,7 +46,7 @@
     gap: 4px;
 }
 
-/* --- VISUALIZAÇÃO MÊS (GRID) --- */
+/* --- VISUALIZAÇÃO MÊS (GRID) - ESTILO BOLINHA --- */
 .fc .fc-daygrid-day-number { 
     font-weight: 700; 
     color: #94a3b8; 
@@ -54,16 +54,37 @@
     text-decoration: none; 
 }
 
-.fc-event { 
-    border: 4px solid #f8fafc  !important; 
-    color: #854d0e !important; 
-    padding: 5px 10px !important; 
-    font-weight: 700 !important; 
-    font-size: 0.75rem !important;
-    transition: transform 0.1s ease-in-out;
+/* Transforma o evento em uma bolinha no grid */
+.fc-daygrid-event {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    justify-content: center !important;
+    display: flex !important;
+    margin-top: 2px !important;
 }
 
+/* Estilização da Bolinha Customizada */
+.calendar-custom-dot {
+    width: 8px;
+    height: 8px;
+    background-color: #eab308;
+    border-radius: 50%;
+    box-shadow: 0 0 8px rgba(234, 179, 8, 0.4);
+    transition: transform 0.2s ease;
+    cursor: pointer;
+}
 
+.fc-daygrid-event:hover .calendar-custom-dot {
+    transform: scale(1.3);
+    background-color: #ca8a04;
+}
+
+/* Esconde o título original no modo Grid para não poluir */
+.fc-daygrid-event .fc-event-title,
+.fc-daygrid-event .fc-event-time {
+    display: none !important;
+}
 
 .fc .fc-col-header-cell-cushion { 
     text-transform: uppercase; 
@@ -74,7 +95,7 @@
     padding: 15px 0; 
 }
 
-/* --- VISUALIZAÇÃO LISTA (MOBILE/SEARCH) --- */
+/* --- VISUALIZAÇÃO LISTA --- */
 .fc-list-day-cushion {
     background-color: #f8fafc !important;
     border: 1px solid #f1f5f9 !important;
@@ -88,42 +109,27 @@
     color: #eab308;
 }
 
-/* ARREMATAR ALINHAMENTO DA BOLINHA COM TEXTO */
 .fc-list-event {
-    display: flex !important;
-    align-items: center !important; /* Alinha tudo verticalmente ao centro */
     padding: 12px !important;
-    
     background: transparent !important;
-}
-
-.fc-list-event:hover td {
-    background-color: transparent !important;
 }
 
 .fc-list-event-time {
     font-weight: 700 !important;
     color: #64748b;
     min-width: 65px !important;
-    display: flex;
-    align-items: center;
 }
 
 .fc-list-event-dot {
-    
-    border-width: 5px !important; /* Tamanho da bolinha */
+    border-width: 5px !important;
     border-color: #eab308 !important;
-    display: inline-block !important;
-    vertical-align: middle !important;
 }
 
 .fc-list-event-title {
-    flex: 1;
     font-weight: 800 !important;
     color: #0f172a !important;
     text-transform: uppercase;
-    font-size: 0.85rem !important;
-    padding: 12px !important;
+    font-size: 0.8rem !important;
 }
 
 /* --- AJUSTES GERAIS --- */
@@ -132,7 +138,7 @@
     overflow: hidden;
 }
 
-/* --- RESPONSIVIDADE --- */
+/* --- RESPONSIVIDADE MOBILE --- */
 @media (max-width: 768px) {
     .fc .fc-toolbar {
         flex-direction: column;
@@ -141,11 +147,44 @@
     }
     
     .fc .fc-toolbar-title {
-        font-size: 1.1rem !important;
+        font-size: 1rem !important;
     }
 
-    .fc .fc-button {
-        padding: 0.6rem 1rem !important;
-        font-size: 0.7rem !important;
+    .fc .fc-daygrid-day-frame {
+        min-height: 55px !important;
     }
+
+    .fc .fc-col-header-cell-cushion {
+        font-size: 0.55rem !important;
+        letter-spacing: 0;
+    }
+
+    /* Centraliza as bolinhas no espaço do dia */
+    .fc-daygrid-day-events {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes zoomIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.animate-in {
+  animation-fill-mode: forwards;
+}
+
+.fade-in {
+  animation: fadeIn 0.2s ease-out;
+}
+
+.zoom-in-95 {
+  animation: zoomIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
