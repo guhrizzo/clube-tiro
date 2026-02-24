@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect } from "react";
 import { 
   ShieldCheck, 
   Target, 
@@ -10,10 +9,12 @@ import {
   GraduationCap,
   Car,
   Map,
-  Trash2,
   RefreshCw,
   Stamp,
-  BadgeCheck
+  BadgeCheck,
+  Mail,
+  Award,
+  ClipboardList
 } from "lucide-react";
 import ScrollToTop from "components/BackTop";
 import NavBar from "components/NavBar";
@@ -21,156 +22,167 @@ import NavBar from "components/NavBar";
 const servicesEB = [
   {
     title: "Certificado de Registro (C.R.)",
-    description: "Processos completos para concessão de C.R. para Atirador Esportivo, Caçador e Colecionador (CAC).",
+    description: "Processos completos de concessão, renovação e cancelamento de C.R. para pessoas físicas e empresas.",
     icon: FileText,
   },
   {
-    title: "Aquisição de Armas",
-    description: "Compra e registro de armas novas ou usadas, inclusive calibres restritos e autorizações de compra.",
+    title: "Aquisição e Importação",
+    description: "Assessoria completa para compra e importação de armas, munições e produtos controlados.",
     icon: ShieldCheck,
   },
   {
+    title: "CRAF",
+    description: "Emissão e regularização do Certificado de Registro de Arma de Fogo junto ao Exército.",
+    icon: Award,
+  },
+  {
     title: "Apostilamento",
-    description: "Inclusão ou exclusão (desapostilamento) de armamento no seu acervo junto ao Exército.",
+    description: "Inclusão ou exclusão (desapostilamento) de armamentos em acervos CAC.",
     icon: Stamp,
   },
   {
     title: "Guia de Tráfego",
-    description: "Emissão de GT para transporte legal de armas e munições em todo território estadual e nacional.",
+    description: "GT para transporte legal de armas e munições em todo território estadual e nacional.",
     icon: Globe,
   },
   {
+    title: "Transferência de Armas",
+    description: "Gestão completa de transferência de armamento entre CACs ou empresas.",
+    icon: ArrowRightLeft,
+  },
+  {
     title: "Veículos Blindados",
-    description: "Regularização de compra e transferência de veículos com proteção balística.",
+    description: "Regularização de compra, venda e transferência de veículos com proteção balística.",
     icon: Car,
   },
   {
-    title: "Manutenção de C.R.",
-    description: "Renovação, cancelamento e atualização de dados cadastrais no sistema SIGMA.",
-    icon: RefreshCw,
-  },
-  {
-    title: "Paintball e Airgun",
-    description: "Registro e legalização de armas de pressão, airsoft, paintball e simulacros.",
-    icon: Target,
-  },
-  {
     title: "Mapa de Armas",
-    description: "Organização e emissão do Mapa de Armas junto à Diretoria de Fiscalização de Produtos Controlados.",
+    description: "Organização e emissão do Mapa de Armas junto à DFPC.",
     icon: Map,
   },
   {
-    title: "Filiações e Cursos",
-    description: "Assessoria para filiação a Federações/Confederações e encaminhamento para cursos especializados.",
-    icon: GraduationCap,
+    title: "Paintball e Airgun",
+    description: "Legalização de armas de pressão, airsoft, paintball, simulacros e afins.",
+    icon: Target,
+  },
+  {
+    title: "Autorizações e Manutenções",
+    description: "Autorização de compra, atualização cadastral e manutenção completa no SIGMA.",
+    icon: RefreshCw,
+  },
+  {
+    title: "Testes e Laudos",
+    description: "Encaminhamento para testes de tiro, psicotécnico e laudos exigidos pelo Exército.",
+    icon: BadgeCheck,
+  },
+  {
+    title: "Consultoria Especializada",
+    description: "Análise documental estratégica para CACs, empresas e operadores do setor.",
+    icon: ClipboardList,
   }
 ];
 
 export default function ArmyDispatcherPage() {
-
   return (
-    <main className="bg-[#f9fafb] min-h-screen">
+    <main className="bg-[#0b0f14] min-h-screen">
       <ScrollToTop />
       <NavBar />
 
-      {/* ================= SEÇÃO HERO (EB TOPO) ================= */}
-      <section className="relative w-full h-[60vh] flex items-center justify-center overflow-hidden">
+      {/* ================= HERO ELITE ================= */}
+      <section className="relative w-full h-[65vh] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 z-0">
           <img 
             src="/eb.jpg" 
             alt="Exército Brasileiro" 
             className="w-full h-full object-cover object-top"
           />
-          {/* Overlay com tom levemente mais "militar/oliva" ou neutro escuro */}
-          <div className="absolute inset-0 bg-linear-to-b from-[#1a1a1a]/80 via-[#1a1a1a]/40 to-[#f9fafb]" />
+          <div className="absolute inset-0 bg-linear-to-b from-black/85 via-black/60 to-[#0b0f14]" />
         </div>
 
-        <div className="relative z-10 max-w-7xl mx-auto px-6 text-center" data-aos="zoom-out">
-          
-          <h1 className="text-4xl md:text-6xl font-black text-white leading-tight drop-shadow-lg">
-            
-Despachante do <span className="text-[#ffb703]">Exército</span>
-          </h1>
-          <p className="mt-6 text-gray-200 text-lg md:text-xl max-w-2xl mx-auto font-medium">
-            Suporte especializado para Atiradores, Caçadores e Colecionadores junto ao Comando do Exército.
+        <div className="relative z-10 max-w-7xl mx-auto px-6 text-center">
+          <p className="inline-block mb-6 px-5 py-2 rounded-full bg-[#ffb703]/10 border border-[#ffb703]/40 text-[#ffb703] text-xs font-bold tracking-widest uppercase">
+            Despachante Especializado
           </p>
+
+          <h1 className="text-4xl md:text-6xl font-black text-white leading-tight">
+            Despachante do <span className="text-[#ffb703]">Exército</span>
+          </h1>
+
+          <p className="mt-6 text-gray-300 text-lg md:text-xl max-w-2xl mx-auto font-medium">
+            Assessoria completa e estratégica para CACs, empresas e operadores
+            de produtos controlados pelo Exército Brasileiro.
+          </p>
+
+          <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
+            <button className="bg-[#ffb703] text-[#1a1a1a] px-8 py-4 rounded-2xl font-black cursor-pointer hover:scale-105 transition-all shadow-xl">
+              Falar com Especialista
+            </button>
+
+            <button className="border border-white/20 text-white px-8 py-4 rounded-2xl font-bold cursor-pointer  hover:bg-white/10 transition-all">
+              Ver Serviços
+            </button>
+          </div>
         </div>
       </section>
 
-      {/* ================= GRID DE SERVIÇOS ================= */}
-      <section className="relative z-20 -mt-20 pb-24 px-6">
+      {/* ================= SERVIÇOS ================= */}
+      <section className="relative z-20 -mt-20 pb-28 px-6">
         <div className="max-w-7xl mx-auto">
-          
-          <div className="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6" data-aos="fade-up">
-            <div className="space-y-2">
-              <p className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#ffb703] border border-[#ffb703] text-[#001d3d] text-xs font-bold uppercase tracking-widest z-9999">O que fazemos</p>
-              <h2 className="text-3xl md:text-4xl font-extrabold text-[#1a1a1a]">Nossas Soluções</h2>
-            </div>
-            <div className="h-1 flex-1 bg-gray-200 mb-2 hidden md:block mx-8 rounded-full opacity-50" />
+
+          <div className="mb-14 text-center">
+            <h2 className="text-3xl md:text-4xl font-extrabold text-white mb-4">
+              Soluções Completas
+            </h2>
+            <p className="text-gray-400 max-w-2xl mx-auto">
+              Atuamos em todas as etapas do processo junto ao Exército,
+              garantindo segurança jurídica e agilidade operacional.
+            </p>
           </div>
 
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
             {servicesEB.map((item, index) => (
               <div
                 key={index}
-                data-aos="fade-up"
-                data-aos-delay={index * 50}
-                className="group cursor-text relative p-8 rounded-3xl border border-gray-100 bg-white 
-                shadow-sm hover:shadow-xl hover:-translate-y-2 transition-all duration-300 hover:border-[#ffb703]/40"
+                className="group relative p-8 rounded-3xl border border-white/5 bg-linear-to-b from-white/5 to-white/2
+                backdrop-blur-xl hover:-translate-y-2 transition-all duration-300 hover:border-[#ffb703]/40 hover:shadow-[0_20px_60px_rgba(0,0,0,0.6)]"
               >
-                <div
-                  className="mb-5 w-12 h-12 rounded-xl bg-[#ffb703]/10 flex items-center justify-center
-                  transition-transform duration-500 group-hover:scale-115 group-hover:rotate-6 border border-[#ffb703]/20"
-                >
+                <div className="mb-5 w-12 h-12 rounded-xl bg-[#ffb703]/10 flex items-center justify-center
+                  transition-transform duration-500 group-hover:scale-110 group-hover:rotate-6 border border-[#ffb703]/30">
                   <item.icon className="w-6 h-6 text-[#ffb703]" />
                 </div>
 
-                <h4 className="text-[#1a1a1a] font-bold text-xl mb-2 group-hover:text-[#ffb703] transition-colors">
+                <h4 className="text-white font-bold text-xl mb-2 group-hover:text-[#ffb703] transition-colors">
                   {item.title}
                 </h4>
 
-                <p className="text-gray-500 leading-relaxed text-sm">
+                <p className="text-gray-400 leading-relaxed text-sm">
                   {item.description}
                 </p>
 
-                <div className="mt-6 w-8 h-1 bg-[#ffb703]/20 rounded-full group-hover:w-full transition-all duration-500" />
+                <div className="mt-6 w-8 h-1 bg-[#ffb703]/30 rounded-full group-hover:w-full transition-all duration-500" />
               </div>
             ))}
           </div>
 
-          {/* Seção Extra: Testes e Transferências Rápidas */}
-          <div className="mt-12 grid md:grid-cols-2 gap-6" data-aos="fade-up">
-            <div className="flex items-center gap-6 p-8 bg-white rounded-3xl border border-gray-100 shadow-sm">
-               <div className="bg-gray-100 p-4 rounded-2xl text-[#1a1a1a]">
-                  <BadgeCheck size={32} />
-               </div>
-               <div>
-                  <h5 className="font-bold text-lg">Testes de Tiro e Psicotécnicos</h5>
-                  <p className="text-gray-500 text-sm">Encaminhamento para laudos e avaliações homologadas.</p>
-               </div>
-            </div>
-            <div className="flex items-center gap-6 p-8 bg-white rounded-3xl border border-gray-100 shadow-sm">
-               <div className="bg-gray-100 p-4 rounded-2xl text-[#1a1a1a]">
-                  <ArrowRightLeft size={32} />
-               </div>
-               <div>
-                  <h5 className="font-bold text-lg">Transferência de Armas</h5>
-                  <p className="text-gray-500 text-sm">Gestão completa de mudança de acervo entre CACs.</p>
-               </div>
-            </div>
-          </div>
-
-          {/* Rodapé de Contato */}
-          <div className="mt-20 p-8 md:p-12 rounded-[40px] bg-[#1a1a1a] text-white flex flex-col md:flex-row items-center justify-between gap-8 relative overflow-hidden shadow-2xl" data-aos="flip-up">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-[#ffb703]/10 rounded-full translate-x-1/2 -translate-y-1/2 blur-3xl" />
+          {/* ================= CTA FINAL ================= */}
+          <div className="mt-24 p-10 md:p-14 rounded-[40px] bg-linear-to-r from-[#ffb703] to-[#ffd166] text-[#1a1a1a] flex flex-col md:flex-row items-center justify-between gap-8 shadow-2xl">
             
-            <div className="relative z-10">
-              <h3 className="text-2xl font-bold mb-2">Dúvidas sobre o seu CR?</h3>
-              <p className="text-gray-400 text-sm">Nossa equipe técnica analisa sua situação documental agora mesmo.</p>
+            <div>
+              <h3 className="text-2xl md:text-3xl font-black mb-2">
+                Pronto para regularizar seu processo?
+              </h3>
+              <p className="text-sm font-medium opacity-80">
+                Atendimento técnico especializado em todo o Brasil.
+              </p>
+
+              <div className="flex items-center gap-2 mt-4 font-bold">
+                <Mail size={18} />
+                despachante@grupoprotect.com.br
+              </div>
             </div>
 
-            <button className="relative z-10 bg-[#ffb703] text-[#1a1a1a] px-10 py-5 cursor-pointer rounded-2xl font-black hover:scale-105 transition-all shadow-lg active:scale-95 whitespace-nowrap">
-              Consultar Especialista
+            <button className="bg-[#1a1a1a] text-white px-10 py-5 rounded-2xl font-black cursor-pointer  hover:scale-105 transition-all shadow-xl whitespace-nowrap">
+              Solicitar Atendimento
             </button>
           </div>
         </div>
