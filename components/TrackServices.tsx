@@ -102,12 +102,12 @@ export default function TrackingSection() {
             </p>
 
             <div className="flex flex-wrap gap-4 pt-4">
-              <button className="group cursor-pointer bg-[#ffb703] text-[#1a1a1a] lg:px-8 px-22 py-4 rounded-xl font-bold flex items-center gap-2 hover:gap-3 hover:brightness-110 transition-all duration-300 shadow-lg shadow-[#ffb703]/25">
+              <button className="group cursor-pointer bg-[#ffb703] text-[#1a1a1a] lg:px-8 px-18 py-4 rounded-xl font-bold flex items-center gap-2 hover:gap-3 hover:brightness-110 transition-all duration-300 shadow-lg shadow-[#ffb703]/25">
                 Solicitar Orçamento
                 <ArrowRight size={18} className="transition-transform group-hover:translate-x-1" />
               </button>
 
-              <button className="cursor-pointer  py-4 rounded-xl lg:px-8 px-26  font-semibold border border-gray-200 text-gray-700 hover:border-[#ffb703] hover:text-[#ffb703] transition-all">
+              <button className="cursor-pointer  py-4 rounded-xl lg:px-8 px-22  font-semibold border border-gray-200 text-gray-700 hover:border-[#ffb703] hover:text-[#ffb703] transition-all">
                 Ver como funciona
               </button>
             </div>
