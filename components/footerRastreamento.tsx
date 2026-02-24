@@ -158,7 +158,7 @@ export default function FooterRastreamentoLight({ locale = "pt" }: { locale?: "p
         <div className="text-[10px] md:text-xs text-black/40 tracking-widest">
           Desenvolvido por{" "}
           <a 
-            href="https://xffamily.com.br" 
+            href="https://www.instagram.com/xfamilyassessoria/" 
             target="_blank" 
             rel="noopener noreferrer"
             className="font-bold hover:text-[#b8860b] transition-colors"
