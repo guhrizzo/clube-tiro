@@ -141,7 +141,6 @@ export default function NavBar() {
         { label: "BH - Raja", href: "/clube/raja" },
         { label: "Nova Lima - Alphaville", href: "/clube/alphaville" },
         { label: "Calendário", href: "/clube/calendario" },
-        { label: "Mídias", href: "/clube/midias" },
       ],
     },
     { key: "rastreamento", label: "Rastreamento", href: "/rastreamento" },
@@ -225,7 +224,7 @@ export default function NavBar() {
                 height={60}
                 className="object-contain transition-all duration-300"
               />
-              <div className="flex gap-2  border-gray-200 pr-6">
+              <div className="lg:flex hidden gap-2  border-gray-200 pr-6">
                 <IconInstagram />
                 <IconFacebook />
                 <IconWhatsapp />
@@ -317,7 +316,7 @@ export default function NavBar() {
         } flex flex-col`}
       >
         <div className="flex items-center justify-between px-5 py-4 border-b border-white/10">
-          <Image src="/LOGO1.png" alt="Logo" width={100} height={40} className="" />
+          <Image src="/logo-horizontal-branco2.png" alt="Logo" width={100} height={40} className="" />
           <button onClick={() => setOpen(false)}>
             <X size={26} />
           </button>
