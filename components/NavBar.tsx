@@ -275,12 +275,12 @@ export default function NavBar() {
                     {item.href ? (
                       <a
                         href={withLang(item.href)}
-                        className="text-white hover:text-[#ffb703] text-[13px] font-semibold flex items-center gap-1 duration-300 transition-all py-3 uppercase tracking-wider"
+                        className="text-white hover:text-[#ffb703] lg:text-[13px] xl:text-[12px] font-semibold flex items-center gap-1 duration-300 transition-all py-3 uppercase tracking-wider"
                       >
                         {item.label || t[item.key]}
                       </a>
                     ) : (
-                      <span className="text-white text-[13px] hover:text-[#ffb703] duration-300 transition-all font-semibold flex items-center gap-1 py-3 uppercase tracking-wider cursor-pointer">
+                      <span className="text-white lg:text-[13px] xl:text-[12px] hover:text-[#ffb703] duration-300 transition-all font-semibold flex items-center gap-1 py-3 uppercase tracking-wider cursor-pointer">
                         {item.label}
                       </span>
                     )}
