@@ -51,7 +51,7 @@ export default function MetratonGallery() {
           Special Build
         </div>
         <h1 className="text-6xl md:text-8xl font-black uppercase tracking-tighter italic">
-          METRA<span className="text-[#ffb703]">TON</span>
+          META<span className="text-[#ffb703]">TRON</span>
         </h1>
         <p className="text-gray-500 mt-4 max-w-xl mx-auto uppercase text-xs tracking-widest leading-loose">
           A evolução da força bruta em cinco etapas de engenharia e arte.
