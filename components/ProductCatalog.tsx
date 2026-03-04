@@ -7,6 +7,10 @@ import Link from "next/link";
 import { db } from "../lib/firebase"; 
 import { collection, query, orderBy, onSnapshot } from "firebase/firestore";
 
+// Contexto e Dicionário
+import { useLang } from "../context/LangContext";
+import { dictionaries } from "../dictionaries";
+
 type Produto = {
   id: string;
   nome: string;
@@ -23,7 +27,13 @@ export default function ProductCatalog() {
   const [activeCategory, setActiveCategory] = useState("Todos");
   const [searchTerm, setSearchTerm] = useState("");
 
-  const categories = ["Todos", "Pistolas", "Revólveres", "Rifles e Carabinas", "Espingardas", "Acessórios", "Cursos"];
+  const lang = useLang();
+  const t = dictionaries[lang].catalog;
+
+  // Atualiza a categoria inicial quando o idioma muda (para bater com o texto do botão)
+  useEffect(() => {
+    setActiveCategory(t.categories[0]);
+  }, [lang, t.categories]);
 
   useEffect(() => {
     const q = query(collection(db, "produtos"), orderBy("createdAt", "desc"));
@@ -38,19 +48,23 @@ export default function ProductCatalog() {
     return () => unsubscribe();
   }, []);
 
-  // --- FUNÇÃO PARA GERAR O LINK DO WHATSAPP ---
   const gerarLinkZap = (produto: Produto) => {
-    // Se você salvou apenas o número no Firebase, use: `https://wa.me/${produto.linkCompra}...`
-    // Se salvou o link completo, vamos garantir que a mensagem seja anexada.
-    const baseUrl = produto.linkCompra || "https://wa.me/+553133718600"; // Substitua pelo seu padrão se o campo estiver vazio
-    const mensagem = encodeURIComponent(`Olá! Tenho interesse no produto: ${produto.nome}. Gostaria de mais informações.`);
+    const baseUrl = produto.linkCompra || "https://wa.me/+553133718600";
+    // Usa a mensagem do dicionário substituindo o nome do produto
+    const textoMsg = t.whatsapp_message.replace("{nome}", produto.nome);
+    const mensagem = encodeURIComponent(textoMsg);
     
-    // Verifica se já existe um '?' no link para não quebrar a URL
     return baseUrl.includes("?") ? `${baseUrl}&text=${mensagem}` : `${baseUrl}?text=${mensagem}`;
   };
 
   const filteredProducts = products.filter((p) => {
-    const matchesCategory = activeCategory === "Todos" || p.categoria === activeCategory;
+    // Lógica de categoria: Se for a primeira da lista ("Todos"/"All"), mostra tudo.
+    // Importante: no Firebase, a categoria costuma estar em PT. 
+    // Se você salvou categorias fixas no Banco, use o index ou IDs. 
+    // Aqui assumimos que p.categoria no banco bate com os nomes em PT.
+    const isAll = activeCategory === t.categories[0];
+    const matchesCategory = isAll || p.categoria === activeCategory;
+    
     const matchesSearch = p.nome.toLowerCase().includes(searchTerm.toLowerCase()) || 
                           p.descricao.toLowerCase().includes(searchTerm.toLowerCase());
     return matchesCategory && matchesSearch;
@@ -63,16 +77,16 @@ export default function ProductCatalog() {
         {/* Header */}
         <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
           <div className="space-y-3">
-            <h2 className="text-xs font-bold tracking-widest uppercase text-gray-400">Catálogo Online</h2>
+            <h2 className="text-xs font-bold tracking-widest uppercase text-gray-400">{t.badge}</h2>
             <h3 className="text-4xl font-extrabold text-gray-900">
-              Produtos <span className="text-yellow-500">em Destaque</span>
+              {t.title_main} <span className="text-yellow-500">{t.title_highlight}</span>
             </h3>
           </div>
 
           <div className="relative w-full md:w-80">
             <input
               type="text"
-              placeholder="Buscar produto..."
+              placeholder={t.search_placeholder}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full bg-white border border-gray-200 rounded-full py-3 px-6 pl-12 shadow-sm focus:ring-2 focus:ring-yellow-500/20 outline-none transition-all"
@@ -83,7 +97,7 @@ export default function ProductCatalog() {
 
         {/* Filtros */}
         <div className="flex flex-wrap gap-3 mb-10">
-          {categories.map((cat) => (
+          {t.categories.map((cat) => (
             <button
               key={cat}
               onClick={() => setActiveCategory(cat)}
@@ -99,7 +113,7 @@ export default function ProductCatalog() {
         {loading ? (
           <div className="flex flex-col items-center justify-center py-20">
             <Loader2 className="animate-spin text-yellow-500 mb-4" size={40} />
-            <p className="text-gray-500 font-medium">Carregando catálogo...</p>
+            <p className="text-gray-500 font-medium">{t.loading}</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
@@ -118,7 +132,6 @@ export default function ProductCatalog() {
                     className="object-cover transition-transform duration-500 group-hover:scale-110"
                   />
 
-                  {/* Overlay chamando a função do zap */}
                   <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                     <Link 
                       href={gerarLinkZap(product)} 
@@ -142,20 +155,19 @@ export default function ProductCatalog() {
                   <div className="mt-auto">
                     <p className="text-xl font-black text-gray-900 mb-4">
                       {product.preco.toLowerCase().includes("consulta") ? (
-                        <span className="text-sm uppercase tracking-wider text-gray-400">Sob Consulta</span>
+                        <span className="text-sm uppercase tracking-wider text-gray-400">{t.price_on_request}</span>
                       ) : (
                         `R$ ${product.preco}`
                       )}
                     </p>
 
-                    {/* Botão Principal chamando a função do zap */}
                     <Link 
                       href={gerarLinkZap(product)} 
                       target="_blank"
                       className="w-full border-2 border-gray-900 text-gray-900 font-bold py-3 rounded-xl hover:bg-gray-900 hover:text-white transition-all flex items-center justify-center gap-2"
                     >
                       <ShoppingCart size={18} />
-                      Tenho Interesse
+                      {t.cta_button}
                     </Link>
                   </div>
                 </div>
@@ -166,7 +178,7 @@ export default function ProductCatalog() {
 
         {!loading && filteredProducts.length === 0 && (
           <div className="text-center py-20">
-            <p className="text-gray-400 text-lg">Nenhum produto encontrado.</p>
+            <p className="text-gray-400 text-lg">{t.not_found}</p>
           </div>
         )}
       </div>

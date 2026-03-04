@@ -1,15 +1,9 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useMemo } from "react";
 import { useInView, animate } from "framer-motion";
-
-const stats = [
-  { value: 300000, label: "Dispositivos no Brasil e em +6 países", suffix: "k", divisor: 1000 },
-  { value: 1400, label: "Dispositivos integrados", suffix: "", divisor: 1 },
-  { value: 80, label: "Associações de proteção veicular", suffix: "", divisor: 1 },
-  { value: 2000, label: "Empresas de rastreamento", suffix: "", divisor: 1 },
-  { value: 33, label: "Anos de experiência", suffix: "", divisor: 1 },
-];
+import { useLang } from "../context/LangContext";
+import { dictionaries } from "../dictionaries";
 
 function Counter({ value, divisor, suffix }) {
   const ref = useRef(null);
@@ -19,10 +13,12 @@ function Counter({ value, divisor, suffix }) {
     if (inView) {
       const node = ref.current;
       const controls = animate(0, value / divisor, {
-        duration: 1,
+        duration: 1.5, // Aumentei um pouco para ficar mais fluido
         ease: "easeOut",
-        onUpdate: (value) => {
-          node.textContent = Math.round(value).toLocaleString() + suffix;
+        onUpdate: (latest) => {
+          if (node) {
+            node.textContent = Math.round(latest).toLocaleString() + suffix;
+          }
         },
       });
       return () => controls.stop();
@@ -33,8 +29,20 @@ function Counter({ value, divisor, suffix }) {
 }
 
 export default function StatsSection() {
+  const lang = useLang();
+  const t = dictionaries[lang].tracking.stats_section;
+
+  // Combinamos os dados fixos com os labels traduzidos
+  const statsData = useMemo(() => [
+    { value: 300000, suffix: "k", divisor: 1000, label: t.labels[0] },
+    { value: 1400, suffix: "", divisor: 1, label: t.labels[1] },
+    { value: 80, suffix: "", divisor: 1, label: t.labels[2] },
+    { value: 2000, suffix: "", divisor: 1, label: t.labels[3] },
+    { value: 33, suffix: "", divisor: 1, label: t.labels[4] },
+  ], [t.labels]);
+
   return (
-    <section className="py-24  border-y border-gray-100">
+    <section className="py-24 border-y border-gray-100 bg-white">
       <div className="max-w-7xl mx-auto px-6">
         <div className="grid lg:grid-cols-12 gap-12 items-center">
           
@@ -42,17 +50,20 @@ export default function StatsSection() {
           <div className="lg:col-span-4 space-y-4">
             <div className="w-12 h-1.5 bg-[#ffb703] rounded-full" />
             <h2 className="text-2xl md:text-3xl font-bold text-slate-900 leading-snug">
-              A Protect Rastreamento oferece uma ampla gama de soluções.
+              {t.title}
             </h2>
             <p className="text-slate-500 text-sm md:text-base leading-relaxed">
-              Atendemos às mais diversas necessidades de monitoramento e segurança com infraestrutura global.
+              {t.description}
             </p>
           </div>
 
           {/* GRID DE NÚMEROS */}
           <div className="lg:col-span-8 grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-8 lg:gap-4">
-            {stats.map((stat, index) => (
-              <div key={index} className="relative group flex flex-col items-center lg:items-start text-center lg:text-left">
+            {statsData.map((stat, index) => (
+              <div 
+                key={index} 
+                className="relative group flex flex-col items-center lg:items-start text-center lg:text-left"
+              >
                 <div className="flex items-baseline gap-1 text-[#ffb703]">
                   <span className="text-2xl font-bold">+</span>
                   <Counter value={stat.value} divisor={stat.divisor} suffix={stat.suffix} />
@@ -61,9 +72,9 @@ export default function StatsSection() {
                   {stat.label}
                 </p>
                 
-                {/* Divisor Visual apenas para Desktop */}
-                {index !== stats.length - 1 && (
-                  <div className="hidden xl:block absolute -right-4 top-1/2 -translate-y-1/2 h-12 w-px " />
+                {/* Divisor Visual apenas para Desktop (opcional: adicione borda se quiser) */}
+                {index !== statsData.length - 1 && (
+                  <div className="hidden xl:block absolute -right-4 top-1/2 -translate-y-1/2 h-12 w-px bg-gray-100" />
                 )}
               </div>
             ))}
