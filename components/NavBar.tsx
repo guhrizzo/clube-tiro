@@ -123,6 +123,7 @@ export default function NavBar() {
     { key: "home", label: "Apresentação", href: "/home" },
     {
       key: "loja",
+      href: "/loja",
       label: "LOJA",
       children: [
         { label: "Pistolas", href: "/loja/pistolas" },
@@ -136,6 +137,7 @@ export default function NavBar() {
     {
       key: "clube",
       label: "CLUBE",
+      href: "/club",
       children: [
         { label: "BH - Gutierrez", href: "/clube/gutierrez" },
         { label: "BH - Raja", href: "/clube/raja" },

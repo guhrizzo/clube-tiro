@@ -17,18 +17,7 @@ export default function HomePage() {
     <div>
       <NavBar />
       <ScrollToTop />
-      
       <AboutSection />
-
-
-      <ShootingClubDivider />
-     
-      <ProductCatalog/>
-      <TrackingSection />
-      <FAQSection/>
-      
-      
-      
     </div>
   );
 }
