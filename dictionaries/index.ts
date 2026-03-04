@@ -227,6 +227,11 @@ export const dictionaries = {
                 videos: "Vídeos"
             }
         },
+        quickLinks: {
+            gutierrez: "Conheça o clube de tiro de Gutierrez - BH",
+            novaLima: "Conheça o clube de tiro de Nova Lima - Alphaville",
+            calendario: "Venha conhecer nosso calendário"
+        },
     },
     en: {
         about: {

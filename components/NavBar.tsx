@@ -30,6 +30,7 @@ const dictionaries = {
       training: "Treinamento",
       join: "Associe-se",
       contact: "Fale Conosco",
+      //museu: "Museu da Paz",
     },
   },
   en: {
@@ -137,7 +138,7 @@ export default function NavBar() {
     {
       key: "clube",
       label: "CLUBE",
-      href: "/club",
+      href: "/clube",
       children: [
         { label: "BH - Gutierrez", href: "/clube/gutierrez" },
         { label: "BH - Raja", href: "/clube/raja" },
