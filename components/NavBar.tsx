@@ -20,46 +20,75 @@ import {
 const dictionaries = {
   pt: {
     navbar: {
-      home: "Início",
-      truck: "Quem Somos",
+      presentation: "Apresentação",
+      shop: "Loja",
+      club: "Clube",
+      tracking: "Rastreamento",
       courses: "Cursos",
-      products: "Produtos",
-      dispatcher: "Parceiros",
-      club: "Clientes",
+      dispatcher: "Despachante",
+      media: "Mídias",
+      museum: "Museu da Paz",
+      truck: "Big Truck METATRON",
       blog: "Blog",
-      training: "Treinamento",
-      join: "Associe-se",
       contact: "Fale Conosco",
-      //museu: "Museu da Paz",
+      accessCAC: "ACESSO C.A.C"
+    },
+    utilities: {
+      declarations: "Emissão de Declarações",
+      validate: "Validar Declarações",
+      secretariat: "Serviços de Secretaria",
+      invoice: "2ª Via de Boleto",
+      tracking: "Tecnologia",
+      units: "Unidades"
     },
   },
   en: {
     navbar: {
-      home: "Home",
-      truck: "About Us",
+      presentation: "Presentation",
+      shop: "Shop",
+      club: "Club",
+      tracking: "Tracking",
       courses: "Courses",
-      products: "Products",
-      dispatcher: "Partners",
-      club: "Clients",
+      dispatcher: "Legal Services",
+      media: "Media",
+      museum: "Peace Museum",
+      truck: "METATRON Big Truck",
       blog: "Blog",
-      training: "Training",
-      join: "Join Us",
-      contact: "Contact",
+      contact: "Contact Us",
+      accessCAC: "C.A.C ACCESS"
     },
+    utilities: {
+      declarations: "Issue Declarations",
+      validate: "Validate Declarations",
+      secretariat: "Secretary Services",
+      invoice: "Invoice Copy",
+      tracking: "Technology",
+      units: "Units"
+    }
   },
   es: {
     navbar: {
-      home: "Inicio",
-      truck: "Quiénes Somos",
+      presentation: "Presentación",
+      shop: "Tienda",
+      club: "Club",
+      tracking: "Rastreo",
       courses: "Cursos",
-      products: "Productos",
-      dispatcher: "Socios",
-      club: "Clientes",
+      dispatcher: "Gestoría",
+      media: "Medios",
+      museum: "Museo de la Paz",
+      truck: "Big Truck METATRON",
       blog: "Blog",
-      training: "Entrenamiento",
-      join: "Únete",
-      contact: "Contacto",
+      contact: "Contáctenos",
+      accessCAC: "ACCESO C.A.C"
     },
+    utilities: {
+      declarations: "Emisión de Declaraciones",
+      validate: "Validar Declaraciones",
+      secretariat: "Servicios de Secretaría",
+      invoice: "Segunda vía de Recibo",
+      tracking: "Tecnología",
+      units: "Unidades"
+    }
   },
 };
 
@@ -115,17 +144,24 @@ export default function NavBar() {
   };
 
   const t = (dictionaries as any)[currentLang].navbar;
+  const u = (dictionaries as any)[currentLang].utilities;
   const withLang = (path?: string) => {
     if (!path) return "#";
     return path.startsWith(`/${currentLang}`) ? path : `/${currentLang}${path}`;
   };
 
+  const utilityItems = [
+    { key: "declarations", icon: <FileText size={14} />, href: "https://www.shootinghouse.com.br/login-associado/clubedetirobh.com.br/aHR0cHM6Ly93d3cuc2hvb3Rpbmdob3VzZS5jb20uYnIvYXNzb2NpYWRvL2RlY2xhcmFjYW8=" },
+    { key: "validate", icon: <BadgeCheck size={14} />, href: "https://clubedetirobh.com.br/validar-declaracao/" },
+    { key: "secretariat", icon: <LayoutDashboard size={14} />, href: "https://www.shootinghouse.com.br/login-associado/clubedetirobh.com.br/aHR0cHM6Ly93d3cuc2hvb3Rpbmdob3VzZS5jb20uYnIvYXNzb2NpYWRvL3NlY3JldGFyaWEvZGVzcGFjaGFudGUvc29saWNpdGFjb2Vz" },
+    { key: "invoice", icon: <Printer size={14} />, href: "https://www.shootinghouse.com.br/login-associado/clubedetirobh.com.br/aHR0cHM6Ly93d3cuc2hvb3Rpbmdob3VzZS5jb20uYnIvYXNzb2NpYWRvL2ZpbmFuY2Vpcm8vYm9sZXRv" },
+  ];
+
   const menuItems = [
-    { key: "home", label: "Apresentação", href: "/home" },
+    { key: "presentation", href: "/home" },
     {
-      key: "loja",
+      key: "shop",
       href: "/loja",
-      label: "LOJA",
       children: [
         { label: "Pistolas", href: "/loja/pistolas" },
         { label: "Revólveres", href: "/loja/revolveres" },
@@ -136,8 +172,7 @@ export default function NavBar() {
       ],
     },
     {
-      key: "clube",
-      label: "CLUBE",
+      key: "club",
       href: "/clube",
       children: [
         { label: "BH - Gutierrez", href: "/clube/gutierrez" },
@@ -146,35 +181,32 @@ export default function NavBar() {
         { label: "Calendário", href: "/clube/calendario" },
       ],
     },
-    { key: "rastreamento", label: "Rastreamento", href: "/rastreamento" },
+    { key: "tracking", href: "/rastreamento" },
     {
-      key: "cursos",
-      label: "CURSOS",
+      key: "courses",
       children: [
-        { label: "Capacitação de Guardas e Agentes", href: "/cursos/capacitacao" },
+        { label: "Capacitação de Guardas", href: "/cursos/capacitacao" },
         { label: "Defensivo", href: "/cursos/defensivo" },
         { label: "Desportivo", href: "/cursos/desportivo" },
         { label: "Outros", href: "/cursos/outros" },
       ],
     },
     {
-      key: "despachante",
-      label: "DESPACHANTE",
+      key: "dispatcher",
       children: [
         { label: "Polícia Federal", href: "/despachante/pf" },
         { label: "Exército Brasileiro", href: "/despachante/exercito" },
       ],
     },
     {
-      key: "midias",
-      label: "MÍDIAS",
+      key: "media",
       children: [
         { label: "Galeria", href: "/midias/galeria" },
         { label: "Vídeos", href: "/midias/videos" },
       ],
     },
-    { key: "museu", label: "Museu da Paz", href: "/museu-da-paz" },
-    { key: "bigtruck", label: "Big Truck METATRON", href: "/big-truck-metatron" },
+    { key: "museum", href: "/museu-da-paz" },
+    { key: "truck", href: "/big-truck-metatron" },
     { key: "blog", href: "/blog" },
     { key: "contact", href: "/contato" },
   ];
@@ -182,42 +214,28 @@ export default function NavBar() {
   return (
     <>
       <header
-        className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${
-          isScrolled ? "bg-white/90 backdrop-blur-md shadow-lg" : "bg-white"
-        }`}
+        className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${isScrolled ? "bg-white/90 backdrop-blur-md shadow-lg" : "bg-white"
+          }`}
       >
         <div className="w-full flex flex-col items-center">
           {/* TOP UTILITY BAR — DESKTOP */}
-          <div className="hidden md:block w-full bg-linear-to-r from-[#0f0f0f] via-[#151515] to-[#0f0f0f] border-b border-white/10">
-            <div className="container mx-auto px-4 h-10 flex items-center justify-center gap-6 text-[11px] sm:text-xs font-semibold tracking-widest uppercase text-white/80">
-              <UtilityLink
-                href="https://www.shootinghouse.com.br/login-associado/clubedetirobh.com.br/aHR0cHM6Ly93d3cuc2hvb3Rpbmdob3VzZS5jb20uYnIvYXNzb2NpYWRvL2RlY2xhcmFjYW8="
-                icon={<FileText size={14} />}
-                label="Emissão de Declarações"
-              />
-              <UtilityLink
-                href="https://clubedetirobh.com.br/validar-declaracao/"
-                icon={<BadgeCheck size={14} />}
-                label="Validar Declarações"
-              />
-              <UtilityLink
-                href="https://www.shootinghouse.com.br/login-associado/clubedetirobh.com.br/aHR0cHM6Ly93d3cuc2hvb3Rpbmdob3VzZS5jb20uYnIvYXNzb2NpYWRvL3NlY3JldGFyaWEvZGVzcGFjaGFudGUvc29saWNpdGFjb2Vz"
-                icon={<LayoutDashboard size={14} />}
-                label="Serviços de Secretaria"
-              />
-              <UtilityLink
-                href="https://www.shootinghouse.com.br/login-associado/clubedetirobh.com.br/aHR0cHM6Ly93d3cuc2hvb3Rpbmdob3VzZS5jb20uYnIvYXNzb2NpYWRvL2ZpbmFuY2Vpcm8vYm9sZXRv"
-                icon={<Printer size={14} />}
-                label="2ª Via de Boleto"
-              />
+          <div className="hidden md:block w-full bg-[#0f0f0f] border-b border-white/10">
+            <div className="container mx-auto px-4 h-10 flex items-center justify-center gap-6 text-[11px] font-semibold tracking-widest uppercase text-white/80">
+              {utilityItems.map((item) => (
+                <UtilityLink
+                  key={item.key}
+                  href={item.href}
+                  icon={item.icon}
+                  label={u[item.key]} // <--- Puxa a tradução de "utilities" no idioma atual
+                />
+              ))}
             </div>
           </div>
 
           {/* LOGO + SOCIAL + TOOLS */}
           <div
-            className={`container mx-auto px-4 flex justify-between items-center gap-4 transition-all duration-300 ${
-              isScrolled ? "py-2" : "py-4"
-            }`}
+            className={`container mx-auto px-4 flex justify-between items-center gap-4 transition-all duration-300 ${isScrolled ? "py-2" : "py-4"
+              }`}
           >
             <div className="shrink-0 flex items-center gap-8 justify-center">
               <Image
@@ -238,7 +256,7 @@ export default function NavBar() {
 
             <div className="hidden lg:flex items-center gap-6">
               {/* SOCIAL ICONS LEFT-ALIGNED IN THIS SECTION */}
-              
+
 
               <div className="flex gap-2">
                 <FlagBtn lang="en" active={currentLang === "en"} onClick={() => changeLang("en")} />
@@ -247,7 +265,7 @@ export default function NavBar() {
               </div>
 
               <a
-                href="https://app.shootinghouse.com.br/login/clubedetirobh.com.br"
+                href="https://app.shootinghouse.com.br/login/sistema.grupoprotect.com.br"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="group inline-block"
@@ -259,7 +277,7 @@ export default function NavBar() {
                 >
                   <span className="absolute inset-0 bg-linear-to-r from-transparent via-[#ffb703]/20 to-transparent translate-x-[-120%] group-hover:translate-x-[120%] transition-transform duration-700" />
                   <User size={16} className="relative z-10 group-hover:scale-110 transition-transform" />
-                  <span className="relative z-10">ACESSO C.A.C</span>
+                  <span className="relative z-10">{t.accessCAC}</span>
                 </button>
               </a>
             </div>
@@ -280,11 +298,11 @@ export default function NavBar() {
                         href={withLang(item.href)}
                         className="text-white hover:text-[#ffb703] lg:text-[13px] xl:text-[12px] font-semibold flex items-center gap-1 duration-300 transition-all py-3 uppercase tracking-wider"
                       >
-                        {item.label || t[item.key]}
+                        {t[item.key]}
                       </a>
                     ) : (
                       <span className="text-white lg:text-[13px] xl:text-[12px] hover:text-[#ffb703] duration-300 transition-all font-semibold flex items-center gap-1 py-3 uppercase tracking-wider cursor-pointer">
-                        {item.label}
+                        {t[item.key]}
                       </span>
                     )}
                     <span className="absolute bottom-2 left-0 w-full scale-x-0 h-0.5 rounded-2xl bg-[#ffb703] duration-300 origin-left transition-all group-hover:scale-x-100"></span>
@@ -314,9 +332,8 @@ export default function NavBar() {
       {open && <div onClick={() => setOpen(false)} className="fixed inset-0 bg-black/60 backdrop-blur-sm z-99" />}
 
       <aside
-        className={`fixed inset-y-0 right-0 h-dvh w-[85%] max-w-sm bg-black text-white uppercase z-99999 transform transition-transform duration-300 ${
-          open ? "translate-x-0" : "translate-x-full"
-        } flex flex-col`}
+        className={`fixed inset-y-0 right-0 h-dvh w-[85%] max-w-sm bg-black text-white uppercase z-99999 transform transition-transform duration-300 ${open ? "translate-x-0" : "translate-x-full"
+          } flex flex-col`}
       >
         <div className="flex items-center justify-between px-5 py-4 border-b border-white/10">
           <Image src="/logo-horizontal-branco2.png" alt="Logo" width={100} height={40} className="" />
@@ -343,31 +360,20 @@ export default function NavBar() {
             </div>
             <button className="flex items-center gap-2 bg-[#ffb703] text-black px-4 py-2 rounded-md font-bold text-xs hover:bg-[#ffd166] transition">
               <User size={14} />
-              ACESSO C.A.C
+              <span className="relative z-10">{t.accessCAC}</span>
             </button>
           </div>
 
+          {/* UTILITY MOBILE — TRADUZIDO */}
           <div className="px-5 pt-4 grid grid-cols-2 gap-3 text-xs uppercase tracking-wide">
-            <UtilityMobile
-              href="https://www.shootinghouse.com.br/login-associado/clubedetirobh.com.br/aHR0cHM6Ly93d3cuc2hvb3Rpbmdob3VzZS5jb20uYnIvYXNzb2NpYWRvL2RlY2xhcmFjYW8="
-              icon={<FileText size={14} />}
-              label="Declarações"
-            />
-            <UtilityMobile
-              href="https://clubedetirobh.com.br/validar-declaracao/"
-              icon={<BadgeCheck size={14} />}
-              label="Validar"
-            />
-            <UtilityMobile
-              href="https://www.shootinghouse.com.br/login-associado/clubedetirobh.com.br/aHR0cHM6Ly93d3cuc2hvb3Rpbmdob3VzZS5jb20uYnIvYXNzb2NpYWRvL3NlY3JldGFyaWEvZGVzcGFjaGFudGUvc29saWNpdGFjb2Vz"
-              icon={<LayoutDashboard size={14} />}
-              label="Secretaria"
-            />
-            <UtilityMobile
-              href="https://www.shootinghouse.com.br/login-associado/clubedetirobh.com.br/aHR0cHM6Ly93d3cuc2hvb3Rpbmdob3VzZS5jb20uYnIvYXNzb2NpYWRvL2ZpbmFuY2Vpcm8vYm9sZXRv"
-              icon={<Printer size={14} />}
-              label="Boletos"
-            />
+            {utilityItems.map((item) => (
+              <UtilityMobile
+                key={item.key}
+                href={item.href}
+                icon={item.icon}
+                label={u[item.key].split(" ")[0]} // Pega a primeira palavra para não quebrar o layout mobile
+              />
+            ))}
           </div>
 
           <nav className="mt-6 px-5 pb-10 space-y-1 text-sm uppercase tracking-wide">
@@ -379,14 +385,14 @@ export default function NavBar() {
                     className="block py-3 hover:text-[#ffb703] transition"
                     onClick={() => setOpen(false)}
                   >
-                    {item.label || t[item.key]}
+                    {t[item.key]}
                   </a>
                 ) : (
                   <button
                     onClick={() => setOpenSub(openSub === item.key ? null : item.key)}
                     className="w-full flex justify-between items-center py-3 hover:text-[#ffb703] transition"
                   >
-                    <span>{item.label}</span>
+                    <span>{t[item.key]}</span>
                     <span className={`transition-transform duration-300 ${openSub === item.key ? "rotate-180" : ""}`}>
                       ▼
                     </span>
@@ -453,9 +459,8 @@ function FlagBtn({ lang, active = false, onClick }: { lang: Lang; active?: boole
   return (
     <button
       onClick={onClick}
-      className={`hover:scale-110 transition-all duration-300 cursor-pointer ${
-        active ? "ring-2 ring-[#ffb703] ring-offset-2 ring-offset-white rounded-sm" : "opacity-60 hover:opacity-100"
-      }`}
+      className={`hover:scale-110 transition-all duration-300 cursor-pointer ${active ? "ring-2 ring-[#ffb703] ring-offset-2 ring-offset-white rounded-sm" : "opacity-60 hover:opacity-100"
+        }`}
     >
       <img
         src={`https://purecatamphetamine.github.io/country-flag-icons/3x2/${codes[lang]}.svg`}
@@ -470,7 +475,7 @@ function FlagBtn({ lang, active = false, onClick }: { lang: Lang; active?: boole
 
 function IconInstagram() {
   return (
-    <SocialIcon href="https://www.instagram.com/protect.rastreamento/">
+    <SocialIcon href="https://www.instagram.com/grupoprotect/">
       <svg width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
         <path d="M8 0C5.829 0 5.556.01 4.703.048 3.85.088 3.269.222 2.76.42a3.9 3.9 0 0 0-1.417.923A3.9 3.9 0 0 0 .42 2.76C.222 3.268.087 3.85.048 4.7.01 5.555 0 5.827 0 8.001c0 2.172.01 2.444.048 3.297.04.852.174 1.433.372 1.942.205.526.478.972.923 1.417.444.445.89.719 1.416.923.51.198 1.09.333 1.942.372C5.555 15.99 5.827 16 8 16s2.444-.01 3.298-.048c.851-.04 1.434-.174 1.943-.372a3.9 3.9 0 0 0 1.416-.923c.445-.445.718-.891.923-1.417.197-.509.332-1.09.372-1.942C15.99 10.445 16 10.173 16 8s-.01-2.445-.048-3.299c-.04-.851-.175-1.433-.372-1.941a3.9 3.9 0 0 0-.923-1.417A3.9 3.9 0 0 0 13.24.42c-.51-.198-1.092-.333-1.943-.372C10.443.01 10.172 0 7.998 0zm-.717 1.442h.718c2.136 0 2.389.007 3.232.046.78.035 1.204.166 1.486.275.373.145.64.319.92.599s.453.546.598.92c.11.281.24.705.275 1.485.039.843.047 1.096.047 3.231s-.008 2.389-.047 3.232c-.035.78-.166 1.203-.275 1.485a2.5 2.5 0 0 1-.599.919c-.28.28-.546.453-.92.598-.28.11-.704.24-1.485.276-.843.038-1.096.047-3.232.047s-2.39-.009-3.233-.047c-.78-.036-1.203-.166-1.485-.276a2.5 2.5 0 0 1-.92-.598 2.5 2.5 0 0 1-.6-.92c-.109-.281-.24-.705-.275-1.485-.038-.843-.046-1.096-.046-3.233s.008-2.388.046-3.231c.036-.78.166-1.204.276-1.486.145-.373.319-.64.599-.92s.546-.453.92-.598c.282-.11.705-.24 1.485-.276.738-.034 1.024-.044 2.515-.045zm4.988 1.328a.96.96 0 1 0 0 1.92.96.96 0 0 0 0-1.92m-4.27 1.122a4.109 4.109 0 1 0 0 8.217 4.109 4.109 0 0 0 0-8.217m0 1.441a2.667 2.667 0 1 1 0 5.334 2.667 2.667 0 0 1 0-5.334" />
       </svg>
@@ -490,7 +495,7 @@ function IconWhatsapp() {
 
 function IconLinkedin() {
   return (
-    <SocialIcon href="https://www.linkedin.com/in/protect-rastreamento-a97106350">
+    <SocialIcon href="https://www.linkedin.com/in/grupo-protect-85a821147/">
       <svg width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
         <path d="M0 1.146C0 .513.526 0 1.175 0h13.65C15.474 0 16 .513 16 1.146v13.708c0 .633-.526 1.146-1.175 1.146H1.175C.526 16 0 15.487 0 14.854V1.146zm4.943 12.248V6.169H2.542v7.225h2.401zm-1.2-8.212c.837 0 1.358-.554 1.358-1.248-.015-.709-.52-1.248-1.342-1.248-.822 0-1.359.54-1.359 1.248 0 .694.521 1.248 1.327 1.248h.016zm4.908 8.212V9.359c0-.216.016-.432.08-.586.173-.431.568-.878 1.232-.878.869 0 1.216.662 1.216 1.634v3.865h2.401V9.25c0-2.22-1.184-3.252-2.764-3.252-1.274 0-1.845.7-2.165 1.193v.025h-.016a5.54 5.54 0 0 1 .016-.025V6.169h-2.4c.03.678 0 7.225 0 7.225h2.4z" />
       </svg>
@@ -510,7 +515,7 @@ function IconYoutube() {
 
 function IconFacebook() {
   return (
-    <SocialIcon href="https://www.facebook.com/profile.php?id=61567757725049&mibextid=wwXIfr&rdid=mqiHWXY8lcO99WQ0&share_url=https%3A%2F%2Fwww.facebook.com%2Fshare%2F17adApCoRb%2F%3Fmibextid%3DwwXIfr#">
+    <SocialIcon href="https://www.facebook.com/grupoprotectbhmg">
       <svg width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
         <path d="M16 8.049c0-4.446-3.582-8.05-8-8.05C3.58 0-.002 3.603-.002 8.05c0 4.017 2.926 7.347 6.75 7.951v-5.625h-2.03V8.05H6.75V6.275c0-2.017 1.195-3.131 3.022-3.131.876 0 1.791.157 1.791.157v1.98h-1.009c-.993 0-1.303.621-1.303 1.258v1.51h2.218l-.354 2.326H9.25V16c3.824-.604 6.75-3.934 6.75-7.951" />
       </svg>

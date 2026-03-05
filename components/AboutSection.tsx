@@ -115,14 +115,13 @@ export default function AboutSection() {
               </div>
               <div>
                 <span className="text-gray-400 text-xs uppercase font-bold tracking-widest">
-                  Tecnologia
+                  {t.cta_tracking_label} {/* <--- DINÂMICO */}
                 </span>
-                <p className=" font-bold text-lg">
-                  Conheça nosso rastreamento
+                <p className="text-[#001d3d] font-bold text-lg">
+                  {t.cta_tracking_title} {/* <--- DINÂMICO */}
                 </p>
               </div>
             </div>
-
             <ArrowRight className="text-[#001d3d] group-hover:translate-x-2 transition-transform duration-300" />
           </Link>
 
@@ -137,14 +136,13 @@ export default function AboutSection() {
               </div>
               <div>
                 <span className="text-gray-400 text-xs uppercase font-bold tracking-widest">
-                  Unidades
+                  {t.cta_clubs_label} {/* <--- DINÂMICO */}
                 </span>
                 <p className="text-[#001d3d] font-bold text-lg">
-                  Conheça nossos clubes de tiro
+                  {t.cta_clubs_title} {/* <--- DINÂMICO */}
                 </p>
               </div>
             </div>
-
             <ArrowRight className="text-[#001d3d] group-hover:translate-x-2 transition-transform duration-300" />
           </Link>
         </div>

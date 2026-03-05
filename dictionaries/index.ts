@@ -26,7 +26,11 @@ export const dictionaries = {
                     description: "Através da ONG Guerreiros do Bem apoiamos pessoas em vulnerabilidade.",
                     content: "Nosso compromisso com a transformação social se materializa na criação da ONG Guerreiros do Bem, iniciativa do Grupo Protect."
                 }
-            }
+            },
+            cta_tracking_label: "Tecnologia",
+            cta_tracking_title: "Conheça nosso rastreamento",
+            cta_clubs_label: "Unidades",
+            cta_clubs_title: "Conheça nossos clubes de tiro",
         },
         shootingClub: {
             badge: "Clube Protect",
@@ -260,7 +264,11 @@ export const dictionaries = {
                     description: "Through the NGO Guerreiros do Bem, we support people in vulnerability.",
                     content: "Our commitment to social transformation is embodied in the creation of the NGO Guerreiros do Bem, a Protect Group initiative that translates our values into concrete action."
                 }
-            }
+            },
+            cta_tracking_label: "Technology",
+            cta_tracking_title: "Discover our tracking",
+            cta_clubs_label: "Units",
+            cta_clubs_title: "Discover our shooting clubs"
         },
         shootingClub: {
             badge: "Protect Club",
@@ -488,7 +496,11 @@ export const dictionaries = {
                     description: "A través de la ONG Guerreiros do Bem apoyamos a personas en vulnerabilidad.",
                     content: "Nuestro compromiso con la transformación social se materializa en la creación de la ONG Guerreiros do Bem, una iniciativa del Grupo Protect."
                 }
-            }
+            },
+            cta_tracking_label: "Tecnología",
+            cta_tracking_title: "Conoce nuestro rastreo",
+            cta_clubs_label: "Unidades",
+            cta_clubs_title: "Conoce nuestros clubes de tiro"
         },
         shootingClub: {
             badge: "Club Protect",
