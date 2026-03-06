@@ -31,7 +31,19 @@ const dictionaries = {
       truck: "Big Truck METATRON",
       blog: "Blog",
       contact: "Fale Conosco",
-      accessCAC: "ACESSO C.A.C"
+      accessCAC: "ACESSO C.A.C",
+      gutierrez: "BH - Gutierrez",
+      raja: "BH - Raja",
+      alphaville: "Nova Lima - Alphaville",
+      calendar: "Calendário",
+      guardTraining: "Capacitação de Guardas",
+      defensive: "Defensivo",
+      sportive: "Desportivo",
+      others: "Outros",
+      federalPolice: "Polícia Federal",
+      army: "Exército Brasileiro",
+      gallery: "Galeria",
+      videos: "Vídeos"
     },
     utilities: {
       declarations: "Emissão de Declarações",
@@ -55,7 +67,19 @@ const dictionaries = {
       truck: "METATRON Big Truck",
       blog: "Blog",
       contact: "Contact Us",
-      accessCAC: "C.A.C ACCESS"
+      accessCAC: "C.A.C ACCESS",
+      gutierrez: "BH - Gutierrez Unit",
+      raja: "BH - Raja Unit",
+      alphaville: "Nova Lima - Alphaville",
+      calendar: "Calendar",
+      guardTraining: "Guard Training",
+      defensive: "Defensive Shooting",
+      sportive: "Sport Shooting",
+      others: "Others",
+      federalPolice: "Federal Police",
+      army: "Brazilian Army",
+      gallery: "Gallery",
+      videos: "Videos"
     },
     utilities: {
       declarations: "Issue Declarations",
@@ -79,7 +103,19 @@ const dictionaries = {
       truck: "Big Truck METATRON",
       blog: "Blog",
       contact: "Contáctenos",
-      accessCAC: "ACCESO C.A.C"
+      accessCAC: "ACCESO C.A.C",
+      gutierrez: "BH - Sede Gutierrez",
+      raja: "BH - Sede Raja",
+      alphaville: "Nova Lima - Alphaville",
+      calendar: "Calendario",
+      guardTraining: "Capacitación de Guardias",
+      defensive: "Defensivo",
+      sportive: "Deportivo",
+      others: "Otros",
+      federalPolice: "Policía Federal",
+      army: "Ejército Brasileño",
+      gallery: "Galería",
+      videos: "Videos"
     },
     utilities: {
       declarations: "Emisión de Declaraciones",
@@ -158,44 +194,41 @@ export default function NavBar() {
     { key: "invoice", icon: <Printer size={14} />, href: "https://www.shootinghouse.com.br/login-associado/clubedetirobh.com.br/aHR0cHM6Ly93d3cuc2hvb3Rpbmdob3VzZS5jb20uYnIvYXNzb2NpYWRvL2ZpbmFuY2Vpcm8vYm9sZXRv" },
   ];
 
-  const menuItems = [
+const menuItems = [
     { key: "presentation", href: "/home" },
-    {
-      key: "shop",
-      href: "/loja"
-    },
+    { key: "shop", href: "/loja" },
     {
       key: "club",
       href: "/clube",
       children: [
-        { label: "BH - Gutierrez", href: "/clube/gutierrez" },
-        { label: "BH - Raja", href: "/clube/raja" },
-        { label: "Nova Lima - Alphaville", href: "/clube/alphaville" },
-        { label: "Calendário", href: "/clube/calendario" },
+        { labelKey: "gutierrez", href: "/clube/gutierrez" },
+        { labelKey: "raja", href: "/clube/raja" },
+        { labelKey: "alphaville", href: "/clube/alphaville" },
+        { labelKey: "calendar", href: "/clube/calendario" },
       ],
     },
     { key: "tracking", href: "/rastreamento" },
     {
       key: "courses",
       children: [
-        { label: "Capacitação de Guardas", href: "/cursos/capacitacao" },
-        { label: "Defensivo", href: "/cursos/defensivo" },
-        { label: "Desportivo", href: "/cursos/desportivo" },
-        { label: "Outros", href: "/cursos/outros" },
+        { labelKey: "guardTraining", href: "/cursos/capacitacao" },
+        { labelKey: "defensive", href: "/cursos/defensivo" },
+        { labelKey: "sportive", href: "/cursos/desportivo" },
+        { labelKey: "others", href: "/cursos/outros" },
       ],
     },
     {
       key: "dispatcher",
       children: [
-        { label: "Polícia Federal", href: "/despachante/pf" },
-        { label: "Exército Brasileiro", href: "/despachante/exercito" },
+        { labelKey: "federalPolice", href: "/despachante/pf" },
+        { labelKey: "army", href: "/despachante/exercito" },
       ],
     },
     {
       key: "media",
       children: [
-        { label: "Galeria", href: "/midias/galeria" },
-        { label: "Vídeos", href: "/midias/videos" },
+        { labelKey: "gallery", href: "/midias/galeria" },
+        { labelKey: "videos", href: "/midias/videos" },
       ],
     },
     { key: "museum", href: "/museu-da-paz" },
@@ -331,7 +364,7 @@ export default function NavBar() {
                               href={withLang(child.href)}
                               className="block px-4 py-2 uppercase text-sm text-white hover:text-[#ffb703] hover:bg-white/5 transition-all"
                             >
-                              {child.label}
+                              {t[child.labelKey]}
                             </a>
                           </li>
                         ))}
@@ -466,7 +499,7 @@ export default function NavBar() {
                               className="block px-8 py-3 text-xs text-gray-400 hover:text-[#ffb703] transition-colors border-l-2 border-transparent hover:border-[#ffb703]"
                               onClick={() => setOpen(false)}
                             >
-                              {child.label}
+                              {t[child.labelKey]}
                             </a>
                           ))}
                         </div>
