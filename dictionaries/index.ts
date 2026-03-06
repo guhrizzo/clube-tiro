@@ -283,6 +283,19 @@ export const dictionaries = {
                 { title: "Consultoria Especializada", description: "Análise documental estratégica para CACs, empresas e operadores do setor." }
             ]
         },
+        contactPage: {
+            badge: "Contato Direto",
+            title: "Pronto para dar o próximo passo?",
+            description: "Escreva sua dúvida abaixo e fale diretamente com nossos especialistas via WhatsApp.",
+            placeholder: "Como podemos ajudar você hoje?",
+            send: "Enviar",
+            responseStatus: "Resposta imediata via WhatsApp",
+            national: "Atendimento Nacional",
+            fast: "Resposta Rápida",
+            certified: "Especialistas Certificados",
+            callAction: "Ligar Agora",
+            location: "Belo Horizonte, MG"
+        },
     },
     en: {
         about: {
@@ -561,6 +574,19 @@ export const dictionaries = {
                 { title: "Tests & Reports", description: "Referral for shooting tests, psychotechnical evaluations, and reports required by the Army." },
                 { title: "Specialized Consulting", description: "Strategic documentary analysis for CACs, companies, and industry operators." }
             ]
+        },
+        contactPage: {
+            badge: "Direct Contact",
+            title: "Ready to take the next step?",
+            description: "Write your question below and speak directly with our specialists via WhatsApp.",
+            placeholder: "How can we help you today?",
+            send: "Send",
+            responseStatus: "Immediate response via WhatsApp",
+            national: "National Service",
+            fast: "Fast Response",
+            certified: "Certified Specialists",
+            callAction: "Call Now",
+            location: "Belo Horizonte, MG, Brazil"
         },
     },
     es: {
@@ -852,6 +878,19 @@ export const dictionaries = {
                 { title: "Pruebas e Informes", description: "Derivación para pruebas de tiro, psicotécnicos e informes exigidos por el Ejército." },
                 { title: "Consultoría Especializada", description: "Análisis documental estratégico para CACs, empresas y operadores del sector." }
             ]
+        },
+        contactPage: {
+            badge: "Contacto Directo",
+            title: "¿Listo para dar el siguiente paso?",
+            description: "Escriba sua duda a continuación y hable directamente con nuestros especialistas por WhatsApp.",
+            placeholder: "¿Cómo podemos ajudarle hoy?",
+            send: "Enviar",
+            responseStatus: "Respuesta inmediata por WhatsApp",
+            national: "Atención Nacional",
+            fast: "Respuesta Rápida",
+            certified: "Especialistas Certificados",
+            callAction: "Llamar Ahora",
+            location: "Belo Horizonte, MG, Brasil"
         },
     }
 };
