@@ -236,6 +236,53 @@ export const dictionaries = {
             novaLima: "Conheça o clube de tiro de Nova Lima - Alphaville",
             calendario: "Venha conhecer nosso calendário"
         },
+        dispatcher: {
+            heroTitle: "Despachante Especializado em",
+            heroSubtitle: "Assessoria completa em processos de armamento, registros, CR, porte, guia de tráfego e regularizações com total conformidade legal.",
+            badge1: "Atendimento especializado junto à Polícia Federal",
+            badge2: "Processos conduzidos conforme legislação vigente",
+            badge3: "Acompanhamento completo até o deferimento",
+            howItWorks: "Como Funciona o Processo",
+            howItWorksSub: "Acompanhamento completo em todas as etapas",
+            solutionsTitle: "Nossas Soluções",
+            solutionsBadge: "O que fazemos",
+            ctaTitle: "Precisa de assessoria especializada?",
+            ctaSub: "Fale agora com nossa equipe e receba orientação para o seu caso.",
+            ctaBtn: "Falar com Especialista",
+            steps: [
+                { title: "Análise Inicial", desc: "Verificação da documentação e viabilidade do processo." },
+                { title: "Protocolos", desc: "Entrada dos processos junto à Polícia Federal ou Exército." },
+                { title: "Acompanhamento", desc: "Monitoramento contínuo até a decisão do órgão competente." },
+                { title: "Conclusão", desc: "Entrega da documentação final ao cliente." }
+            ],
+        },
+        army: {
+            heroBadge: "Despachante Especializado",
+            heroTitle: "Despachante do",
+            heroOrg: "Exército",
+            heroSubtitle: "Assessoria completa e estratégica para CACs, empresas e operadores de produtos controlados pelo Exército Brasileiro.",
+            btnSpecialist: "Falar com Especialista",
+            btnServices: "Ver Serviços",
+            solutionsTitle: "Soluções Completas",
+            solutionsSub: "Atuamos em todas as etapas do processo junto ao Exército, garantindo segurança jurídica e agilidade operacional.",
+            ctaTitle: "Pronto para regularizar seu processo?",
+            ctaSub: "Atendimento técnico especializado em todo o Brasil.",
+            ctaBtn: "Solicitar Atendimento",
+            services: [
+                { title: "Certificado de Registro (C.R.)", description: "Processos completos de concessão, renovação e cancelamento de C.R. para pessoas físicas e empresas." },
+                { title: "Aquisição e Importação", description: "Assessoria completa para compra e importação de armas, munições e produtos controlados." },
+                { title: "CRAF", description: "Emissão e regularização do Certificado de Registro de Arma de Fogo junto ao Exército." },
+                { title: "Apostilamento", description: "Inclusão ou exclusão (desapostilamento) de armamentos em acervos CAC." },
+                { title: "Guia de Tráfego", description: "GT para transporte legal de armas e munições em todo território estadual e nacional." },
+                { title: "Transferência de Armas", description: "Gestão completa de transferência de armamento entre CACs ou empresas." },
+                { title: "Veículos Blindados", description: "Regularização de compra, venda e transferência de veículos com proteção balística." },
+                { title: "Mapa de Armas", description: "Organização e emissão do Mapa de Armas junto à DFPC." },
+                { title: "Paintball e Airgun", description: "Legalização de armas de pressão, airsoft, paintball, simulacros e afins." },
+                { title: "Autorizações e Manutenções", description: "Autorização de compra, atualização cadastral e manutenção completa no SIGMA." },
+                { title: "Testes e Laudos", description: "Encaminhamento para testes de tiro, psicotécnico e laudos exigidos pelo Exército." },
+                { title: "Consultoria Especializada", description: "Análise documental estratégica para CACs, empresas e operadores do setor." }
+            ]
+        },
     },
     en: {
         about: {
@@ -468,6 +515,53 @@ export const dictionaries = {
                 videos: "Videos"
             }
         },
+        dispatcher: {
+            heroTitle: "Specialized Consultant in",
+            heroSubtitle: "Full assistance in weaponry processes, registrations, CR, carry permits, traffic guides, and legal compliance.",
+            badge1: "Specialized service for the Federal Police",
+            badge2: "Processes conducted under current legislation",
+            badge3: "Full monitoring until approval",
+            howItWorks: "How the Process Works",
+            howItWorksSub: "Complete tracking through all stages",
+            solutionsTitle: "Our Solutions",
+            solutionsBadge: "What we do",
+            ctaTitle: "Need specialized advice?",
+            ctaSub: "Talk to our team now and get guidance for your case.",
+            ctaBtn: "Talk to Specialist",
+            steps: [
+                { title: "Initial Analysis", desc: "Verification of documentation and process feasibility." },
+                { title: "Protocols", desc: "Filing processes with the Federal Police or Army." },
+                { title: "Monitoring", desc: "Continuous tracking until the agency's decision." },
+                { title: "Conclusion", desc: "Delivery of final documentation to the client." }
+            ]
+        },
+        army: {
+            heroBadge: "Specialized Consultant",
+            heroTitle: "Army",
+            heroOrg: "Dispatcher",
+            heroSubtitle: "Complete and strategic advice for CACs, companies, and operators of products controlled by the Brazilian Army.",
+            btnSpecialist: "Talk to Specialist",
+            btnServices: "View Services",
+            solutionsTitle: "Complete Solutions",
+            solutionsSub: "We act in all stages of the process with the Army, ensuring legal security and operational agility.",
+            ctaTitle: "Ready to regularize your process?",
+            ctaSub: "Specialized technical service throughout Brazil.",
+            ctaBtn: "Request Service",
+            services: [
+                { title: "Registration Certificate (C.R.)", description: "Complete processes for granting, renewing, and canceling C.R. for individuals and companies." },
+                { title: "Acquisition & Import", description: "Full advice for purchasing and importing weapons, ammunition, and controlled products." },
+                { title: "CRAF", description: "Issuance and regularization of the Firearm Registration Certificate with the Army." },
+                { title: "Apostille Services", description: "Inclusion or exclusion (de-apostille) of weapons in CAC collections." },
+                { title: "Traffic Guide (GT)", description: "GT for legal transport of weapons and ammunition throughout state and national territory." },
+                { title: "Weapon Transfer", description: "Full management of weapon transfers between CACs or companies." },
+                { title: "Armored Vehicles", description: "Regularization of purchase, sale, and transfer of vehicles with ballistic protection." },
+                { title: "Weapons Map", description: "Organization and issuance of the Weapons Map with the DFPC." },
+                { title: "Paintball & Airgun", description: "Legalization of airguns, airsoft, paintball, replicas, and similar items." },
+                { title: "Authorizations & Maintenance", description: "Purchase authorization, registration updates, and full maintenance in SIGMA." },
+                { title: "Tests & Reports", description: "Referral for shooting tests, psychotechnical evaluations, and reports required by the Army." },
+                { title: "Specialized Consulting", description: "Strategic documentary analysis for CACs, companies, and industry operators." }
+            ]
+        },
     },
     es: {
         about: {
@@ -699,6 +793,65 @@ export const dictionaries = {
                 gallery: "Galería",
                 videos: "Videos"
             }
+        },
+        dispatcher: {
+            heroTitle: "Gestoría Especializada en",
+            heroSubtitle: "Asesoría completa en procesos de armamento, registros, CR, porte, guía de tránsito y regularizaciones con total conformidad legal.",
+            badge1: "Atención especializada ante la Policía Federal",
+            badge2: "Procesos realizados según la legislación vigente",
+            badge3: "Seguimiento completo hasta la aprobación",
+            howItWorks: "Cómo Funciona el Proceso",
+            howItWorksSub: "Seguimiento integral en todas las etapas",
+            solutionsTitle: "Nuestras Soluciones",
+            solutionsBadge: "Lo que hacemos",
+            ctaTitle: "¿Necesita asesoría especializada?",
+            ctaSub: "Hable ahora con nuestro equipo y reciba orientación para su caso.",
+            ctaBtn: "Hablar con Especialista",
+            steps: [
+                {
+                    title: "Análisis Inicial",
+                    desc: "Verificación de la documentación y viabilidad del proceso."
+                },
+                {
+                    title: "Protocolos",
+                    desc: "Ingreso de los procesos ante la Policía Federal o el Ejército."
+                },
+                {
+                    title: "Seguimiento",
+                    desc: "Monitoreo continuo hasta la decisión del órgano competente."
+                },
+                {
+                    title: "Conclusión",
+                    desc: "Entrega de la documentación final al cliente."
+                }
+            ]
+        },
+        army: {
+            heroBadge: "Gestoría Especializada",
+            heroTitle: "Gestoría del",
+            heroOrg: "Ejército",
+            heroSubtitle: "Asesoría completa y estratégica para CACs, empresas y operadores de productos controlados por el Ejército Brasileño.",
+            btnSpecialist: "Hablar con Especialista",
+            btnServices: "Ver Servicios",
+            solutionsTitle: "Soluciones Completas",
+            solutionsSub: "Actuamos en todas las etapas del proceso ante el Ejército, garantizando seguridad jurídica y agilidad operativa.",
+            ctaTitle: "¿Listo para regularizar su proceso?",
+            ctaSub: "Atención técnica especializada en todo Brasil.",
+            ctaBtn: "Solicitar Atención",
+            services: [
+                { title: "Certificado de Registro (C.R.)", description: "Procesos completos de concesión, renovación y cancelación de C.R. para personas y empresas." },
+                { title: "Adquisición e Importación", description: "Asesoría completa para compra e importación de armas, municiones y productos controlados." },
+                { title: "CRAF", description: "Emisión y regularización del Certificado de Registro de Armas de Fuego ante el Ejército." },
+                { title: "Apostillado", description: "Inclusión o exclusión (desapostillado) de armamentos en colecciones CAC." },
+                { title: "Guía de Tránsito", description: "GT para transporte legal de armas y municiones en todo el territorio estatal y nacional." },
+                { title: "Transferencia de Armas", description: "Gestión completa de transferencia de armamento entre CACs o empresas." },
+                { title: "Vehículos Blindados", description: "Regularización de compra, venta y transferencia de vehículos con protección balística." },
+                { title: "Mapa de Armas", description: "Organización y emisión del Mapa de Armas ante la DFPC." },
+                { title: "Paintball y Airgun", description: "Legalización de armas de presión, airsoft, paintball, simulacros y afines." },
+                { title: "Autorizaciones y Mantenimiento", description: "Autorización de compra, actualización de datos y mantenimiento completo en SIGMA." },
+                { title: "Pruebas e Informes", description: "Derivación para pruebas de tiro, psicotécnicos e informes exigidos por el Ejército." },
+                { title: "Consultoría Especializada", description: "Análisis documental estratégico para CACs, empresas y operadores del sector." }
+            ]
         },
     }
 };
