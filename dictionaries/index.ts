@@ -65,7 +65,7 @@ export const dictionaries = {
                 title_main: "Proteção total com",
                 title_highlight: "rastreamento inteligente",
                 description: "Tecnologia de ponta para segurança veicular, gestão de frotas e controle em tempo real, com máxima confiabilidade e usabilidade.",
-                cta_main: "Solicitar Orçamento",
+                cta_main: "Conheça Mais",
                 cta_secondary: "Ver como funciona",
                 trust_24h: "Monitoramento 24h",
                 trust_gps: "Precisão por GPS",

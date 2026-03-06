@@ -101,6 +101,7 @@ export default function NavBar() {
   const router = useRouter();
   const [isScrolled, setIsScrolled] = useState(false);
   const pathname = usePathname();
+  const [showUtilities, setShowUtilities] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 10);
@@ -218,8 +219,7 @@ export default function NavBar() {
           }`}
       >
         <div className="w-full flex flex-col items-center">
-          {/* TOP UTILITY BAR — DESKTOP */}
-          <div className="hidden md:block w-full bg-[#0f0f0f] border-b border-white/10">
+          {/* TOP UTILITY BAR — DESKTOP <div className="hidden md:block w-full bg-[#0f0f0f] border-b border-white/10">
             <div className="container mx-auto px-4 h-10 flex items-center justify-center gap-6 text-[11px] font-semibold tracking-widest uppercase text-white/80">
               {utilityItems.map((item) => (
                 <UtilityLink
@@ -230,7 +230,8 @@ export default function NavBar() {
                 />
               ))}
             </div>
-          </div>
+          </div>*/}
+
 
           {/* LOGO + SOCIAL + TOOLS */}
           <div
@@ -264,22 +265,46 @@ export default function NavBar() {
                 <FlagBtn lang="es" active={currentLang === "es"} onClick={() => changeLang("es")} />
               </div>
 
-              <a
-                href="https://app.shootinghouse.com.br/login/sistema.grupoprotect.com.br"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group inline-block"
-              >
+
+              <div className="relative"> {/* Container relativo para o dropdown */}
                 <button
-                  className="relative overflow-hidden flex items-center gap-2 bg-[#1a1a1a] text-[#ffb703]
-                    px-5 py-2.5 rounded-md font-bold text-sm cursor-pointer shadow-md transition-all duration-300
-                    hover:bg-black hover:shadow-lg hover:shadow-[#ffb703]/20 hover:-translate-y-px active:scale-95"
+                  onClick={() => setShowUtilities(!showUtilities)}
+                  className="group relative overflow-hidden flex items-center gap-2 bg-[#1a1a1a] text-[#ffb703]
+      px-5 py-2.5 rounded-md font-bold text-sm cursor-pointer shadow-md transition-all duration-300
+      hover:bg-black hover:shadow-lg hover:shadow-[#ffb703]/20 active:scale-95"
                 >
-                  <span className="absolute inset-0 bg-linear-to-r from-transparent via-[#ffb703]/20 to-transparent translate-x-[-120%] group-hover:translate-x-[120%] transition-transform duration-700" />
-                  <User size={16} className="relative z-10 group-hover:scale-110 transition-transform" />
+                  <User size={16} className={`relative z-10 transition-transform ${showUtilities ? '' : ''}`} />
                   <span className="relative z-10">{t.accessCAC}</span>
+                  <ChevronDown size={14} className={`relative z-10 transition-transform duration-300 ${showUtilities ? 'rotate-180' : ''}`} />
                 </button>
-              </a>
+
+                {/* DROPDOWN DE UTILIDADES (Aparece ao clicar) */}
+                {showUtilities && (
+                  <>
+                    {/* Overlay invisível para fechar ao clicar fora */}
+                    <div className="fixed inset-0 z-40 cursor-pointer" onClick={() => setShowUtilities(false)} />
+
+                    <div className="absolute right-0 mt-3 w-64 bg-white border border-gray-100 shadow-2xl rounded-xl py-3 z-50 animate-in fade-in zoom-in duration-200">
+                      <div className="px-4 py-2 border-b border-gray-50 mb-2">
+                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Links de Acesso</span>
+                      </div>
+                      {utilityItems.map((item) => (
+                        <a
+                          key={item.key}
+                          href={item.href}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-[#ffb703]/10 hover:text-black transition-colors"
+                        >
+                          <span className="text-[#ffb703]">{item.icon}</span>
+                          <span className="font-semibold uppercase text-[11px] tracking-wider">{u[item.key]}</span>
+                        </a>
+                      ))}
+                    </div>
+                  </>
+                )}
+              </div>
+
             </div>
 
             <button onClick={() => setOpen(true)} className="lg:hidden text-black">
@@ -329,22 +354,31 @@ export default function NavBar() {
       </header>
 
       {/* MOBILE DRAWER */}
-      {open && <div onClick={() => setOpen(false)} className="fixed inset-0 bg-black/60 backdrop-blur-sm z-99" />}
+      {open && (
+        <div
+          onClick={() => setOpen(false)}
+          className="fixed inset-0 bg-black/70 backdrop-blur-md z-100 transition-opacity duration-300"
+        />
+      )}
 
       <aside
-        className={`fixed inset-y-0 right-0 h-dvh w-[85%] max-w-sm bg-black text-white uppercase z-99999 transform transition-transform duration-300 ${open ? "translate-x-0" : "translate-x-full"
-          } flex flex-col`}
+        className={`fixed inset-y-0 right-0 h-full w-[85%] max-w-sm bg-[#0a0a0a] text-white uppercase z-101 transform transition-transform duration-500 ease-in-out ${open ? "translate-x-0" : "translate-x-full"
+          } flex flex-col shadow-2xl`}
       >
-        <div className="flex items-center justify-between px-5 py-4 border-b border-white/10">
-          <Image src="/logo-horizontal-branco2.png" alt="Logo" width={100} height={40} className="" />
-          <button onClick={() => setOpen(false)}>
-            <X size={26} />
+        {/* HEADER DO MENU */}
+        <div className="flex items-center justify-between px-6 py-5 border-b border-white/10 bg-black">
+          <Image src="/logo-horizontal-branco2.png" alt="Logo" width={110} height={45} className="object-contain" />
+          <button
+            onClick={() => setOpen(false)}
+            className="p-2 hover:bg-white/10 rounded-full transition-colors"
+          >
+            <X size={28} />
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto">
-          {/* MOBILE SOCIALS */}
-          <div className="px-5 py-6 flex justify-center gap-4 bg-white/5">
+        <div className="flex-1 overflow-y-auto custom-scrollbar">
+          {/* REDES SOCIAIS - Layout em Grid para melhor toque */}
+          <div className="px-6 py-6 grid grid-cols-5 gap-2 border-b border-white/5 bg-white/5">
             <IconInstagram />
             <IconFacebook />
             <IconWhatsapp />
@@ -352,68 +386,104 @@ export default function NavBar() {
             <IconYoutube />
           </div>
 
-          <div className="px-5 py-5 border-b border-white/10 flex items-center justify-between">
-            <div className="flex gap-3">
-              <FlagBtn lang="en" active={currentLang === "en"} onClick={() => changeLang("en")} />
-              <FlagBtn lang="pt" active={currentLang === "pt"} onClick={() => changeLang("pt")} />
-              <FlagBtn lang="es" active={currentLang === "es"} onClick={() => changeLang("es")} />
-            </div>
-            <button className="flex items-center gap-2 bg-[#ffb703] text-black px-4 py-2 rounded-md font-bold text-xs hover:bg-[#ffd166] transition">
-              <User size={14} />
-              <span className="relative z-10">{t.accessCAC}</span>
-            </button>
+          {/* SELEÇÃO DE IDIOMA */}
+          <div className="px-6 py-4 border-b border-white/10 flex items-center justify-center gap-6 bg-black/40">
+            <FlagBtn lang="en" active={currentLang === "en"} onClick={() => changeLang("en")} />
+            <FlagBtn lang="pt" active={currentLang === "pt"} onClick={() => changeLang("pt")} />
+            <FlagBtn lang="es" active={currentLang === "es"} onClick={() => changeLang("es")} />
           </div>
 
-          {/* UTILITY MOBILE — TRADUZIDO */}
-          <div className="px-5 pt-4 grid grid-cols-2 gap-3 text-xs uppercase tracking-wide">
-            {utilityItems.map((item) => (
-              <UtilityMobile
-                key={item.key}
-                href={item.href}
-                icon={item.icon}
-                label={u[item.key].split(" ")[0]} // Pega a primeira palavra para não quebrar o layout mobile
-              />
-            ))}
-          </div>
+          {/* NAVEGAÇÃO PRINCIPAL */}
+          <nav className="mt-4 px-2 pb-20">
+            {/* BOTÃO ACESSO C.A.C - Integrado à lista para não quebrar o layout */}
+            <div className="mb-2">
+              <button
+                onClick={() => setOpenSub(openSub === "cac" ? null : "cac")}
+                className={`w-full flex items-center justify-between px-4 py-4 rounded-xl transition-all duration-300 ${openSub === "cac" ? "bg-[#ffb703] text-black" : "bg-white/5 text-[#ffb703]"
+                  }`}
+              >
+                <div className="flex items-center gap-3 font-bold text-sm">
+                  <User size={20} />
+                  <span>{t.accessCAC}</span>
+                </div>
+                <ChevronDown
+                  size={18}
+                  className={`transition-transform duration-300 ${openSub === "cac" ? "rotate-180" : ""}`}
+                />
+              </button>
 
-          <nav className="mt-6 px-5 pb-10 space-y-1 text-sm uppercase tracking-wide">
-            {menuItems.map((item) => (
-              <div key={item.key} className="border-b border-white/10">
-                {item.href ? (
-                  <a
-                    href={withLang(item.href)}
-                    className="block py-3 hover:text-[#ffb703] transition"
-                    onClick={() => setOpen(false)}
-                  >
-                    {t[item.key]}
-                  </a>
-                ) : (
-                  <button
-                    onClick={() => setOpenSub(openSub === item.key ? null : item.key)}
-                    className="w-full flex justify-between items-center py-3 hover:text-[#ffb703] transition"
-                  >
-                    <span>{t[item.key]}</span>
-                    <span className={`transition-transform duration-300 ${openSub === item.key ? "rotate-180" : ""}`}>
-                      ▼
-                    </span>
-                  </button>
-                )}
-                {item.children && openSub === item.key && (
-                  <div className="pl-4 pb-3 space-y-2 text-xs text-white/80">
-                    {item.children.map((child, index) => (
-                      <a
-                        key={index}
-                        href={withLang(child.href)}
-                        className="block py-1 hover:text-[#ffb703] transition"
-                        onClick={() => setOpen(false)}
-                      >
-                        {child.label}
-                      </a>
-                    ))}
-                  </div>
-                )}
+              {/* SUBMENU C.A.C (ACORDEÃO) */}
+              <div
+                className={`overflow-hidden transition-all duration-300 ease-in-out ${openSub === "cac" ? "max-h-100 opacity-100 mt-2" : "max-h-0 opacity-0"
+                  }`}
+              >
+                <div className="grid grid-cols-1 gap-1 px-2">
+                  {utilityItems.map((item) => (
+                    <a
+                      key={item.key}
+                      href={item.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-4 px-4 py-4 rounded-lg bg-white/5 hover:bg-white/10 text-xs font-medium text-gray-300 transition-colors"
+                    >
+                      <span className="text-[#ffb703]">{item.icon}</span>
+                      {u[item.key]}
+                    </a>
+                  ))}
+                </div>
               </div>
-            ))}
+            </div>
+
+            <div className="h-px bg-white/10 my-4 mx-4" />
+
+            {/* ITENS DO MENU PADRÃO */}
+            <div className="space-y-1">
+              {menuItems.map((item) => (
+                <div key={item.key} className="group">
+                  {item.href ? (
+                    <a
+                      href={withLang(item.href)}
+                      className="flex items-center px-4 py-4 text-sm font-medium hover:bg-white/5 hover:text-[#ffb703] rounded-lg transition-all"
+                      onClick={() => setOpen(false)}
+                    >
+                      {t[item.key]}
+                    </a>
+                  ) : (
+                    <>
+                      <button
+                        onClick={() => setOpenSub(openSub === item.key ? null : item.key)}
+                        className="w-full flex justify-between items-center px-4 py-4 text-sm font-medium hover:bg-white/5 hover:text-[#ffb703] rounded-lg transition-all"
+                      >
+                        <span>{t[item.key]}</span>
+                        <ChevronDown
+                          size={16}
+                          className={`transition-transform duration-300 ${openSub === item.key ? "rotate-180" : ""}`}
+                        />
+                      </button>
+
+                      {/* SUBMENU ITENS PADRÃO */}
+                      <div
+                        className={`overflow-hidden transition-all duration-300 ${openSub === item.key ? "max-h-125 opacity-100" : "max-h-0 opacity-0"
+                          }`}
+                      >
+                        <div className="bg-white/5 mx-2 rounded-lg mt-1 mb-2">
+                          {item.children?.map((child, index) => (
+                            <a
+                              key={index}
+                              href={withLang(child.href)}
+                              className="block px-8 py-3 text-xs text-gray-400 hover:text-[#ffb703] transition-colors border-l-2 border-transparent hover:border-[#ffb703]"
+                              onClick={() => setOpen(false)}
+                            >
+                              {child.label}
+                            </a>
+                          ))}
+                        </div>
+                      </div>
+                    </>
+                  )}
+                </div>
+              ))}
+            </div>
           </nav>
         </div>
       </aside>

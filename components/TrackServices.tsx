@@ -6,7 +6,7 @@ import "aos/dist/aos.css";
 import Image from "next/image";
 import {
   MapPin, ShieldCheck, Smartphone, Radio, Bell, History, ArrowRight,
-  Tractor, HardHat, Baby, Dog, Bike, Ship, Anchor, Car, Box, Heart
+  Tractor, HardHat, Baby, Dog, Bike, Ship, Anchor, Car, Box, Heart, Link2
 } from "lucide-react";
 import AppAboutSection from "./AppAboutSection";
 import StatsSection from "./StatsSection";
@@ -76,14 +76,15 @@ export default function TrackingSection() {
             </p>
 
             <div className="flex flex-wrap gap-4 pt-4">
-              <button className="group cursor-pointer bg-[#ffb703] text-[#1a1a1a] lg:px-8 px-18 py-4 rounded-xl font-bold flex items-center gap-2 hover:gap-3 hover:brightness-110 transition-all duration-300 shadow-lg shadow-[#ffb703]/25">
-                {t.hero.cta_main}
-                <ArrowRight size={18} className="transition-transform group-hover:translate-x-1" />
-              </button>
+              <a href="https://protectrastreamento.com.br/" target="_blank" rel="noopener noreferrer">
+                <button className="group cursor-pointer bg-[#ffb703] text-[#1a1a1a] lg:px-8 px-18 py-4 rounded-xl font-bold flex items-center gap-2 hover:gap-3 hover:brightness-110 transition-all duration-300 shadow-lg shadow-[#ffb703]/25">
+                  <Link2 />
+                  {t.hero.cta_main}
+                  <ArrowRight size={18} className="transition-transform group-hover:translate-x-1" />
+                </button>
+              </a>
 
-              <button className="cursor-pointer py-4 rounded-xl lg:px-8 px-22 font-semibold border border-gray-200 text-gray-700 hover:border-[#ffb703] hover:text-[#ffb703] transition-all">
-                {t.hero.cta_secondary}
-              </button>
+              
             </div>
 
             <div className="pt-6 flex flex-wrap gap-6 text-sm text-gray-400">
@@ -126,8 +127,7 @@ export default function TrackingSection() {
           </div>
         </div>
 
-        {/* --- SEÇÃO: CONTRATAR --- */}
-        <section className="relative border-t border-gray-100 w-full py-28 overflow-hidden">
+        {/* --- SEÇÃO: CONTRATAR --- <section className="relative border-t border-gray-100 w-full py-28 overflow-hidden">
           <div className="max-w-5xl mx-auto px-6 text-center relative z-10 space-y-6">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#ffb703]/15 text-[#ffb703] text-xs font-bold uppercase tracking-[0.25em]">
               {t.hire.badge}
@@ -146,10 +146,10 @@ export default function TrackingSection() {
               </a>
             </div>
           </div>
-        </section>
+        </section>*/}
+        
 
-        {/* --- SEÇÃO: TÉCNICO --- */}
-        <section className="relative border-t border-gray-100 w-full py-28 overflow-hidden">
+        {/* --- SEÇÃO: TÉCNICO --- <section className="relative border-t border-gray-100 w-full py-28 overflow-hidden">
           <div className="max-w-5xl mx-auto px-6 text-center relative z-10 space-y-6">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#ffb703]/15 text-[#ffb703] text-xs font-bold uppercase tracking-[0.25em]">
               {t.partner.badge}
@@ -168,10 +168,10 @@ export default function TrackingSection() {
               </a>
             </div>
           </div>
-        </section>
+        </section>*/}
+        
 
-        {/* --- SEÇÃO: COMPATIBILIDADE --- */}
-        <section className="relative border-t border-gray-100 w-full py-28 overflow-hidden">
+        {/* --- SEÇÃO: COMPATIBILIDADE --- <section className="relative border-t border-gray-100 w-full py-28 overflow-hidden">
           <div className="max-w-5xl mx-auto px-6 text-center relative z-10 space-y-6">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#ffb703]/15 text-[#ffb703] text-xs font-bold uppercase tracking-[0.25em]">
               {t.compatibility.badge}
@@ -183,12 +183,12 @@ export default function TrackingSection() {
               {t.compatibility.description_prefix} <strong className="text-gray-900">{t.compatibility.description_highlight}</strong>{t.compatibility.description_suffix}
             </p>
           </div>
-        </section>
+        </section> <StatsSection />
+*/}
+        
 
-        <StatsSection />
-
-        {/* ================= FEATURES GRID ================= */}
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8 mb-24">
+        
+        {/* ================= FEATURES GRID ================= <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8 mb-24">
           {trackServices.map((service, index) => (
             <div key={index} className="group cursor-text relative p-8 rounded-3xl border border-gray-100 bg-white shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all hover:border-[#ffb703]/40">
               <div className="mb-6 w-14 h-14 rounded-2xl bg-[#ffb703]/10 flex items-center justify-center text-[#ffb703] group-hover:rotate-6 group-hover:scale-115 border border-[#ffb703]/20 duration-500 transition-all ease-in-out">
@@ -198,10 +198,10 @@ export default function TrackingSection() {
               <p className="text-gray-500 text-sm leading-relaxed">{service.desc}</p>
             </div>
           ))}
-        </div>
+        </div>*/}
+        
 
-        {/* ================= CATEGORIES ================= */}
-        <div className="mb-24" data-aos="fade-up">
+        {/* ================= CATEGORIES =================<div className="mb-24" data-aos="fade-up">
           <div className="text-center mb-12">
             <h3 className="text-2xl font-bold text-gray-900">{t.categories_title}</h3>
             <div className="w-12 h-1 bg-[#ffb703] mx-auto mt-3 rounded-full" />
@@ -218,10 +218,10 @@ export default function TrackingSection() {
               </div>
             ))}
           </div>
-        </div>
+        </div> */}
+        
 
-        {/* ================= CTA BANNER ================= */}
-        <div className="relative overflow-hidden rounded-[2.5rem] bg-linear-to-r from-gray-900 via-gray-900 to-black p-12 md:p-16 flex flex-col md:flex-row items-center justify-between gap-10" data-aos="fade-up">
+        {/* ================= CTA BANNER =================<div className="relative overflow-hidden rounded-[2.5rem] bg-linear-to-r from-gray-900 via-gray-900 to-black p-12 md:p-16 flex flex-col md:flex-row items-center justify-between gap-10" data-aos="fade-up">
           <div className="absolute -right-24 -top-24 w-96 h-96 bg-[#ffb703]/10 blur-3xl rounded-full" />
           <div className="relative z-10 max-w-xl">
             <h5 className="text-white text-2xl md:text-3xl font-extrabold mb-3">{t.cta_banner.title}</h5>
@@ -232,7 +232,9 @@ export default function TrackingSection() {
             <ArrowRight size={20} />
           </a>
         </div>
-      </div>
+       */
+        }
+       </div> 
 
       <AppAboutSection />
     </section>
