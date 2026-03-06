@@ -162,15 +162,7 @@ export default function NavBar() {
     { key: "presentation", href: "/home" },
     {
       key: "shop",
-      href: "/loja",
-      children: [
-        { label: "Pistolas", href: "/loja/pistolas" },
-        { label: "Revólveres", href: "/loja/revolveres" },
-        { label: "Espingardas", href: "/loja/espingardas" },
-        { label: "Rifles", href: "/loja/rifles" },
-        { label: "Defesa Pessoal", href: "/loja/defesa-pessoal" },
-        { label: "Outros", href: "/loja/outros" },
-      ],
+      href: "/loja"
     },
     {
       key: "club",
