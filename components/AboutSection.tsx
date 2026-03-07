@@ -28,7 +28,7 @@ export default function AboutSection() {
   ] as const;
 
   return (
-    <section className="py-28 bg-white">
+    <section className="py-14 bg-white">
       <div className="container mx-auto px-6 max-w-6xl">
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-20 space-y-5">

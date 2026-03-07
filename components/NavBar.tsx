@@ -14,8 +14,9 @@ import {
   LayoutDashboard,
   Menu,
   Target,
+  FileSignature,
 } from "lucide-react";
-
+import ContractModal from "./ContractModal";
 /* ---------------- MOCK DICT ---------------- */
 const dictionaries = {
   pt: {
@@ -43,7 +44,8 @@ const dictionaries = {
       federalPolice: "Polícia Federal",
       army: "Exército Brasileiro",
       gallery: "Galeria",
-      videos: "Vídeos"
+      videos: "Vídeos",
+      
     },
     utilities: {
       declarations: "Emissão de Declarações",
@@ -51,7 +53,8 @@ const dictionaries = {
       secretariat: "Serviços de Secretaria",
       invoice: "2ª Via de Boleto",
       tracking: "Tecnologia",
-      units: "Unidades"
+      units: "Unidades",
+      contract: "Contrato de Adesão"
     },
   },
   en: {
@@ -87,7 +90,8 @@ const dictionaries = {
       secretariat: "Secretary Services",
       invoice: "Invoice Copy",
       tracking: "Technology",
-      units: "Units"
+      units: "Units",
+      contract: "Adhesion Contract"
     }
   },
   es: {
@@ -123,7 +127,8 @@ const dictionaries = {
       secretariat: "Servicios de Secretaría",
       invoice: "Segunda vía de Recibo",
       tracking: "Tecnología",
-      units: "Unidades"
+      units: "Unidades",
+      contract: "Contrato de Adhesión"
     }
   },
 };
@@ -138,6 +143,7 @@ export default function NavBar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const pathname = usePathname();
   const [showUtilities, setShowUtilities] = useState(false);
+  const [showContract, setShowContract] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 10);
@@ -186,15 +192,21 @@ export default function NavBar() {
     if (!path) return "#";
     return path.startsWith(`/${currentLang}`) ? path : `/${currentLang}${path}`;
   };
-
+  interface UtilityItem {
+    key: string;
+    icon: React.ReactNode;
+    href?: string;
+    isAction?: boolean; // Define se o item dispara uma função em vez de link
+  }
   const utilityItems = [
     { key: "declarations", icon: <FileText size={14} />, href: "https://www.shootinghouse.com.br/login-associado/clubedetirobh.com.br/aHR0cHM6Ly93d3cuc2hvb3Rpbmdob3VzZS5jb20uYnIvYXNzb2NpYWRvL2RlY2xhcmFjYW8=" },
     { key: "validate", icon: <BadgeCheck size={14} />, href: "https://clubedetirobh.com.br/validar-declaracao/" },
     { key: "secretariat", icon: <LayoutDashboard size={14} />, href: "https://www.shootinghouse.com.br/login-associado/clubedetirobh.com.br/aHR0cHM6Ly93d3cuc2hvb3Rpbmdob3VzZS5jb20uYnIvYXNzb2NpYWRvL3NlY3JldGFyaWEvZGVzcGFjaGFudGUvc29saWNpdGFjb2Vz" },
     { key: "invoice", icon: <Printer size={14} />, href: "https://www.shootinghouse.com.br/login-associado/clubedetirobh.com.br/aHR0cHM6Ly93d3cuc2hvb3Rpbmdob3VzZS5jb20uYnIvYXNzb2NpYWRvL2ZpbmFuY2Vpcm8vYm9sZXRv" },
+    { key: "contract", icon: <FileSignature size={14} />, isAction: true },
   ];
 
-const menuItems = [
+  const menuItems = [
     { key: "presentation", href: "/home" },
     { key: "shop", href: "/loja" },
     {
@@ -313,17 +325,38 @@ const menuItems = [
                       <div className="px-4 py-2 border-b border-gray-50 mb-2">
                         <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Links de Acesso</span>
                       </div>
-                      {utilityItems.map((item) => (
-                        <a
-                          key={item.key}
-                          href={item.href}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-[#ffb703]/10 hover:text-black transition-colors"
-                        >
-                          <span className="text-[#ffb703]">{item.icon}</span>
-                          <span className="font-semibold uppercase text-[11px] tracking-wider">{u[item.key]}</span>
-                        </a>
+                      {utilityItems.map((item: UtilityItem) => (
+                        item.isAction ? (
+                          // RENDERIZA COMO BOTÃO (PARA O CONTRATO)
+                          <button
+                            key={item.key}
+                            onClick={() => {
+                              setShowContract(true);
+                              setShowUtilities(false); // Fecha o dropdown ao clicar
+                              if (setOpen) setOpen(false); // Fecha o menu mobile se estiver aberto
+                            }}
+                            className="flex w-full items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-[#ffb703]/10 hover:text-black transition-colors border-b border-gray-100 last:border-0 cursor-pointer"
+                          >
+                            <span className="text-[#ffb703]">{item.icon}</span>
+                            <span className="font-semibold uppercase text-[11px] tracking-wider">
+                              {u[item.key]}
+                            </span>
+                          </button>
+                        ) : (
+                          // RENDERIZA COMO LINK (PARA OS DEMAIS)
+                          <a
+                            key={item.key}
+                            href={item.href}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-[#ffb703]/10 hover:text-black transition-colors border-b border-gray-100 last:border-0"
+                          >
+                            <span className="text-[#ffb703]">{item.icon}</span>
+                            <span className="font-semibold uppercase text-[11px] tracking-wider">
+                              {u[item.key]}
+                            </span>
+                          </a>
+                        )
                       ))}
                     </div>
                   </>
@@ -443,17 +476,38 @@ const menuItems = [
                   }`}
               >
                 <div className="grid grid-cols-1 gap-1 px-2">
-                  {utilityItems.map((item) => (
-                    <a
-                      key={item.key}
-                      href={item.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-4 px-4 py-4 rounded-lg bg-white/5 hover:bg-white/10 text-xs font-medium text-gray-300 transition-colors"
-                    >
-                      <span className="text-[#ffb703]">{item.icon}</span>
-                      {u[item.key]}
-                    </a>
+                  {utilityItems.map((item: UtilityItem) => (
+                    item.isAction ? (
+                      // RENDERIZA COMO BOTÃO (PARA O CONTRATO)
+                      <button
+                        key={item.key}
+                        onClick={() => {
+                          setShowContract(true);
+                          setShowUtilities(false); // Fecha o dropdown ao clicar
+                          if (setOpen) setOpen(false); // Fecha o menu mobile se estiver aberto
+                        }}
+                        className="flex w-full items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-[#ffb703]/10 hover:text-black transition-colors border-b border-gray-100 last:border-0"
+                      >
+                        <span className="text-[#ffb703]">{item.icon}</span>
+                        <span className="font-semibold uppercase text-[11px] tracking-wider">
+                          {u[item.key]}
+                        </span>
+                      </button>
+                    ) : (
+                      // RENDERIZA COMO LINK (PARA OS DEMAIS)
+                      <a
+                        key={item.key}
+                        href={item.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-[#ffb703]/10 hover:text-black transition-colors border-b border-gray-100 last:border-0"
+                      >
+                        <span className="text-[#ffb703]">{item.icon}</span>
+                        <span className="font-semibold uppercase text-[11px] tracking-wider">
+                          {u[item.key]}
+                        </span>
+                      </a>
+                    )
                   ))}
                 </div>
               </div>
@@ -512,7 +566,10 @@ const menuItems = [
           </nav>
         </div>
       </aside>
-
+      <ContractModal 
+      isOpen={showContract} 
+      onClose={() => setShowContract(false)} 
+    />
       <div className="h-24 lg:h-40" />
     </>
   );
@@ -580,7 +637,7 @@ function IconInstagram() {
 
 function IconWhatsapp() {
   return (
-    <SocialIcon href="https://api.whatsapp.com/send?phone=553133718600">
+    <SocialIcon href="https://api.whatsapp.com/send?phone=31992118500">
       <svg width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
         <path d="M13.601 2.326A7.85 7.85 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.9 7.9 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.9 7.9 0 0 0 13.6 2.326zM7.994 14.521a6.6 6.6 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.56 6.56 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592m3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.73.73 0 0 0-.529.247c-.182.198-.691.677-.691 1.654s.71 1.916.81 2.049c.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232" />
       </svg>

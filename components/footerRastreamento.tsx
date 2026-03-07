@@ -135,7 +135,8 @@ export default function FooterRastreamentoLight({
 
             <div className="flex flex-col gap-2 text-xs">
               {[
-                "loja@grupoprotect.com.br",
+                "Adm@grupoprotect.com.br",
+                "clube@grupoprotect.com.br",
                 "vendas@grupoprotect.com.br",
                 "despachante@grupoprotect.com.br",
               ].map((email) => (
