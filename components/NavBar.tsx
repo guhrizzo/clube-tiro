@@ -17,6 +17,7 @@ import {
   FileSignature,
 } from "lucide-react";
 import ContractModal from "./ContractModal";
+
 /* ---------------- MOCK DICT ---------------- */
 const dictionaries = {
   pt: {
@@ -32,7 +33,7 @@ const dictionaries = {
       truck: "Big Truck METATRON",
       blog: "Blog",
       contact: "Fale Conosco",
-      accessCAC: "ACESSO C.A.C",
+      accessCAC: "Acesso C.A.C",
       gutierrez: "BH - Gutierrez",
       raja: "BH - Raja",
       alphaville: "Nova Lima - Alphaville",
@@ -45,7 +46,6 @@ const dictionaries = {
       army: "Exército Brasileiro",
       gallery: "Galeria",
       videos: "Vídeos",
-      
     },
     utilities: {
       declarations: "Emissão de Declarações",
@@ -70,7 +70,7 @@ const dictionaries = {
       truck: "METATRON Big Truck",
       blog: "Blog",
       contact: "Contact Us",
-      accessCAC: "C.A.C ACCESS",
+      accessCAC: "C.A.C Access",
       gutierrez: "BH - Gutierrez Unit",
       raja: "BH - Raja Unit",
       alphaville: "Nova Lima - Alphaville",
@@ -107,7 +107,7 @@ const dictionaries = {
       truck: "Big Truck METATRON",
       blog: "Blog",
       contact: "Contáctenos",
-      accessCAC: "ACCESO C.A.C",
+      accessCAC: "Acceso C.A.C",
       gutierrez: "BH - Sede Gutierrez",
       raja: "BH - Sede Raja",
       alphaville: "Nova Lima - Alphaville",
@@ -192,12 +192,14 @@ export default function NavBar() {
     if (!path) return "#";
     return path.startsWith(`/${currentLang}`) ? path : `/${currentLang}${path}`;
   };
+
   interface UtilityItem {
     key: string;
     icon: React.ReactNode;
     href?: string;
-    isAction?: boolean; // Define se o item dispara uma função em vez de link
+    isAction?: boolean;
   }
+
   const utilityItems = [
     { key: "declarations", icon: <FileText size={14} />, href: "https://www.shootinghouse.com.br/login-associado/clubedetirobh.com.br/aHR0cHM6Ly93d3cuc2hvb3Rpbmdob3VzZS5jb20uYnIvYXNzb2NpYWRvL2RlY2xhcmFjYW8=" },
     { key: "validate", icon: <BadgeCheck size={14} />, href: "https://clubedetirobh.com.br/validar-declaracao/" },
@@ -256,21 +258,6 @@ export default function NavBar() {
           }`}
       >
         <div className="w-full flex flex-col items-center">
-          {/* TOP UTILITY BAR — DESKTOP <div className="hidden md:block w-full bg-[#0f0f0f] border-b border-white/10">
-            <div className="container mx-auto px-4 h-10 flex items-center justify-center gap-6 text-[11px] font-semibold tracking-widest uppercase text-white/80">
-              {utilityItems.map((item) => (
-                <UtilityLink
-                  key={item.key}
-                  href={item.href}
-                  icon={item.icon}
-                  label={u[item.key]} // <--- Puxa a tradução de "utilities" no idioma atual
-                />
-              ))}
-            </div>
-          </div>*/}
-
-
-          {/* LOGO + SOCIAL + TOOLS */}
           <div
             className={`container mx-auto px-4 flex justify-between items-center gap-4 transition-all duration-300 ${isScrolled ? "py-2" : "py-4"
               }`}
@@ -283,7 +270,7 @@ export default function NavBar() {
                 height={60}
                 className="object-contain transition-all duration-300"
               />
-              <div className="lg:flex hidden gap-2  border-gray-200 pr-6">
+              <div className="lg:flex hidden gap-2 border-gray-200 pr-6">
                 <IconInstagram />
                 <IconFacebook />
                 <IconWhatsapp />
@@ -293,47 +280,39 @@ export default function NavBar() {
             </div>
 
             <div className="hidden lg:flex items-center gap-6">
-              {/* SOCIAL ICONS LEFT-ALIGNED IN THIS SECTION */}
-
-
               <div className="flex gap-2">
                 <FlagBtn lang="en" active={currentLang === "en"} onClick={() => changeLang("en")} />
                 <FlagBtn lang="pt" active={currentLang === "pt"} onClick={() => changeLang("pt")} />
                 <FlagBtn lang="es" active={currentLang === "es"} onClick={() => changeLang("es")} />
               </div>
 
-
-              <div className="relative"> {/* Container relativo para o dropdown */}
+              <div className="relative">
                 <button
                   onClick={() => setShowUtilities(!showUtilities)}
                   className="group relative overflow-hidden flex items-center gap-2 bg-[#1a1a1a] text-[#ffb703]
       px-5 py-2.5 rounded-md font-bold text-sm cursor-pointer shadow-md transition-all duration-300
       hover:bg-black hover:shadow-lg hover:shadow-[#ffb703]/20 active:scale-95"
                 >
-                  <User size={16} className={`relative z-10 transition-transform ${showUtilities ? '' : ''}`} />
+                  <User size={16} className="relative z-10 transition-transform" />
                   <span className="relative z-10">{t.accessCAC}</span>
                   <ChevronDown size={14} className={`relative z-10 transition-transform duration-300 ${showUtilities ? 'rotate-180' : ''}`} />
                 </button>
 
-                {/* DROPDOWN DE UTILIDADES (Aparece ao clicar) */}
                 {showUtilities && (
                   <>
-                    {/* Overlay invisível para fechar ao clicar fora */}
                     <div className="fixed inset-0 z-40 cursor-pointer" onClick={() => setShowUtilities(false)} />
-
                     <div className="absolute right-0 mt-3 w-64 bg-white border border-gray-100 shadow-2xl rounded-xl py-3 z-50 animate-in fade-in zoom-in duration-200">
                       <div className="px-4 py-2 border-b border-gray-50 mb-2">
                         <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Links de Acesso</span>
                       </div>
                       {utilityItems.map((item: UtilityItem) => (
                         item.isAction ? (
-                          // RENDERIZA COMO BOTÃO (PARA O CONTRATO)
                           <button
                             key={item.key}
                             onClick={() => {
                               setShowContract(true);
-                              setShowUtilities(false); // Fecha o dropdown ao clicar
-                              if (setOpen) setOpen(false); // Fecha o menu mobile se estiver aberto
+                              setShowUtilities(false);
+                              if (setOpen) setOpen(false);
                             }}
                             className="flex w-full items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-[#ffb703]/10 hover:text-black transition-colors border-b border-gray-100 last:border-0 cursor-pointer"
                           >
@@ -343,7 +322,6 @@ export default function NavBar() {
                             </span>
                           </button>
                         ) : (
-                          // RENDERIZA COMO LINK (PARA OS DEMAIS)
                           <a
                             key={item.key}
                             href={item.href}
@@ -362,7 +340,6 @@ export default function NavBar() {
                   </>
                 )}
               </div>
-
             </div>
 
             <button onClick={() => setOpen(true)} className="lg:hidden text-black">
@@ -420,7 +397,7 @@ export default function NavBar() {
       )}
 
       <aside
-        className={`fixed inset-y-0 right-0 h-full w-[85%] max-w-sm bg-[#0a0a0a] text-white uppercase z-101 transform transition-transform duration-500 ease-in-out ${open ? "translate-x-0" : "translate-x-full"
+        className={`fixed inset-y-0 right-0 h-full w-[85%] max-w-sm bg-[#0a0a0a] text-white z-101 transform transition-transform duration-500 ease-in-out ${open ? "translate-x-0" : "translate-x-full"
           } flex flex-col shadow-2xl`}
       >
         {/* HEADER DO MENU */}
@@ -435,7 +412,7 @@ export default function NavBar() {
         </div>
 
         <div className="flex-1 overflow-y-auto custom-scrollbar">
-          {/* REDES SOCIAIS - Layout em Grid para melhor toque */}
+          {/* REDES SOCIAIS */}
           <div className="px-6 py-6 grid grid-cols-5 gap-2 border-b border-white/5 bg-white/5">
             <IconInstagram />
             <IconFacebook />
@@ -453,14 +430,14 @@ export default function NavBar() {
 
           {/* NAVEGAÇÃO PRINCIPAL */}
           <nav className="mt-4 px-2 pb-20">
-            {/* BOTÃO ACESSO C.A.C - Integrado à lista para não quebrar o layout */}
+            {/* BOTÃO ACESSO C.A.C */}
             <div className="mb-2">
               <button
                 onClick={() => setOpenSub(openSub === "cac" ? null : "cac")}
                 className={`w-full flex items-center justify-between px-4 py-4 rounded-xl transition-all duration-300 ${openSub === "cac" ? "bg-[#ffb703] text-black" : "bg-white/5 text-[#ffb703]"
                   }`}
               >
-                <div className="flex items-center gap-3 font-bold text-sm">
+                <div className="flex items-center gap-3 font-bold text-sm uppercase tracking-wider">
                   <User size={20} />
                   <span>{t.accessCAC}</span>
                 </div>
@@ -470,23 +447,22 @@ export default function NavBar() {
                 />
               </button>
 
-              {/* SUBMENU C.A.C (ACORDEÃO) */}
+              {/* SUBMENU C.A.C */}
               <div
-                className={`overflow-hidden transition-all duration-300 ease-in-out ${openSub === "cac" ? "max-h-100 opacity-100 mt-2" : "max-h-0 opacity-0"
+                className={`overflow-hidden transition-all duration-300 ease-in-out ${openSub === "cac" ? "max-h-125 opacity-100 mt-2" : "max-h-0 opacity-0"
                   }`}
               >
                 <div className="grid grid-cols-1 gap-1 px-2">
                   {utilityItems.map((item: UtilityItem) => (
                     item.isAction ? (
-                      // RENDERIZA COMO BOTÃO (PARA O CONTRATO)
                       <button
                         key={item.key}
                         onClick={() => {
                           setShowContract(true);
-                          setShowUtilities(false); // Fecha o dropdown ao clicar
-                          if (setOpen) setOpen(false); // Fecha o menu mobile se estiver aberto
+                          setShowUtilities(false);
+                          setOpen(false);
                         }}
-                        className="flex w-full items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-[#ffb703]/10 hover:text-black transition-colors border-b border-gray-100 last:border-0"
+                        className="flex w-full items-center gap-3 px-4 py-3 text-sm text-white/90 hover:bg-[#ffb703]/20 hover:text-[#ffb703] transition-colors rounded-lg"
                       >
                         <span className="text-[#ffb703]">{item.icon}</span>
                         <span className="font-semibold uppercase text-[11px] tracking-wider">
@@ -494,13 +470,12 @@ export default function NavBar() {
                         </span>
                       </button>
                     ) : (
-                      // RENDERIZA COMO LINK (PARA OS DEMAIS)
                       <a
                         key={item.key}
                         href={item.href}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-[#ffb703]/10 hover:text-black transition-colors border-b border-gray-100 last:border-0"
+                        className="flex items-center gap-3 px-4 py-3 text-sm text-white/90 hover:bg-[#ffb703]/20 hover:text-[#ffb703] transition-colors rounded-lg"
                       >
                         <span className="text-[#ffb703]">{item.icon}</span>
                         <span className="font-semibold uppercase text-[11px] tracking-wider">
@@ -522,7 +497,7 @@ export default function NavBar() {
                   {item.href ? (
                     <a
                       href={withLang(item.href)}
-                      className="flex items-center px-4 py-4 text-sm font-medium hover:bg-white/5 hover:text-[#ffb703] rounded-lg transition-all"
+                      className="flex items-center px-4 py-4 text-sm font-bold uppercase tracking-wider hover:bg-white/5 hover:text-[#ffb703] rounded-lg transition-all"
                       onClick={() => setOpen(false)}
                     >
                       {t[item.key]}
@@ -531,7 +506,7 @@ export default function NavBar() {
                     <>
                       <button
                         onClick={() => setOpenSub(openSub === item.key ? null : item.key)}
-                        className="w-full flex justify-between items-center px-4 py-4 text-sm font-medium hover:bg-white/5 hover:text-[#ffb703] rounded-lg transition-all"
+                        className="w-full flex justify-between items-center px-4 py-4 text-sm font-bold uppercase tracking-wider hover:bg-white/5 hover:text-[#ffb703] rounded-lg transition-all"
                       >
                         <span>{t[item.key]}</span>
                         <ChevronDown
@@ -545,12 +520,12 @@ export default function NavBar() {
                         className={`overflow-hidden transition-all duration-300 ${openSub === item.key ? "max-h-125 opacity-100" : "max-h-0 opacity-0"
                           }`}
                       >
-                        <div className="bg-white/5 mx-2 rounded-lg mt-1 mb-2">
+                        <div className="bg-white/5 mx-2 rounded-lg mt-1 mb-2 py-2">
                           {item.children?.map((child, index) => (
                             <a
                               key={index}
                               href={withLang(child.href)}
-                              className="block px-8 py-3 text-xs text-gray-400 hover:text-[#ffb703] transition-colors border-l-2 border-transparent hover:border-[#ffb703]"
+                              className="block px-6 py-3 text-xs font-bold uppercase tracking-wider text-white/80 hover:text-[#ffb703] transition-colors border-l-2 border-transparent hover:border-[#ffb703]"
                               onClick={() => setOpen(false)}
                             >
                               {t[child.labelKey]}
@@ -566,10 +541,11 @@ export default function NavBar() {
           </nav>
         </div>
       </aside>
+      
       <ContractModal 
-      isOpen={showContract} 
-      onClose={() => setShowContract(false)} 
-    />
+        isOpen={showContract} 
+        onClose={() => setShowContract(false)} 
+      />
       <div className="h-24 lg:h-40" />
     </>
   );
@@ -584,24 +560,6 @@ function SocialIcon({ href, children }: { href: string; children: React.ReactNod
                       group-hover:bg-[#ffb703] group-hover:text-black shadow-sm group-active:scale-90">
         {children}
       </div>
-    </a>
-  );
-}
-
-function UtilityLink({ href, icon, label }: { href: string; icon: React.ReactNode; label: string }) {
-  return (
-    <a href={href} target="_blank" rel="nofollow noreferrer" className="flex items-center gap-2 hover:text-[#ffb703] transition-all duration-200 group">
-      <span className="opacity-70 group-hover:opacity-100 transition-all">{icon}</span>
-      <span className="hidden sm:inline">{label}</span>
-    </a>
-  );
-}
-
-function UtilityMobile({ href, icon, label }: { href: string; icon: React.ReactNode; label: string }) {
-  return (
-    <a href={href} target="_blank" rel="nofollow noreferrer" className="flex items-center gap-2 px-3 py-2 rounded-md bg-white/5 hover:bg-white/10 transition-colors">
-      {icon}
-      <span>{label}</span>
     </a>
   );
 }

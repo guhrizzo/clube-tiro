@@ -3,32 +3,17 @@
 import { useMemo } from "react";
 import { usePathname } from "next/navigation";
 import { 
-  ShieldCheck, 
-  Target, 
-  ArrowRightLeft, 
-  FileText, 
-  Globe, 
-  Car,
-  Map,
-  RefreshCw,
-  Stamp,
-  BadgeCheck,
-  Mail,
-  Award,
-  ClipboardList
+  Clock, 
+  MapPin, 
+  AlertTriangle, 
+  Scale, 
+  ArrowRight 
 } from "lucide-react";
-import ScrollToTop from "components/BackTop";
 import NavBar from "components/NavBar";
 import { dictionaries } from "dictionaries";
 import { useLang } from "context/LangContext";
 
-// Mapeamento de ícones para manter a ordem do array de serviços
-const iconsEB = [
-  FileText, ShieldCheck, Award, Stamp, Globe, ArrowRightLeft, 
-  Car, Map, Target, RefreshCw, BadgeCheck, ClipboardList
-];
-
-export default function ArmyDispatcherPage() {
+export default function RajaPage() {
   const pathname = usePathname();
 
   const currentLang = useMemo(() => {
@@ -36,111 +21,96 @@ export default function ArmyDispatcherPage() {
     return ["pt", "en", "es"].includes(seg as any) ? (seg as "pt" | "en" | "es") : "pt";
   }, [pathname]);
 
-  const d = (dictionaries as any)[currentLang].army;
+  const t = (dictionaries as any)[currentLang].raja;
 
   return (
-    <main className="bg-[#0b0f14] min-h-screen">
-      <ScrollToTop />
+    <main className="min-h-screen bg-[#0a0a0a] text-white pb-20">
       <NavBar />
-
-      {/* ================= HERO ELITE ================= */}
-      <section className="relative w-full h-[65vh] flex items-center justify-center overflow-hidden">
-        <div className="absolute inset-0 z-0">
-          <img 
-            src="/eb.jpg" 
-            alt="Exército Brasileiro" 
-            className="w-full h-full object-cover object-top"
-          />
-          <div className="absolute inset-0 bg-linear-to-b from-black/85 via-black/60 to-[#0b0f14]" />
+      
+      {/* Header com Status */}
+      <section className="pt-32 px-6 text-center">
+        <div className="inline-flex items-center gap-2 px-3 py-1 border border-red-500 text-red-500 text-[10px] font-black uppercase tracking-[0.4em] mb-4">
+          <AlertTriangle size={12} /> {t.badge}
         </div>
-
-        <div className="relative z-10 max-w-7xl mx-auto px-6 text-center">
-          <p className="inline-block mb-6 px-5 py-2 rounded-full bg-[#ffb703]/10 border border-[#ffb703]/40 text-[#ffb703] text-xs font-bold tracking-widest uppercase">
-            {d.heroBadge}
-          </p>
-
-          <h1 className="text-4xl md:text-6xl font-black text-white leading-tight uppercase italic">
-            {d.heroTitle} <span className="text-[#ffb703]">{d.heroOrg}</span>
-          </h1>
-
-          <p className="mt-6 text-gray-300 text-lg md:text-xl max-w-2xl mx-auto font-medium">
-            {d.heroSubtitle}
-          </p>
-
-          <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
-            <button className="bg-[#ffb703] text-[#1a1a1a] px-8 py-4 rounded-2xl font-black cursor-pointer hover:scale-105 transition-all shadow-xl uppercase tracking-tighter">
-              {d.btnSpecialist}
-            </button>
-
-            <button className="border border-white/20 text-white px-8 py-4 rounded-2xl font-bold cursor-pointer hover:bg-white/10 transition-all uppercase tracking-tighter">
-              {d.btnServices}
-            </button>
-          </div>
-        </div>
+        
+        <h1 className="text-5xl md:text-7xl font-black uppercase tracking-tighter italic leading-none">
+          {t.title_main} <br />
+          <span className="text-gray-500 text-3xl md:text-5xl lg:text-7xl italic font-light"> {t.title_highlight}</span>
+        </h1>
       </section>
 
-      {/* ================= SERVIÇOS ================= */}
-      <section className="relative z-20 -mt-20 pb-28 px-6">
-        <div className="max-w-7xl mx-auto">
-
-          <div className="mb-14 text-center">
-            <h2 className="text-3xl mt-20 lg:mt-0 md:text-4xl font-extrabold text-white mb-4 uppercase italic">
-              {d.solutionsTitle}
-            </h2>
-            <p className="text-gray-400 max-w-2xl mx-auto">
-              {d.solutionsSub}
+      {/* Grid de Explicação Legislativa */}
+      <section className="max-w-5xl mx-auto mt-20 px-6">
+        <div className="grid md:grid-cols-2 gap-8">
+          
+          {/* Card: O Motivo Legista */}
+          <div className="bg-zinc-900/50 border border-zinc-800 p-8 rounded-sm">
+            <div className="flex items-center gap-3 mb-6 text-[#ffb703]">
+              <Scale size={24} />
+              <h3 className="font-black uppercase tracking-widest text-sm text-white">{t.legal.title}</h3>
+            </div>
+            <p className="text-gray-400 text-sm leading-relaxed mb-4">
+              {t.legal.description}
+            </p>
+            <p className="text-gray-400 text-sm leading-relaxed">
+              {t.legal.impact}
             </p>
           </div>
 
-          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-            {d.services.map((item: any, index: number) => {
-              const Icon = iconsEB[index];
-              return (
-                <div
-                  key={index}
-                  className="group relative p-8 rounded-3xl border border-white/5 bg-linear-to-b from-white/5 to-white/2
-                  backdrop-blur-xl hover:-translate-y-2 transition-all duration-300 hover:border-[#ffb703]/40 hover:shadow-[0_20px_60px_rgba(0,0,0,0.6)]"
-                >
-                  <div className="mb-5 w-12 h-12 rounded-xl bg-[#ffb703]/10 flex items-center justify-center
-                    transition-transform duration-500 group-hover:scale-110 group-hover:rotate-6 border border-[#ffb703]/30">
-                    <Icon className="w-6 h-6 text-[#ffb703]" />
-                  </div>
-
-                  <h4 className="text-white font-bold text-xl mb-2 group-hover:text-[#ffb703] transition-colors uppercase">
-                    {item.title}
-                  </h4>
-
-                  <p className="text-gray-400 leading-relaxed text-sm">
-                    {item.description}
-                  </p>
-
-                  <div className="mt-6 w-8 h-1 bg-[#ffb703]/30 rounded-full group-hover:w-full transition-all duration-500" />
-                </div>
-              );
-            })}
-          </div>
-
-          {/* ================= CTA FINAL ================= */}
-          <div className="mt-24 p-10 md:p-14 rounded-[40px] bg-linear-to-r from-[#ffb703] to-[#ffd166] text-[#1a1a1a] flex flex-col md:flex-row items-center justify-between gap-8 shadow-2xl">
+          {/* Card: Impacto na Unidade */}
+          <div className="bg-zinc-900 border border-zinc-700 p-8 rounded-sm relative overflow-hidden">
+            <div className="absolute top-0 right-0 p-4 opacity-10">
+                <Clock size={80} />
+            </div>
             
-            <div>
-              <h3 className="text-2xl md:text-3xl font-black mb-2 uppercase italic leading-tight">
-                {d.ctaTitle}
-              </h3>
-              <p className="text-sm font-medium opacity-80">
-                {d.ctaSub}
-              </p>
-
-              <div className="flex items-center gap-2 mt-4 font-bold">
-                <Mail size={18} />
-                despachante@grupoprotect.com.br
+            <div className="flex items-center gap-3 mb-6 text-red-500">
+              <Clock size={24} />
+              <h3 className="font-black uppercase tracking-widest text-sm text-white">{t.operational.title}</h3>
+            </div>
+            
+            <div className="space-y-4">
+              <div className="flex items-start gap-3">
+                <MapPin className="text-[#ffb703] shrink-0" size={18} />
+                <p className="text-xs text-gray-300">
+                  <span className="font-bold text-white">{t.operational.location_label}</span> {t.operational.location_text}
+                </p>
+              </div>
+              
+              <div className="bg-red-500/10 border border-red-500/20 p-4">
+                <p className="text-red-400 text-[11px] font-bold uppercase tracking-wider mb-1">{t.operational.status_label}</p>
+                <p className="text-white text-sm font-medium">
+                  {t.operational.status_text}
+                </p>
               </div>
             </div>
-
-            <button className="bg-[#1a1a1a] text-white px-10 py-5 rounded-2xl font-black cursor-pointer hover:scale-105 transition-all shadow-xl whitespace-nowrap uppercase tracking-tighter">
-              {d.ctaBtn}
-            </button>
           </div>
+        </div>
+
+        {/* Informação sobre horário permitido */}
+        <div className="mt-12 text-center border-t border-zinc-800 pt-10">
+            <p className="text-gray-500 text-xs uppercase tracking-[0.3em] mb-4">{t.schedule.rule_label}</p>
+            <div className="inline-block bg-white text-black px-6 py-3 font-black text-xl italic uppercase skew-x-[-10deg]">
+                {t.schedule.hours}
+            </div>
+            <p className="text-gray-500 text-[10px] mt-6 max-w-2xl mx-auto leading-loose uppercase tracking-widest">
+                {t.schedule.notice}
+            </p>
+        </div>
+
+        {/* Redirecionamento */}
+        <div className="mt-16 text-center">
+          <p className="text-gray-400 text-sm mb-4">
+            {t.redirect.text}{" "}
+            <a href={`/${currentLang}/unidades/gutierrez`} className="text-[#ffb703] hover:underline font-bold">
+              {t.redirect.link}
+            </a>
+          </p>
+          <a 
+            href={`/${currentLang}/unidades/gutierrez`}
+            className="inline-flex items-center gap-2 px-6 py-3 bg-[#ffb703] text-black font-bold uppercase text-xs tracking-widest hover:bg-[#e6a502] transition-colors"
+          >
+            {t.redirect.link} <ArrowRight size={16} />
+          </a>
         </div>
       </section>
     </main>

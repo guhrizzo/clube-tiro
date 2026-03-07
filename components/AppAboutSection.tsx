@@ -1,12 +1,14 @@
 "use client";
 
-import { ArrowRight, MapPin, Zap, ShieldCheck } from "lucide-react";
+import { ArrowRight, MapPin, Zap, ShieldCheck, ChevronDown, Smartphone, Apple } from "lucide-react";
+import { useState } from "react";
 import { useLang } from "../context/LangContext";
 import { dictionaries } from "../dictionaries";
 
 export default function AboutAppSection() {
   const lang = useLang();
   const t = dictionaries[lang].tracking.app_section;
+  const [showStores, setShowStores] = useState(false);
 
   // Mapeamos os ícones para os textos que vêm do dicionário
   const benefitsData = [
@@ -14,6 +16,26 @@ export default function AboutAppSection() {
     { icon: <Zap size={18} />, text: t.benefits[1] },
     { icon: <ShieldCheck size={18} />, text: t.benefits[2] },
   ];
+
+  // Links das lojas
+  const appStoreLink = "https://apps.apple.com/br/app/grupo-protect-rastreamento/id6738363845";
+  const playStoreLink = "https://play.google.com/store/apps/details?id=com.softruck.protectrast";
+
+  // Detectar dispositivo e redirecionar automaticamente
+  const handleDownload = () => {
+    const userAgent = navigator.userAgent.toLowerCase();
+    const isIOS = /iphone|ipad|ipod/.test(userAgent);
+    const isAndroid = /android/.test(userAgent);
+
+    if (isIOS) {
+      window.open(appStoreLink, "_blank");
+    } else if (isAndroid) {
+      window.open(playStoreLink, "_blank");
+    } else {
+      // Desktop: mostrar opções
+      setShowStores(!showStores);
+    }
+  };
 
   return (
     <section className="relative w-full pt-28 bg-white overflow-hidden">
@@ -54,13 +76,33 @@ export default function AboutAppSection() {
           ))}
         </div>
 
-        {/* CTA */}
-        <div className="flex justify-center">
-          <button className="group cursor-pointer bg-[#ffb703] text-black px-10 py-4 rounded-full font-bold flex items-center gap-3
-            hover:brightness-110 hover:gap-4 transition-all duration-300 shadow-xl shadow-[#ffb703]/30">
-            {t.cta}
-            <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
-          </button>
+        {/* BOTÕES DIRETOS (ALTERNATIVA VISUAL) */}
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-8 mt-8">
+          <a
+            href={appStoreLink}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-3 bg-gray-900 text-white px-12 py-3 rounded-xl hover:bg-gray-800 transition-colors"
+          >
+            <Apple size={20} />
+            <div className="text-left">
+              <p className="text-[10px] uppercase tracking-wider opacity-70">App Store</p>
+              <p className="text-sm font-bold">iOS</p>
+            </div>
+          </a>
+
+          <a
+            href={playStoreLink}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-3 bg-gray-900 text-white px-12 py-3 rounded-xl hover:bg-gray-800 transition-colors"
+          >
+            <Smartphone size={20} />
+            <div className="text-left">
+              <p className="text-[10px] uppercase tracking-wider opacity-70">Google Play</p>
+              <p className="text-sm font-bold">Android</p>
+            </div>
+          </a>
         </div>
       </div>
     </section>

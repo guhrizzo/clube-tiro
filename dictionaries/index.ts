@@ -209,12 +209,11 @@ export const dictionaries = {
         navbar: {
             home: "Início",
             courses: "Cursos",
-            products: "Loja", // Label do Dropdown
-            club: "Clube",    // Label do Dropdown
-            media: "Mídias",  // Label do Dropdown
+            products: "Loja",
+            club: "Clube",
+            media: "Mídias",
             blog: "Blog",
             contact: "Contato",
-            // Subitens (Dropdowns)
             categories: {
                 pistols: "Pistolas",
                 revolvers: "Revólveres",
@@ -295,6 +294,134 @@ export const dictionaries = {
             certified: "Especialistas Certificados",
             callAction: "Ligar Agora",
             location: "Belo Horizonte, MG"
+        },
+        raja: {
+            badge: "Unidade Raja: Comunicado Importante",
+            title_main: "Funcionamento",
+            title_highlight: "Suspenso",
+            hero_subtitle: "Comunicado Oficial",
+            legal: {
+                title: "Base Legal",
+                description: "O Decreto nº 11.615/2023, complementado pelas diretrizes de 2024 (Decreto nº 12.345/2024), impôs novas restrições severas às entidades de tiro desportivo.",
+                impact: "As normas focam na distância mínima de 1 km em relação a instituições de ensino, afetando diretamente o horário de operação de unidades urbanas."
+            },
+            operational: {
+                title: "Impacto Operacional",
+                location_label: "LOCALIZAÇÃO:",
+                location_text: "Devido à proximidade (menos de 1 km) de escolas, o funcionamento torna-se restrito.",
+                status_label: "Status Atual:",
+                status_text: "Atividades suspensas durante o horário comercial conforme diretriz federal."
+            },
+            schedule: {
+                rule_label: "Regra para unidades próximas a escolas:",
+                hours: "18h às 22h",
+                notice: "Estamos adequando nossos processos para garantir que o atendimento ocorra rigorosamente dentro da legalidade e segurança exigida pelos novos decretos."
+            },
+            redirect: {
+                text: "Para atendimento imediato, visite nossa unidade de",
+                link: "Gutierrez"
+            }
+        },
+        unidades: {
+            gutierrez: {
+                badge: "Nossa Unidade",
+                title: "BH • Gutierrez/Grajaú",
+                address: "Rua General Andrade Neves, 622",
+                neighborhood: "Bairro Gutierrez/Grajaú",
+                city: "Belo Horizonte • MG",
+                hours: {
+                    weekdays: "Segunda a Sexta: 15h às 21h",
+                    saturday: "Sábado: 09h às 17h",
+                    sunday: "Domingo: Fechado"
+                },
+                phone: "(31) 99211-8500"
+            },
+            alphaville: {
+                badge: "Nossa Unidade",
+                title: "Nova Lima • Alphaville",
+                address: "Rua dos Radialistas, 38",
+                neighborhood: "Bairro Água Limpa",
+                city: "Nova Lima • MG",
+                hours: {
+                    weekdays: "Terça a Domingo: 09h às 18h",
+                    monday: "Segunda: Fechado"
+                },
+                phone: "(31) 97107-8500"
+            }
+        },
+        otherCourses: {
+            title: "Outros Cursos",
+            description: "Explore nossos cursos adicionais para atiradores, caçadores e colecionadores. Oferecemos uma variedade de treinamentos especializados para aprimorar suas habilidades e conhecimentos no universo do tiro esportivo, caça e colecionismo.",
+            maintenance: {
+                title: "Curso de Manutenção de Armas",
+                description: "Aprenda técnicas de manutenção e limpeza de armas de fogo para garantir seu bom funcionamento e segurança. Este curso é essencial para atiradores, caçadores e colecionadores que desejam cuidar adequadamente de suas armas.",
+                cta: "Olá, gostaria de saber mais sobre o Curso de Manutenção de Armas."
+            },
+            legislation: {
+                title: "Curso de Legislação para CACs",
+                description: "Este curso é voltado para atiradores, caçadores e colecionadores que desejam entender a legislação vigente relacionada ao porte, posse e uso de armas de fogo. Abordamos as principais leis, regulamentos e procedimentos para garantir a conformidade legal.",
+                cta: "Olá, gostaria de saber mais sobre o Curso de Legislação para CACs."
+            },
+            buttons: {
+                learnMore: "Saiba Mais"
+            }
+        },
+        sportive: {
+            title: "Capacitação e Treinamento",
+            description: "Oferecemos cursos de capacitação e treinamento para atiradores esportivos, caçadores e colecionadores. Nossos instrutores são altamente qualificados e experientes, garantindo uma formação completa e segura.",
+            courses: {
+                sportiveShooting: {
+                    title: "Curso de Tiro Esportivo",
+                    description: "Aprenda técnicas avançadas de tiro esportivo, incluindo postura, mira, controle de respiração e segurança. Ideal para atiradores que desejam aprimorar suas habilidades e competir em eventos esportivos.",
+                    cta: "Olá, gostaria de saber mais sobre o Curso de Tiro Esportivo."
+                },
+                responsibleHunting: {
+                    title: "Curso de Caça Responsável",
+                    description: "Este curso é voltado para caçadores que desejam aprender práticas de caça responsável, incluindo ética, legislação, técnicas de rastreamento e segurança no campo. Promovemos a conservação da fauna e o respeito ao meio ambiente.",
+                    cta: "Olá, gostaria de saber mais sobre o Curso de Caça Responsável."
+                }
+            },
+            buttons: {
+                learnMore: "Saiba Mais"
+            }
+        },
+        defensive: {
+            title: "Defensivo Pessoal",
+            description: "Aprenda técnicas de defesa pessoal para se proteger em situações de risco. Nossos instrutores experientes ensinam estratégias eficazes para lidar com ameaças, utilizando técnicas de combate corpo a corpo, desarmes e uso de armas de fogo para defesa pessoal.",
+            courses: {
+                shooters: {
+                    title: "Curso de Defesa Pessoal para Atiradores",
+                    description: "Este curso é voltado para atiradores esportivos que desejam aprender técnicas de defesa pessoal específicas para situações de risco. Abordamos estratégias de combate corpo a corpo, desarmes e uso de armas de fogo para proteção pessoal.",
+                    cta: "Olá, gostaria de saber mais sobre o Curso de Defesa Pessoal para Atiradores."
+                },
+                hunters: {
+                    title: "Curso de Defesa Pessoal para Caçadores",
+                    description: "Este curso é voltado para caçadores que desejam aprender técnicas de defesa pessoal para se proteger em ambientes rurais e de caça. Abordamos estratégias de combate corpo a corpo, desarmes e uso de armas de fogo para proteção pessoal em situações de risco.",
+                    cta: "Olá, gostaria de saber mais sobre o Curso de Defesa Pessoal para Caçadores."
+                }
+            },
+            buttons: {
+                learnMore: "Saiba Mais"
+            }
+        },
+        guardTraining: {
+            title: "Capacitação e Treinamento",
+            description: "Oferecemos cursos de capacitação e treinamento para atiradores esportivos, caçadores e colecionadores. Nossos instrutores são altamente qualificados e experientes, garantindo uma formação completa e segura.",
+            courses: {
+                sportiveShooting: {
+                    title: "Curso de Tiro Esportivo",
+                    description: "Aprenda técnicas avançadas de tiro esportivo, incluindo postura, mira, controle de respiração e segurança. Ideal para atiradores que desejam aprimorar suas habilidades e competir em eventos esportivos.",
+                    cta: "Olá, gostaria de saber mais sobre o Curso de Tiro Esportivo."
+                },
+                responsibleHunting: {
+                    title: "Curso de Caça Responsável",
+                    description: "Este curso é voltado para caçadores que desejam aprender práticas de caça responsável, incluindo ética, legislação, técnicas de rastreamento e segurança no campo. Promovemos a conservação da fauna e o respeito ao meio ambiente.",
+                    cta: "Olá, gostaria de saber mais sobre o Curso de Caça Responsável."
+                }
+            },
+            buttons: {
+                learnMore: "Saiba Mais"
+            }
         },
     },
     en: {
@@ -587,6 +714,134 @@ export const dictionaries = {
             certified: "Certified Specialists",
             callAction: "Call Now",
             location: "Belo Horizonte, MG, Brazil"
+        },
+        raja: {
+            badge: "Raja Unit: Important Notice",
+            title_main: "Operations",
+            title_highlight: "Suspended",
+            hero_subtitle: "Official Notice",
+            legal: {
+                title: "Legal Basis",
+                description: "Decree No. 11,615/2023, complemented by 2024 guidelines (Decree No. 12,345/2024), imposed severe new restrictions on sport shooting entities.",
+                impact: "The regulations focus on a minimum distance of 1 km from educational institutions, directly affecting operating hours of urban units."
+            },
+            operational: {
+                title: "Operational Impact",
+                location_label: "LOCATION:",
+                location_text: "Due to proximity (less than 1 km) to schools, operations become restricted.",
+                status_label: "Current Status:",
+                status_text: "Activities suspended during business hours as per federal directive."
+            },
+            schedule: {
+                rule_label: "Rule for units near schools:",
+                hours: "6 PM to 10 PM",
+                notice: "We are adapting our processes to ensure service occurs strictly within the legality and safety required by the new decrees."
+            },
+            redirect: {
+                text: "For immediate service, visit our",
+                link: "Gutierrez"
+            }
+        },
+        unidades: {
+            gutierrez: {
+                badge: "Our Unit",
+                title: "BH • Gutierrez/Grajaú",
+                address: "Rua General Andrade Neves, 622",
+                neighborhood: "Gutierrez/Grajaú Neighborhood",
+                city: "Belo Horizonte • MG",
+                hours: {
+                    weekdays: "Monday to Friday: 3 PM to 9 PM",
+                    saturday: "Saturday: 9 AM to 5 PM",
+                    sunday: "Sunday: Closed"
+                },
+                phone: "+55 31 99211-8500"
+            },
+            alphaville: {
+                badge: "Our Unit",
+                title: "Nova Lima • Alphaville",
+                address: "Rua dos Radialistas, 38",
+                neighborhood: "Água Limpa Neighborhood",
+                city: "Nova Lima • MG",
+                hours: {
+                    weekdays: "Tuesday to Sunday: 9 AM to 6 PM",
+                    monday: "Monday: Closed"
+                },
+                phone: "+55 31 97107-8500"
+            }
+        },
+        otherCourses: {
+            title: "Other Courses",
+            description: "Explore our additional courses for shooters, hunters, and collectors. We offer a variety of specialized training to enhance your skills and knowledge in the world of sport shooting, hunting, and collecting.",
+            maintenance: {
+                title: "Weapon Maintenance Course",
+                description: "Learn firearm maintenance and cleaning techniques to ensure proper functioning and safety. This course is essential for shooters, hunters, and collectors who want to properly care for their weapons.",
+                cta: "Hello, I would like to know more about the Weapon Maintenance Course."
+            },
+            legislation: {
+                title: "CAC Legislation Course",
+                description: "This course is aimed at shooters, hunters, and collectors who want to understand current legislation related to carrying, possessing, and using firearms. We cover the main laws, regulations, and procedures to ensure legal compliance.",
+                cta: "Hello, I would like to know more about the CAC Legislation Course."
+            },
+            buttons: {
+                learnMore: "Learn More"
+            }
+        },
+        sportive: {
+            title: "Training and Development",
+            description: "We offer training courses for sport shooters, hunters, and collectors. Our instructors are highly qualified and experienced, ensuring complete and safe training.",
+            courses: {
+                sportiveShooting: {
+                    title: "Sport Shooting Course",
+                    description: "Learn advanced sport shooting techniques, including stance, aiming, breath control, and safety. Ideal for shooters who want to improve their skills and compete in sporting events.",
+                    cta: "Hello, I would like to know more about the Sport Shooting Course."
+                },
+                responsibleHunting: {
+                    title: "Responsible Hunting Course",
+                    description: "This course is aimed at hunters who want to learn responsible hunting practices, including ethics, legislation, tracking techniques, and field safety. We promote wildlife conservation and respect for the environment.",
+                    cta: "Hello, I would like to know more about the Responsible Hunting Course."
+                }
+            },
+            buttons: {
+                learnMore: "Learn More"
+            }
+        },
+        defensive: {
+            title: "Personal Defense",
+            description: "Learn personal defense techniques to protect yourself in risky situations. Our experienced instructors teach effective strategies for dealing with threats, using hand-to-hand combat techniques, disarmament, and firearms for personal protection.",
+            courses: {
+                shooters: {
+                    title: "Personal Defense Course for Shooters",
+                    description: "This course is aimed at sport shooters who want to learn personal defense techniques specific to risky situations. We cover hand-to-hand combat strategies, disarmament, and the use of firearms for personal protection.",
+                    cta: "Hello, I would like to know more about the Personal Defense Course for Shooters."
+                },
+                hunters: {
+                    title: "Personal Defense Course for Hunters",
+                    description: "This course is aimed at hunters who want to learn personal defense techniques to protect themselves in rural and hunting environments. We cover hand-to-hand combat strategies, disarmament, and the use of firearms for personal protection in risky situations.",
+                    cta: "Hello, I would like to know more about the Personal Defense Course for Hunters."
+                }
+            },
+            buttons: {
+                learnMore: "Learn More"
+            }
+        },
+        guardTraining: {
+            title: "Training and Development",
+            description: "We offer training and development courses for sport shooters, hunters, and collectors. Our instructors are highly qualified and experienced, ensuring complete and safe training.",
+            courses: {
+                sportiveShooting: {
+                    title: "Sport Shooting Course",
+                    description: "Learn advanced sport shooting techniques, including stance, aiming, breath control, and safety. Ideal for shooters who want to improve their skills and compete in sporting events.",
+                    cta: "Hello, I would like to know more about the Sport Shooting Course."
+                },
+                responsibleHunting: {
+                    title: "Responsible Hunting Course",
+                    description: "This course is aimed at hunters who want to learn responsible hunting practices, including ethics, legislation, tracking techniques, and field safety. We promote wildlife conservation and respect for the environment.",
+                    cta: "Hello, I would like to know more about the Responsible Hunting Course."
+                }
+            },
+            buttons: {
+                learnMore: "Learn More"
+            }
         },
     },
     es: {
@@ -883,7 +1138,7 @@ export const dictionaries = {
             badge: "Contacto Directo",
             title: "¿Listo para dar el siguiente paso?",
             description: "Escriba sua duda a continuación y hable directamente con nuestros especialistas por WhatsApp.",
-            placeholder: "¿Cómo podemos ajudarle hoy?",
+            placeholder: "¿Cómo podemos ayudarle hoy?",
             send: "Enviar",
             responseStatus: "Respuesta inmediata por WhatsApp",
             national: "Atención Nacional",
@@ -891,6 +1146,134 @@ export const dictionaries = {
             certified: "Especialistas Certificados",
             callAction: "Llamar Ahora",
             location: "Belo Horizonte, MG, Brasil"
+        },
+        raja: {
+            badge: "Unidad Raja: Comunicado Importante",
+            title_main: "Funcionamiento",
+            title_highlight: "Suspendido",
+            hero_subtitle: "Comunicado Oficial",
+            legal: {
+                title: "Base Legal",
+                description: "El Decreto n.º 11.615/2023, complementado por las directrices de 2024 (Decreto n.º 12.345/2024), impuso nuevas restricciones severas a las entidades de tiro deportivo.",
+                impact: "Las normativas se centran en una distancia mínima de 1 km de instituciones educativas, afectando directamente el horario de operación de unidades urbanas."
+            },
+            operational: {
+                title: "Impacto Operacional",
+                location_label: "UBICACIÓN:",
+                location_text: "Debido a la proximidad (menos de 1 km) a escuelas, el funcionamiento se vuelve restringido.",
+                status_label: "Estado Actual:",
+                status_text: "Actividades suspendidas durante el horario comercial según directriz federal."
+            },
+            schedule: {
+                rule_label: "Regla para unidades cercanas a escuelas:",
+                hours: "18h a 22h",
+                notice: "Estamos adaptando nuestros procesos para garantizar que la atención ocurra rigurosamente dentro de la legalidad y seguridad exigidas por los nuevos decretos."
+            },
+            redirect: {
+                text: "Para atención inmediata, visite nuestra unidad de",
+                link: "Gutierrez"
+            }
+        },
+        unidades: {
+            gutierrez: {
+                badge: "Nuestra Unidad",
+                title: "BH • Gutierrez/Grajaú",
+                address: "Rua General Andrade Neves, 622",
+                neighborhood: "Barrio Gutierrez/Grajaú",
+                city: "Belo Horizonte • MG",
+                hours: {
+                    weekdays: "Lunes a Viernes: 15h a 21h",
+                    saturday: "Sábado: 09h a 17h",
+                    sunday: "Domingo: Cerrado"
+                },
+                phone: "+55 31 99211-8500"
+            },
+            alphaville: {
+                badge: "Nuestra Unidad",
+                title: "Nova Lima • Alphaville",
+                address: "Rua dos Radialistas, 38",
+                neighborhood: "Barrio Água Limpa",
+                city: "Nova Lima • MG",
+                hours: {
+                    weekdays: "Martes a Domingo: 09h a 18h",
+                    monday: "Lunes: Cerrado"
+                },
+                phone: "+55 31 97107-8500"
+            }
+        },
+        otherCourses: {
+            title: "Otros Cursos",
+            description: "Explore nuestros cursos adicionales para tiradores, cazadores y coleccionistas. Ofrecemos una variedad de capacitaciones especializadas para mejorar sus habilidades y conocimientos en el mundo del tiro deportivo, caza y coleccionismo.",
+            maintenance: {
+                title: "Curso de Mantenimiento de Armas",
+                description: "Aprenda técnicas de mantenimiento y limpieza de armas de fuego para garantizar su buen funcionamiento y seguridad. Este curso es esencial para tiradores, cazadores y coleccionistas que desean cuidar adecuadamente de sus armas.",
+                cta: "Hola, me gustaría saber más sobre el Curso de Mantenimiento de Armas."
+            },
+            legislation: {
+                title: "Curso de Legislación para CACs",
+                description: "Este curso está dirigido a tiradores, cazadores y coleccionistas que desean entender la legislación vigente relacionada con el porte, posesión y uso de armas de fuego. Abordamos las principales leyes, regulaciones y procedimientos para garantizar el cumplimiento legal.",
+                cta: "Hola, me gustaría saber más sobre el Curso de Legislación para CACs."
+            },
+            buttons: {
+                learnMore: "Saber Más"
+            }
+        },
+        sportive: {
+            title: "Capacitación y Entrenamiento",
+            description: "Ofrecemos cursos de capacitación y entrenamiento para tiradores deportivos, cazadores y coleccionistas. Nuestros instructores son altamente calificados y experimentados, garantizando una formación completa y segura.",
+            courses: {
+                sportiveShooting: {
+                    title: "Curso de Tiro Deportivo",
+                    description: "Aprenda técnicas avanzadas de tiro deportivo, incluyendo postura, puntería, control de la respiración y seguridad. Ideal para tiradores que desean mejorar sus habilidades y competir en eventos deportivos.",
+                    cta: "Hola, me gustaría saber más sobre el Curso de Tiro Deportivo."
+                },
+                responsibleHunting: {
+                    title: "Curso de Caza Responsable",
+                    description: "Este curso está dirigido a cazadores que desean aprender prácticas de caza responsable, incluyendo ética, legislación, técnicas de rastreo y seguridad en el campo. Promovemos la conservación de la fauna y el respeto al medio ambiente.",
+                    cta: "Hola, me gustaría saber más sobre el Curso de Caza Responsable."
+                }
+            },
+            buttons: {
+                learnMore: "Saber Más"
+            }
+        },
+        defensive: {
+            title: "Defensa Personal",
+            description: "Aprenda técnicas de defensa personal para protegerse en situaciones de riesgo. Nuestros instructores experimentados enseñan estrategias efectivas para lidiar con amenazas, utilizando técnicas de combate cuerpo a cuerpo, desarmes y uso de armas de fuego para defensa personal.",
+            courses: {
+                shooters: {
+                    title: "Curso de Defensa Personal para Tiradores",
+                    description: "Este curso está dirigido a tiradores deportivos que desean aprender técnicas de defensa personal específicas para situaciones de riesgo. Abordamos estrategias de combate cuerpo a cuerpo, desarmes y uso de armas de fuego para protección personal.",
+                    cta: "Hola, me gustaría saber más sobre el Curso de Defensa Personal para Tiradores."
+                },
+                hunters: {
+                    title: "Curso de Defensa Personal para Cazadores",
+                    description: "Este curso está dirigido a cazadores que desean aprender técnicas de defensa personal para protegerse en ambientes rurales y de caza. Abordamos estrategias de combate cuerpo a cuerpo, desarmes y uso de armas de fuego para protección personal en situaciones de riesgo.",
+                    cta: "Hola, me gustaría saber más sobre el Curso de Defensa Personal para Cazadores."
+                }
+            },
+            buttons: {
+                learnMore: "Saber Más"
+            }
+        },
+        guardTraining: {
+            title: "Capacitación y Entrenamiento",
+            description: "Ofrecemos cursos de capacitación y entrenamiento para tiradores deportivos, cazadores y coleccionistas. Nuestros instructores son altamente calificados y experimentados, garantizando una formación completa y segura.",
+            courses: {
+                sportiveShooting: {
+                    title: "Curso de Tiro Deportivo",
+                    description: "Aprenda técnicas avanzadas de tiro deportivo, incluyendo postura, puntería, control de la respiración y seguridad. Ideal para tiradores que desean mejorar sus habilidades y competir en eventos deportivos.",
+                    cta: "Hola, me gustaría saber más sobre el Curso de Tiro Deportivo."
+                },
+                responsibleHunting: {
+                    title: "Curso de Caza Responsable",
+                    description: "Este curso está dirigido a cazadores que desean aprender prácticas de caza responsable, incluyendo ética, legislación, técnicas de rastreo y seguridad en el campo. Promovemos la conservación de la fauna y el respeto al medio ambiente.",
+                    cta: "Hola, me gustaría saber más sobre el Curso de Caza Responsable."
+                }
+            },
+            buttons: {
+                learnMore: "Saber Más"
+            }
         },
     }
 };

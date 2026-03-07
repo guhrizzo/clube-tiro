@@ -26,11 +26,11 @@ export default function UnidadeBHPage() {
               <span className="text-[#ffb703] text-xs font-bold uppercase tracking-[0.3em]">Nossa Unidade</span>
             </div>
             
-            <h1 className="text-5xl md:text-6xl font-black uppercase italic mb-6 leading-none">
+            <h1 className="text-3xl md:text-6xl font-black uppercase italic mb-6 leading-none">
               BH <span className="text-[#ffb703]">•</span> Gutierrez/Grajaú
             </h1>
             
-            <p className="text-slate-400 text-xl md:text-2xl font-light leading-relaxed">
+            <p className="text-slate-400 text-sm md:text-2xl font-light leading-relaxed">
               Rua General Andrade Neves, 622 — Belo Horizonte/MG
             </p>
           </motion.div>
