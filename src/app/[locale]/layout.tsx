@@ -31,7 +31,7 @@ export default async function LocaleLayout({
       {/* Footer recebendo o locale. 
           Se o Footer for um Client Component, ele também poderia usar useLang() internamente 
       */}
-      <FooterRastreamentoLight locale={currentLocale} />
+      <FooterRastreamentoLight />
     </LangProvider>
   );
 }
