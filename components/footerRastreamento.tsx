@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
+import { usePathname } from "next/navigation";
 import Image from "next/image";
 import {
   FaWhatsapp,
@@ -15,15 +16,38 @@ import {
   FaApple,
   FaClock,
 } from "react-icons/fa";
-import { footerDict } from "../i18n/footer";
+import { dictionaries } from "dictionaries";
+import { useLang } from "context/LangContext";
 
-export default function FooterRastreamentoLight({
-  locale = "pt",
-}: {
-  locale?: "pt" | "en" | "es";
-}) {
-  const t = footerDict[locale];
+const SUPPORTED_LANGS = ["pt", "en", "es"] as const;
+type Lang = (typeof SUPPORTED_LANGS)[number];
+
+export default function FooterRastreamentoLight() {
+  const pathname = usePathname();
   const [openWhatsModal, setOpenWhatsModal] = useState(false);
+
+  const currentLang = useMemo<Lang>(() => {
+    if (!pathname) return "pt";
+    const seg = pathname.split("/").filter(Boolean)[0];
+    return SUPPORTED_LANGS.includes(seg as Lang) ? (seg as Lang) : "pt";
+  }, [pathname]);
+
+  const t = dictionaries[currentLang];
+
+  const emails = [
+    "Adm@grupoprotect.com.br",
+    "clube@grupoprotect.com.br",
+    "vendas@grupoprotect.com.br",
+    "despachante@grupoprotect.com.br",
+  ];
+
+  const socialLinks = [
+    { icon: FaFacebookF, href: "https://www.facebook.com/profile.php?id=61567757725049" },
+    { icon: FaInstagram, href: "https://www.instagram.com/protect.rastreamento/" },
+    { icon: FaWhatsapp, action: () => setOpenWhatsModal(true) },
+    { icon: FaLinkedinIn, href: "https://www.linkedin.com/in/protect-rastreamento-a97106350" },
+    { icon: FaYoutube, href: "https://www.youtube.com/@ProtectRastreamento" },
+  ];
 
   return (
     <footer className="relative bg-white text-[#0a0f1c] border-t border-black/10 overflow-hidden">
@@ -41,13 +65,12 @@ export default function FooterRastreamentoLight({
           />
 
           <p className="text-black/60 text-sm leading-relaxed max-w-xs">
-            Monitoramento inteligente e formação técnica. Quase 4 décadas
-            protegendo seu patrimônio e qualificando cidadãos.
+            {t.company.description}
           </p>
 
           <div className="pt-4">
             <p className="text-[10px] font-bold uppercase tracking-widest text-[#b8860b] mb-2">
-              Central de Atendimento
+              {t.company.callCenter}
             </p>
 
             <a
@@ -63,22 +86,22 @@ export default function FooterRastreamentoLight({
         {/* UNIDADE BH */}
         <div className="space-y-4">
           <h4 className="text-sm font-bold tracking-widest uppercase text-[#b8860b]">
-            BH — Gutierrez/Grajaú
+            {t.units.bh.title}
           </h4>
 
           <ul className="space-y-3 text-xs">
             <li className="flex gap-3 items-start text-black/60">
               <FaMapMarkerAlt className="text-[#ffc300] shrink-0 mt-0.5" />
               <span>
-                Rua General Andrade Neves, 622
+                {t.units.bh.address}
                 <br />
-                Belo Horizonte/MG
+                {t.units.bh.city}
               </span>
             </li>
 
             <li className="flex gap-3 items-center text-black/60">
               <FaClock className="text-[#ffc300] shrink-0" />
-              <span>Seg-Sex: 15h às 21h | Sáb: 09h às 17h</span>
+              <span>{t.units.bh.hours}</span>
             </li>
 
             <li className="flex gap-3 items-center">
@@ -96,22 +119,22 @@ export default function FooterRastreamentoLight({
         {/* UNIDADE NOVA LIMA */}
         <div className="space-y-4">
           <h4 className="text-sm font-bold tracking-widest uppercase text-[#b8860b]">
-            Nova Lima — Alphaville
+            {t.units.novaLima.title}
           </h4>
 
           <ul className="space-y-3 text-xs">
             <li className="flex gap-3 items-start text-black/60">
               <FaMapMarkerAlt className="text-[#ffc300] shrink-0 mt-0.5" />
               <span>
-                Rua dos Radialistas, 38
+                {t.units.novaLima.address}
                 <br />
-                Água Limpa
+                {t.units.novaLima.neighborhood}
               </span>
             </li>
 
             <li className="flex gap-3 items-center text-black/60">
               <FaClock className="text-[#ffc300] shrink-0" />
-              <span>Ter-Dom: 09h às 18h</span>
+              <span>{t.units.novaLima.hours}</span>
             </li>
 
             <li className="flex gap-3 items-center">
@@ -130,16 +153,11 @@ export default function FooterRastreamentoLight({
         <div className="space-y-6">
           <div>
             <h4 className="text-sm font-bold tracking-widest uppercase text-[#b8860b] mb-3">
-              E-mails
+              {t.emails.title}
             </h4>
 
             <div className="flex flex-col gap-2 text-xs">
-              {[
-                "Adm@grupoprotect.com.br",
-                "clube@grupoprotect.com.br",
-                "vendas@grupoprotect.com.br",
-                "despachante@grupoprotect.com.br",
-              ].map((email) => (
+              {emails.map((email) => (
                 <a
                   key={email}
                   href={`mailto:${email}`}
@@ -162,7 +180,7 @@ export default function FooterRastreamentoLight({
             >
               <FaApple className="text-xl" />
               <div className="leading-tight">
-                <p className="text-[9px] uppercase opacity-70">Baixar na</p>
+                <p className="text-[9px] uppercase opacity-70">{t.apps.appStore}</p>
                 <p className="text-xs font-semibold">App Store</p>
               </div>
             </a>
@@ -175,9 +193,7 @@ export default function FooterRastreamentoLight({
             >
               <FaGooglePlay className="text-xl" />
               <div className="leading-tight">
-                <p className="text-[9px] uppercase opacity-70">
-                  Disponível no
-                </p>
+                <p className="text-[9px] uppercase opacity-70">{t.apps.googlePlay}</p>
                 <p className="text-xs font-semibold">Google Play</p>
               </div>
             </a>
@@ -188,13 +204,7 @@ export default function FooterRastreamentoLight({
       {/* SOCIAL BAR */}
       <div className="max-w-7xl mx-auto px-6 pb-12 flex flex-col md:flex-row justify-between items-center gap-8 border-t border-black/5 pt-8">
         <div className="flex gap-4">
-          {[
-            { icon: FaFacebookF, href: "https://www.facebook.com/profile.php?id=61567757725049" },
-            { icon: FaInstagram, href: "https://www.instagram.com/protect.rastreamento/" },
-            { icon: FaWhatsapp, action: () => setOpenWhatsModal(true) },
-            { icon: FaLinkedinIn, href: "https://www.linkedin.com/in/protect-rastreamento-a97106350" },
-            { icon: FaYoutube, href: "https://www.youtube.com/@ProtectRastreamento" },
-          ].map((item, i) =>
+          {socialLinks.map((item, i) =>
             item.href ? (
               <a
                 key={i}
@@ -218,18 +228,18 @@ export default function FooterRastreamentoLight({
         </div>
 
         <p className="text-[10px] text-black/40 tracking-[0.3em] uppercase text-center md:text-right">
-          Ambiente Seguro • Legalidade Total • Patrimônio Histórico
+          {t.social.tagline}
         </p>
       </div>
 
       {/* COPYRIGHT */}
       <div className="bg-black/5 py-6 text-center space-y-1">
         <div className="text-[10px] text-black/50 tracking-[0.2em] uppercase font-medium">
-          © {new Date().getFullYear()} GRUPO PROTECT — TODOS OS DIREITOS RESERVADOS
+          © {new Date().getFullYear()} {t.social.copyright}
         </div>
 
         <div className="text-[10px] text-black/30 tracking-widest">
-          Desenvolvido por{" "}
+          {t.social.developedBy}{" "}
           <a
             href="https://www.instagram.com/xfamilyassessoria/"
             target="_blank"
@@ -246,7 +256,7 @@ export default function FooterRastreamentoLight({
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
           <div className="w-full max-w-md rounded-2xl bg-white shadow-2xl p-6">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="font-bold text-lg">Escolher atendimento</h3>
+              <h3 className="font-bold text-lg">{t.modal.title}</h3>
               <button
                 onClick={() => setOpenWhatsModal(false)}
                 className="text-black/40 hover:text-black cursor-pointer text-xl"
@@ -256,7 +266,7 @@ export default function FooterRastreamentoLight({
             </div>
 
             <p className="text-sm text-black/60 mb-6">
-              Selecione a unidade que deseja falar no WhatsApp:
+              {t.modal.description}
             </p>
 
             <div className="flex flex-col gap-3">
@@ -269,12 +279,8 @@ export default function FooterRastreamentoLight({
                 <div className="flex items-start gap-3">
                   <FaWhatsapp className="text-[#25d366] text-xl mt-1" />
                   <div>
-                    <p className="font-semibold text-sm">
-                      (31) 99211-8500
-                    </p>
-                    <p className="text-xs text-black/60">
-                      Belo Horizonte – Gutierrez/Grajau
-                    </p>
+                    <p className="font-semibold text-sm">(31) 99211-8500</p>
+                    <p className="text-xs text-black/60">{t.modal.bhLabel}</p>
                   </div>
                 </div>
               </a>
@@ -288,12 +294,8 @@ export default function FooterRastreamentoLight({
                 <div className="flex items-start gap-3">
                   <FaWhatsapp className="text-[#25d366] text-xl mt-1" />
                   <div>
-                    <p className="font-semibold text-sm">
-                      (31) 97107-8500
-                    </p>
-                    <p className="text-xs text-black/60">
-                      Nova Lima – Região Alphaville
-                    </p>
+                    <p className="font-semibold text-sm">(31) 97107-8500</p>
+                    <p className="text-xs text-black/60">{t.modal.novaLimaLabel}</p>
                   </div>
                 </div>
               </a>

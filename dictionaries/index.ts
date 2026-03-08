@@ -423,6 +423,42 @@ export const dictionaries = {
                 learnMore: "Saiba Mais"
             }
         },
+        company: {
+            description: "Monitoramento inteligente e formação técnica. Quase 4 décadas protegendo seu patrimônio e qualificando cidadãos.",
+            callCenter: "Central de Atendimento"
+        },
+        units: {
+            bh: {
+                title: "BH — Gutierrez/Grajaú",
+                address: "Rua General Andrade Neves, 622",
+                city: "Belo Horizonte/MG",
+                hours: "Seg-Sex: 15h às 21h | Sáb: 09h às 17h"
+            },
+            novaLima: {
+                title: "Nova Lima — Alphaville",
+                address: "Rua dos Radialistas, 38",
+                neighborhood: "Água Limpa",
+                hours: "Ter-Dom: 09h às 18h"
+            }
+        },
+        emails: {
+            title: "E-mails"
+        },
+        apps: {
+            appStore: "Baixar na",
+            googlePlay: "Disponível no"
+        },
+        social: {
+            tagline: "Ambiente Seguro • Legalidade Total • Patrimônio Histórico",
+            copyright: "GRUPO PROTECT — TODOS OS DIREITOS RESERVADOS",
+            developedBy: "Desenvolvido por"
+        },
+        modal: {
+            title: "Escolher atendimento",
+            description: "Selecione a unidade que deseja falar no WhatsApp:",
+            bhLabel: "Belo Horizonte – Gutierrez/Grajaú",
+            novaLimaLabel: "Nova Lima – Região Alphaville"
+        },
     },
     en: {
         about: {
@@ -843,6 +879,42 @@ export const dictionaries = {
                 learnMore: "Learn More"
             }
         },
+        company: {
+            description: "Smart monitoring and technical training. Almost 4 decades protecting your assets and qualifying citizens.",
+            callCenter: "Customer Service Center"
+        },
+        units: {
+            bh: {
+                title: "BH — Gutierrez/Grajaú",
+                address: "Rua General Andrade Neves, 622",
+                city: "Belo Horizonte/MG",
+                hours: "Mon-Fri: 3 PM to 9 PM | Sat: 9 AM to 5 PM"
+            },
+            novaLima: {
+                title: "Nova Lima — Alphaville",
+                address: "Rua dos Radialistas, 38",
+                neighborhood: "Água Limpa",
+                hours: "Tue-Sun: 9 AM to 6 PM"
+            }
+        },
+        emails: {
+            title: "E-mails"
+        },
+        apps: {
+            appStore: "Download on the",
+            googlePlay: "Get it on"
+        },
+        social: {
+            tagline: "Safe Environment • Total Legality • Historical Heritage",
+            copyright: "GRUPO PROTECT — ALL RIGHTS RESERVED",
+            developedBy: "Developed by"
+        },
+        modal: {
+            title: "Choose service",
+            description: "Select the unit you want to contact on WhatsApp:",
+            bhLabel: "Belo Horizonte – Gutierrez/Grajaú",
+            novaLimaLabel: "Nova Lima – Alphaville Region"
+        }
     },
     es: {
         about: {
@@ -1275,6 +1347,43 @@ export const dictionaries = {
                 learnMore: "Saber Más"
             }
         },
+        company: {
+            description: "Monitoreo inteligente y formación técnica. Casi 4 décadas protegiendo su patrimonio y calificando ciudadanos.",
+            callCenter: "Centro de Atención"
+        },
+        units: {
+            bh: {
+                title: "BH — Gutierrez/Grajaú",
+                address: "Rua General Andrade Neves, 622",
+                city: "Belo Horizonte/MG",
+                hours: "Lun-Vie: 15h a 21h | Sáb: 09h a 17h"
+            },
+            novaLima: {
+                title: "Nova Lima — Alphaville",
+                address: "Rua dos Radialistas, 38",
+                neighborhood: "Água Limpa",
+                hours: "Mar-Dom: 09h a 18h"
+            }
+        },
+        emails: {
+            title: "Correos"
+        },
+        apps: {
+            appStore: "Descargar en",
+            googlePlay: "Disponible en"
+        },
+        social: {
+            tagline: "Ambiente Seguro • Legalidad Total • Patrimonio Histórico",
+            copyright: "GRUPO PROTECT — TODOS LOS DERECHOS RESERVADOS",
+            developedBy: "Desarrollado por"
+        },
+        modal: {
+            title: "Elegir atención",
+            description: "Seleccione la unidad que desea contactar por WhatsApp:",
+            bhLabel: "Belo Horizonte – Gutierrez/Grajaú",
+            novaLimaLabel: "Nova Lima – Región Alphaville"
+        }
+
     }
 };
 
