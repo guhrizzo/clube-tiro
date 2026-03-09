@@ -20,7 +20,7 @@ import Link from "next/link";
 export default function ShootingClubSection() {
   const swiperRef = useRef<SwiperType | null>(null);
   const [isPlaying, setIsPlaying] = useState(true);
-  
+
   const lang = useLang(); // 'pt', 'en', etc.
   const t = dictionaries[lang].shootingClub;
 
@@ -69,10 +69,15 @@ export default function ShootingClubSection() {
             </p>
 
             <div className="flex flex-wrap gap-4">
-              <button className="cursor-pointer inline-flex items-center gap-2 bg-[#ffb703] text-[#1a1a1a] lg:px-27.5 py-4 rounded-xl font-bold hover:brightness-110 px-23 transition-all shadow-md shadow-[#ffb703]/20">
+              <a
+                href={`https://wa.me/5531992118500?text=${encodeURIComponent("Quero me associar ao clube de tiro")}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="cursor-pointer inline-flex items-center gap-2 bg-[#ffb703] text-[#1a1a1a] lg:px-27.5 py-4 rounded-xl font-bold hover:brightness-110 px-23 transition-all shadow-md shadow-[#ffb703]/20"
+              >
                 {t.button}
-              </button>
-              
+              </a>
+
               {/* CORREÇÃO: Link com idioma dinâmico */}
               <Link href={`/${lang}/clube/calendario`}>
                 <button className="cursor-pointer inline-flex items-center gap-2 bg-white border text-sm lg:text-[16px] border-gray-200 text-gray-800 px-8 lg:px-8 py-4 rounded-xl font-bold hover:bg-gray-50 transition-all">
@@ -103,7 +108,7 @@ export default function ShootingClubSection() {
           <div className="group relative overflow-hidden rounded-3xl bg-white border border-gray-200 p-1 hover:border-[#ffb703]/50 transition-all duration-500 shadow-sm hover:shadow-xl">
             <div className="flex flex-col md:flex-row items-center gap-6 p-6">
               <div className="w-full md:w-32 h-32 rounded-2xl bg-gray-100 overflow-hidden">
-                 <img src="/thumbnail.jpeg" alt="Gutierrez" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                <img src="/thumbnail.jpeg" alt="Gutierrez" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
               </div>
               <div className="flex-1 text-center md:text-left">
                 <span className="text-[#ffb703] text-[10px] font-black uppercase tracking-[0.2em]">Unidade Belo Horizonte</span>
@@ -133,7 +138,7 @@ export default function ShootingClubSection() {
 
         {/* ... restante do código (carousel) ... */}
         {/* Lembre-se de fechar a seção e as divs corretamente aqui */}
-        
+
         {/* ================= CAROUSEL ================= */}
         <div className="relative" data-aos="fade-up">
           {/* O restante do carousel permanece igual ao seu código original */}
