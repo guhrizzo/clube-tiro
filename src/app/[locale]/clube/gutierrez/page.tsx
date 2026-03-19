@@ -1,7 +1,7 @@
 "use client";
 
 import Navbar from "components/NavBar";
-import { MapPin, Clock, Phone, Navigation, ExternalLink, X, ChevronLeft, ChevronRight } from "lucide-react";
+import { MapPin, Clock, Phone, Navigation, ExternalLink, ChevronLeft, ChevronRight, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { useState, useEffect, useCallback } from "react";
@@ -40,9 +40,9 @@ export default function UnidadeBHPage() {
       {/* Hero Section */}
       <section className="relative overflow-hidden">
         <div className="absolute inset-0" />
-        <div className="absolute inset-0 " />
-        
-        <div className="relative max-w-7xl mx-auto px-6 py-20 ">
+        <div className="absolute inset-0" />
+
+        <div className="relative max-w-7xl mx-auto px-6 py-20">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -53,11 +53,11 @@ export default function UnidadeBHPage() {
               <span className="h-px w-12 bg-[#ffb703]" />
               <span className="text-[#ffb703] text-xs font-bold uppercase tracking-[0.3em]">Nossa Unidade</span>
             </div>
-            
+
             <h1 className="text-3xl md:text-6xl font-black uppercase italic mb-6 leading-none">
               BH <span className="text-[#ffb703]">•</span> Gutierrez/Grajaú
             </h1>
-            
+
             <p className="text-slate-400 text-sm md:text-2xl font-light leading-relaxed">
               Rua General Andrade Neves, 622 — Belo Horizonte/MG
             </p>
@@ -70,10 +70,10 @@ export default function UnidadeBHPage() {
       {/* Main Content */}
       <section className="max-w-7xl mx-auto px-6 -mt-16 relative z-10 pb-24">
         <div className="grid lg:grid-cols-3 gap-8">
-          
+
           {/* Left Column - Info Cards */}
           <div className="lg:col-span-1 space-y-6">
-            
+
             {/* Address Card */}
             <motion.div
               initial={{ opacity: 0, x: -30 }}
@@ -84,17 +84,17 @@ export default function UnidadeBHPage() {
               <div className="w-14 h-14 bg-[#ffb703]/10 rounded-2xl flex items-center justify-center mb-6">
                 <MapPin size={28} className="text-[#ffb703]" />
               </div>
-              
+
               <h3 className="text-lg font-bold uppercase tracking-wider mb-3">Endereço</h3>
               <p className="text-slate-600 text-lg leading-relaxed mb-4">
                 Rua General Andrade Neves, 622<br />
                 <span className="text-slate-400">Bairro Gutierrez/Grajaú</span><br />
                 <span className="text-slate-900 font-semibold">Belo Horizonte • MG</span>
               </p>
-              
-              <a 
-                href="https://www.google.com/maps/dir/?api=1&destination=Rua+General+Andrade+Neves,622,Belo+Horizonte,MG" 
-                target="_blank" 
+
+              <a
+                href="https://www.google.com/maps/dir/?api=1&destination=Rua+General+Andrade+Neves,622,Belo+Horizonte,MG"
+                target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 text-[#ffb703] hover:text-[#e6a502] font-bold text-sm uppercase tracking-wider transition-colors group"
               >
@@ -114,9 +114,9 @@ export default function UnidadeBHPage() {
               <div className="w-14 h-14 bg-emerald-50 rounded-2xl flex items-center justify-center mb-6">
                 <Clock size={28} className="text-emerald-600" />
               </div>
-              
+
               <h3 className="text-lg font-bold uppercase tracking-wider mb-4">Horário de Funcionamento</h3>
-              
+
               <div className="space-y-3">
                 <div className="flex justify-between items-center py-3 border-b border-slate-100">
                   <span className="text-slate-600 font-medium">Segunda a Sexta</span>
@@ -127,7 +127,7 @@ export default function UnidadeBHPage() {
                   <span className="text-slate-900 font-bold">09h às 17h</span>
                 </div>
               </div>
-              
+
               <div className="mt-6 p-4 bg-emerald-50 rounded-xl border border-emerald-100">
                 <p className="text-emerald-800 text-sm font-medium text-center">
                   Domingo: Fechado
@@ -143,24 +143,24 @@ export default function UnidadeBHPage() {
               className="bg-slate-900 rounded-2xl p-8 text-white relative overflow-hidden"
             >
               <div className="absolute top-0 right-0 w-32 h-32 bg-[#ffb703]/20 rounded-bl-full" />
-              
+
               <div className="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center mb-6 relative">
                 <Phone size={28} className="text-[#ffb703]" />
               </div>
-              
+
               <h3 className="text-lg font-bold uppercase tracking-wider mb-3 relative">Contato</h3>
               <p className="text-slate-400 text-sm mb-4 relative">
                 Entre em contato conosco para mais informações sobre nossos serviços.
               </p>
-              
-              <a 
+
+              <a
                 href="tel:+5531992118500"
                 className="block text-2xl font-black text-[#ffb703] hover:text-white transition-colors mb-2 relative"
               >
                 (31) 99211-8500
               </a>
-              
-              <a 
+
+              <a
                 href="https://wa.me/5531992118500"
                 target="_blank"
                 rel="noopener noreferrer"
@@ -191,7 +191,7 @@ export default function UnidadeBHPage() {
                   referrerPolicy="no-referrer-when-downgrade"
                   className="grayscale-20 hover:grayscale-0 transition-all duration-500"
                 />
-                
+
                 <div className="absolute bottom-6 left-6 bg-white/95 backdrop-blur-sm px-4 py-3 rounded-xl shadow-lg border border-slate-100">
                   <div className="flex items-center gap-2">
                     <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
@@ -212,7 +212,6 @@ export default function UnidadeBHPage() {
             <span className="text-slate-400 text-[10px] uppercase tracking-widest">{galleryImages.length} fotos</span>
           </div>
 
-          {/* Grid ordenado esquerda → direita, linha por linha */}
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
             {galleryImages.map((src, i) => (
               <motion.div
@@ -224,18 +223,14 @@ export default function UnidadeBHPage() {
                 onClick={() => openLightbox(i)}
                 className="relative overflow-hidden rounded-xl group cursor-pointer shadow-sm aspect-4/3"
               >
-                {/* Numbered badge */}
                 <span className="absolute top-2 left-2 z-10 text-[9px] font-black text-white/60 tracking-widest select-none drop-shadow">
                   {String(i + 1).padStart(2, "0")}
                 </span>
-
-                {/* Hover overlay */}
                 <div className="absolute inset-0 z-10 bg-black/0 group-hover:bg-black/20 transition-colors duration-300 flex items-center justify-center">
                   <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-white text-xs font-bold uppercase tracking-widest bg-black/40 px-3 py-1 rounded-full backdrop-blur-sm">
                     Ver
                   </span>
                 </div>
-
                 <Image
                   src={src}
                   alt={`Gutierrez – foto ${i + 1}`}
@@ -247,6 +242,33 @@ export default function UnidadeBHPage() {
           </div>
         </div>
         {/* ─── FIM DA GALERIA ─── */}
+
+        {/* ─── VÍDEO ─── */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-60px" }}
+          transition={{ duration: 0.6 }}
+          className="mt-20 border-t border-slate-200 pt-12"
+        >
+          <div className="flex items-center gap-4 mb-10">
+            <span className="h-px w-12 bg-[#ffb703]" />
+            <span className="text-[#ffb703] text-xs font-bold uppercase tracking-[0.3em]">Vídeo</span>
+            <div className="flex-1 h-px bg-slate-200" />
+          </div>
+
+          <div className="relative rounded-2xl overflow-hidden shadow-2xl shadow-slate-200/60 border border-slate-100 bg-black">
+            <video
+              src="/gutiVideo.mp4"
+              controls
+              playsInline
+              preload="metadata"
+              poster="/guti1.jpeg"
+              className="w-full max-h-[70vh] object-contain"
+            />
+          </div>
+        </motion.div>
+        {/* ─── FIM DO VÍDEO ─── */}
 
       </section>
 
@@ -262,7 +284,6 @@ export default function UnidadeBHPage() {
             className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center"
             onClick={closeLightbox}
           >
-            {/* Close */}
             <button
               onClick={closeLightbox}
               className="absolute top-5 right-5 z-20 text-white/70 hover:text-white bg-white/10 hover:bg-white/20 rounded-full p-2 transition-colors"
@@ -270,12 +291,10 @@ export default function UnidadeBHPage() {
               <X size={22} />
             </button>
 
-            {/* Counter */}
             <span className="absolute top-5 left-5 z-20 text-white/50 text-xs font-bold uppercase tracking-widest">
               {String(lightbox + 1).padStart(2, "0")} / {String(galleryImages.length).padStart(2, "0")}
             </span>
 
-            {/* Prev */}
             <button
               onClick={(e) => { e.stopPropagation(); prev(); }}
               className="absolute left-4 z-20 text-white/70 hover:text-white bg-white/10 hover:bg-white/20 rounded-full p-3 transition-colors"
@@ -283,7 +302,6 @@ export default function UnidadeBHPage() {
               <ChevronLeft size={28} />
             </button>
 
-            {/* Image */}
             <motion.div
               key={lightbox}
               initial={{ opacity: 0, scale: 0.96 }}
@@ -302,7 +320,6 @@ export default function UnidadeBHPage() {
               />
             </motion.div>
 
-            {/* Next */}
             <button
               onClick={(e) => { e.stopPropagation(); next(); }}
               className="absolute right-4 z-20 text-white/70 hover:text-white bg-white/10 hover:bg-white/20 rounded-full p-3 transition-colors"
@@ -310,7 +327,6 @@ export default function UnidadeBHPage() {
               <ChevronRight size={28} />
             </button>
 
-            {/* Thumbnail strip */}
             <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 overflow-x-auto max-w-[80vw] px-4 pb-1">
               {galleryImages.map((src, i) => (
                 <button
