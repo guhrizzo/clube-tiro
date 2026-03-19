@@ -25,6 +25,7 @@ const dictionaries = {
       presentation: "Apresentação",
       shop: "Loja",
       club: "Clube",
+      Clube: "Clubes",
       tracking: "Rastreamento",
       courses: "Cursos",
       dispatcher: "Despachante",
@@ -62,6 +63,7 @@ const dictionaries = {
       presentation: "Presentation",
       shop: "Shop",
       club: "Club",
+      Clube: "Clubs",
       tracking: "Tracking",
       courses: "Courses",
       dispatcher: "Legal Services",
@@ -99,6 +101,7 @@ const dictionaries = {
       presentation: "Presentación",
       shop: "Tienda",
       club: "Club",
+      Clube: "Clubs",
       tracking: "Rastreo",
       courses: "Cursos",
       dispatcher: "Gestoría",
@@ -201,20 +204,21 @@ export default function NavBar() {
   }
 
   const utilityItems = [
-    { key: "declarations", icon: <FileText size={14} />, href: "https://www.shootinghouse.com.br/login-associado/clubedetirobh.com.br/aHR0cHM6Ly93d3cuc2hvb3Rpbmdob3VzZS5jb20uYnIvYXNzb2NpYWRvL2RlY2xhcmFjYW8=" },
-    { key: "validate", icon: <BadgeCheck size={14} />, href: "https://clubedetirobh.com.br/validar-declaracao/" },
-    { key: "secretariat", icon: <LayoutDashboard size={14} />, href: "https://www.shootinghouse.com.br/login-associado/clubedetirobh.com.br/aHR0cHM6Ly93d3cuc2hvb3Rpbmdob3VzZS5jb20uYnIvYXNzb2NpYWRvL3NlY3JldGFyaWEvZGVzcGFjaGFudGUvc29saWNpdGFjb2Vz" },
-    { key: "invoice", icon: <Printer size={14} />, href: "https://www.paghiper.com/checkout/boleto/350138bb33e7c7ab423833c0a91f62dc6b1ef74863214e317065f3ff67da897bb71652129560c4f365174a0fd6f5060d81161fac8bd01e8a9648fd9f8b243426/02CDVMM9SSWL9626/71274886" },
+    { key: "declarations", icon: <FileText size={14} />, href: "#" },
+    { key: "validate", icon: <BadgeCheck size={14} />, href: "#" },
+    { key: "secretariat", icon: <LayoutDashboard size={14} />, href: "#" },
+    { key: "invoice", icon: <Printer size={14} />, href: "#" },
     { key: "contract", icon: <FileSignature size={14} />, isAction: true },
   ];
 
-  const menuItems = [
+ const menuItems = [
     { key: "presentation", href: "/home" },
     { key: "shop", href: "/loja" },
     {
       key: "club",
-      href: "/clube",
+      // sem href aqui → vira dropdown
       children: [
+        { labelKey: "Clube", href: "/clube" },
         { labelKey: "gutierrez", href: "/clube/gutierrez" },
         { labelKey: "raja", href: "/clube/raja" },
         { labelKey: "alphaville", href: "/clube/alphaville" },
