@@ -222,7 +222,7 @@ export default function UnidadeBHPage() {
                 viewport={{ once: true, margin: "-60px" }}
                 transition={{ duration: 0.4, delay: (i % 8) * 0.04 }}
                 onClick={() => openLightbox(i)}
-                className="relative overflow-hidden rounded-xl group cursor-pointer shadow-sm aspect-[4/3]"
+                className="relative overflow-hidden rounded-xl group cursor-pointer shadow-sm aspect-4/3"
               >
                 {/* Numbered badge */}
                 <span className="absolute top-2 left-2 z-10 text-[9px] font-black text-white/60 tracking-widest select-none drop-shadow">
