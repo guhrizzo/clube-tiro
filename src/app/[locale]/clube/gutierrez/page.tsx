@@ -203,6 +203,83 @@ export default function UnidadeBHPage() {
           </motion.div>
         </div>
 
+        {/* ─── SOBRE A UNIDADE ─── */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-60px" }}
+          transition={{ duration: 0.6 }}
+          className="mt-20 border-t border-slate-200 pt-12"
+        >
+          <div className="flex items-center gap-4 mb-10">
+            <span className="h-px w-12 bg-[#ffb703]" />
+            <span className="text-[#ffb703] text-xs font-bold uppercase tracking-[0.3em]">Sobre a Unidade</span>
+            <div className="flex-1 h-px bg-slate-200" />
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-12 items-center">
+
+            {/* Texto */}
+            <div className="space-y-6">
+              <h2 className="text-3xl md:text-4xl font-black uppercase italic leading-tight text-slate-900">
+                Quase <span className="text-[#ffb703]">4 décadas</span> de história
+              </h2>
+
+              <p className="text-slate-600 text-sm leading-relaxed">
+                Localizado em sede própria em área nobre da capital, foi o <strong className="text-slate-900">primeiro clube de tiro com estrutura de estandes e loja instalado no estado</strong>, atuando na área de treinamento, qualificação e capacitação.
+              </p>
+
+              <p className="text-slate-600 text-sm leading-relaxed">
+                Preparamos o cidadão e guardas para o manuseio de armamentos e munições, tanto para a prática esportiva, profissional e segurança pessoal.
+              </p>
+
+              {/* Stats */}
+              <div className="grid grid-cols-3 gap-4 pt-4">
+                {[
+                  { value: "~40", label: "Anos de atuação" },
+                  { value: "30+", label: "Boxes de tiro" },
+                  { value: "1º", label: "No estado" },
+                ].map((stat) => (
+                  <div key={stat.label} className="text-center p-4 rounded-2xl bg-slate-50 border border-slate-100">
+                    <p className="text-2xl font-black text-slate-900 mb-1">{stat.value}</p>
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">{stat.label}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Feature list */}
+            <div className="space-y-3">
+              {[
+                "Sede própria em área nobre da capital",
+                "Salas de aula equipadas",
+                "Simulador de tiro",
+                "Mais de 30 boxes de tiro",
+                "Loja especializada no local",
+                "Treinamento esportivo, profissional e de segurança",
+                "Qualificação e capacitação de guardas e civis",
+              ].map((item, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, x: 20 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.4, delay: i * 0.06 }}
+                  className="flex items-start gap-3 p-4 rounded-xl bg-white border border-slate-100 shadow-sm"
+                >
+                  <div className="shrink-0 w-5 h-5 rounded-full bg-[#ffb703] flex items-center justify-center mt-0.5">
+                    <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
+                      <path d="M1 4L3.5 6.5L9 1" stroke="black" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </div>
+                  <span className="text-slate-700 text-sm font-medium">{item}</span>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </motion.div>
+        {/* ─── FIM SOBRE A UNIDADE ─── */}
+
         {/* ─── GALERIA DE FOTOS ─── */}
         <div className="mt-20 border-t border-slate-200 pt-12">
           <div className="flex items-center gap-4 mb-10">
