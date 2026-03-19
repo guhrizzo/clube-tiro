@@ -210,10 +210,7 @@ export default function ContactPage() {
                 </a>
 
                 <div className="flex flex-col justify-center space-y-2">
-                  <div className="flex items-center gap-3 text-slate-600 text-sm">
-                    <FaEnvelope className="text-[#ffc300]" />
-                    <span>info@protectrastreamento.com</span>
-                  </div>
+                  
                   <div className="flex items-center gap-3 text-slate-600 text-sm">
                     <FaMapMarkerAlt className="text-[#ffc300]" />
                     <span>{ct.location}</span>
