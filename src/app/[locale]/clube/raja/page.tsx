@@ -191,7 +191,7 @@ export default function RajaPage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-60px" }}
                 transition={{ duration: 0.45, delay: (i % 6) * 0.06 }}
-                className="relative overflow-hidden group aspect-[4/3]"
+                className="relative overflow-hidden group aspect-4/3"
               >
                 <span className="absolute top-2 left-2 z-10 text-[9px] font-black text-white/30 tracking-widest select-none">
                   {String(i + 1).padStart(2, "0")}
