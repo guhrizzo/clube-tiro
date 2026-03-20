@@ -299,9 +299,10 @@ export default function UnidadeBHPage() {
                 viewport={{ once: true, margin: "-60px" }}
                 transition={{ duration: 0.4, delay: (i % 8) * 0.04 }}
                 onClick={() => openLightbox(i)}
-                className="relative overflow-hidden rounded-xl group cursor-pointer shadow-sm aspect-4/3"
+                className="rounded-xl group cursor-pointer shadow-sm overflow-hidden"
+                style={{ position: "relative", paddingBottom: "75%", height: 0 }}
               >
-                <span className="absolute top-2 left-2 z-10 text-[9px] font-black text-white/60 tracking-widest select-none drop-shadow">
+                <span className="absolute top-2 left-2 z-10 text-[9px] font-black text-white/60 tracking-widest select-none drop-shadow" style={{ zIndex: 10 }}>
                   {String(i + 1).padStart(2, "0")}
                 </span>
                 <div className="absolute inset-0 z-10 bg-black/0 group-hover:bg-black/20 transition-colors duration-300 flex items-center justify-center">
@@ -314,6 +315,7 @@ export default function UnidadeBHPage() {
                   alt={`Gutierrez – foto ${i + 1}`}
                   fill
                   className="object-cover group-hover:scale-105 transition-transform duration-500"
+                  style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%" }}
                 />
               </motion.div>
             ))}
