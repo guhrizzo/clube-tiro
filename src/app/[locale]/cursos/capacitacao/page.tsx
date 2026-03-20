@@ -11,7 +11,7 @@ import { Quote, Shield, Users, Award, ChevronRight, ChevronLeft, X } from "lucid
 const SUPPORTED_LANGS = ["pt", "en", "es"] as const;
 type Lang = (typeof SUPPORTED_LANGS)[number];
 
-const galleryImages = Array.from({ length: 20 }, (_, i) => `/guardas${i + 1}.jpg`);
+const galleryImages = Array.from({ length: 23 }, (_, i) => `/guardas${i + 1}.jpg`);
 
 const stats = [
   { value: "4", unit: "décadas", label: "de experiência" },
