@@ -8,7 +8,7 @@ import { dictionaries } from "dictionaries";
 import { useLang } from "context/LangContext";
 import Image from "next/image";
 
-const galleryImages = Array.from({ length: 18 }, (_, i) => `/raja${i + 1}.jpeg`);
+const galleryImages = Array.from({ length: 13 }, (_, i) => `/raja${i + 1}.jpeg`);
 
 const narrative = [
   {
@@ -182,8 +182,8 @@ export default function RajaPage() {
             <div className="flex-1 h-px bg-zinc-800" />
           </div>
 
-          {/* Masonry-style grid */}
-          <div className="columns-2 md:columns-3 gap-3 space-y-3">
+          {/* Grid ordenado da esquerda para a direita */}
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
             {galleryImages.map((src, i) => (
               <motion.div
                 key={i}
@@ -191,7 +191,7 @@ export default function RajaPage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-60px" }}
                 transition={{ duration: 0.45, delay: (i % 6) * 0.06 }}
-                className="break-inside-avoid relative overflow-hidden group"
+                className="relative overflow-hidden group aspect-[4/3]"
               >
                 <span className="absolute top-2 left-2 z-10 text-[9px] font-black text-white/30 tracking-widest select-none">
                   {String(i + 1).padStart(2, "0")}
@@ -200,9 +200,8 @@ export default function RajaPage() {
                 <Image
                   src={src}
                   alt={`Raja – foto ${i + 1}`}
-                  width={600}
-                  height={400}
-                  className="w-full h-auto object-cover grayscale group-hover:grayscale-0 transition-all duration-500"
+                  fill
+                  className="object-cover grayscale group-hover:grayscale-0 transition-all duration-500"
                 />
               </motion.div>
             ))}

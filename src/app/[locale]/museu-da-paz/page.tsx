@@ -31,7 +31,7 @@ const fadeUp: Variants = {
 };
 
 // ─── Ajuste o número de fotos aqui ───
-const museumImages = Array.from({ length: 3 }, (_, i) => `/museu${i + 1}.jpeg`);
+const museumImages = Array.from({ length: 1 }, (_, i) => `/museu${i + 1}.jpeg`);
 
 export default function MuseuDaPaz() {
   const [lightbox, setLightbox] = useState<number | null>(null);

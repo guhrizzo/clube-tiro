@@ -1,8 +1,8 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { Phone, Mail, MessageCircle, CheckCircle2, Loader2, Copy, Check } from "lucide-react";
-import { useState, useMemo, useEffect } from "react";
+import { Phone, Mail, MessageCircle, CheckCircle2, Loader2, Copy, Check, ChevronDown } from "lucide-react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
 
 // FIREBASE
@@ -11,10 +11,10 @@ import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 
 /* ---------------- EMAILS POR DEPARTAMENTO ---------------- */
 const EMAILS = [
-  { dept: "Administrativo", address: "Adm@grupoprotect.com.br", color: "#ffb703" },
-  { dept: "Clube",          address: "clube@grupoprotect.com.br", color: "#3b82f6" },
-  { dept: "Vendas",         address: "vendas@grupoprotect.com.br", color: "#10b981" },
-  { dept: "Despachante",    address: "despachante@grupoprotect.com.br", color: "#f43f5e" },
+  { dept: "Administrativo", address: "Adm@grupoprotect.com.br",          color: "#ffb703" },
+  { dept: "Clube",          address: "clube@grupoprotect.com.br",         color: "#3b82f6" },
+  { dept: "Vendas",         address: "vendas@grupoprotect.com.br",        color: "#10b981" },
+  { dept: "Despachante",    address: "despachante@grupoprotect.com.br",   color: "#f43f5e" },
 ];
 
 /* ---------------- DICTIONARY ---------------- */
@@ -30,6 +30,7 @@ const dictionaries = {
     labelPhone: "Telefone",
     labelPlan: "Tipo de Plano",
     labelMessage: "Deixe aqui sua mensagem",
+    labelDept: "Enviar para o departamento",
     placeholderName: "Seu nome",
     placeholderEmail: "exemplo@email.com",
     placeholderPhone: "(31) 99999-9999",
@@ -37,11 +38,12 @@ const dictionaries = {
     planIndividual: "Pessoa física",
     planBusiness: "Pessoa jurídica",
     btnSend: "ENVIAR AGORA",
-    success: "Cotação enviada com sucesso!",
+    success: "Mensagem enviada com sucesso!",
     error: "Ocorreu um erro. Por favor, tente pelo WhatsApp.",
     copyTip: "Copiar",
     copied: "Copiado!",
     emailsTitle: "E-mails por departamento",
+    emailSubject: "Contato via site",
   },
   en: {
     badge: "Contact",
@@ -54,6 +56,7 @@ const dictionaries = {
     labelPhone: "Phone",
     labelPlan: "Plan Type",
     labelMessage: "Leave your message here",
+    labelDept: "Send to department",
     placeholderName: "Your name",
     placeholderEmail: "example@email.com",
     placeholderPhone: "+1 (000) 000-0000",
@@ -61,11 +64,12 @@ const dictionaries = {
     planIndividual: "Individual",
     planBusiness: "Business",
     btnSend: "SEND NOW",
-    success: "Quote sent successfully!",
+    success: "Message sent successfully!",
     error: "An error occurred. Please try via WhatsApp.",
     copyTip: "Copy",
     copied: "Copied!",
     emailsTitle: "Emails by department",
+    emailSubject: "Contact via website",
   },
   es: {
     badge: "Contacto",
@@ -78,6 +82,7 @@ const dictionaries = {
     labelPhone: "Teléfono",
     labelPlan: "Tipo de Plan",
     labelMessage: "Deje su mensaje aquí",
+    labelDept: "Enviar al departamento",
     placeholderName: "Su nombre",
     placeholderEmail: "ejemplo@email.com",
     placeholderPhone: "+34 000 000 000",
@@ -85,11 +90,12 @@ const dictionaries = {
     planIndividual: "Persona física",
     planBusiness: "Persona jurídica",
     btnSend: "ENVIAR AHORA",
-    success: "¡Presupuesto enviado con éxito!",
+    success: "¡Mensaje enviado con éxito!",
     error: "Ocurrió un error. Por favor, intente por WhatsApp.",
     copyTip: "Copiar",
     copied: "¡Copiado!",
     emailsTitle: "Correos por departamento",
+    emailSubject: "Contacto vía sitio web",
   },
 };
 
@@ -110,13 +116,10 @@ function EmailCard({ dept, address, color }: { dept: string; address: string; co
       whileHover={{ y: -2 }}
       className="group flex items-center gap-4 p-4 rounded-2xl bg-white border border-slate-100 shadow-sm hover:shadow-md transition-all duration-300"
     >
-      {/* Dot */}
       <div
         className="shrink-0 w-2 h-2 rounded-full"
         style={{ backgroundColor: color, boxShadow: `0 0 8px ${color}80` }}
       />
-
-      {/* Text */}
       <div className="flex-1 min-w-0">
         <p className="text-[10px] font-bold uppercase tracking-widest mb-0.5" style={{ color }}>
           {dept}
@@ -128,8 +131,6 @@ function EmailCard({ dept, address, color }: { dept: string; address: string; co
           {address}
         </a>
       </div>
-
-      {/* Copy button */}
       <button
         onClick={handleCopy}
         className="shrink-0 p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-all cursor-pointer"
@@ -138,6 +139,103 @@ function EmailCard({ dept, address, color }: { dept: string; address: string; co
         {copied ? <Check size={15} className="text-emerald-500" /> : <Copy size={15} />}
       </button>
     </motion.div>
+  );
+}
+
+/* ---------------- DEPT SELECTOR COMPONENT ---------------- */
+function DeptSelector({
+  selected,
+  onSelect,
+  label,
+}: {
+  selected: (typeof EMAILS)[0];
+  onSelect: (dept: (typeof EMAILS)[0]) => void;
+  label: string;
+}) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  // Close on outside click
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  return (
+    <div className="space-y-1.5" ref={ref}>
+      <label className="text-[11px] font-bold text-slate-600 ml-1 uppercase tracking-wider">
+        {label}
+      </label>
+      <div className="relative">
+        <button
+          type="button"
+          onClick={() => setOpen((v) => !v)}
+          className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-sm outline-none transition-all focus:bg-white focus:ring-2 focus:ring-[#ffb703]/25 focus:border-[#ffb703] flex items-center gap-3 text-left hover:bg-white cursor-pointer"
+        >
+          {/* Color dot */}
+          <span
+            className="shrink-0 w-2.5 h-2.5 rounded-full"
+            style={{
+              backgroundColor: selected.color,
+              boxShadow: `0 0 8px ${selected.color}80`,
+            }}
+          />
+          {/* Dept name */}
+          <span className="font-semibold text-slate-800">{selected.dept}</span>
+          {/* Email (subdued) */}
+          <span className="text-xs text-slate-400 hidden sm:block truncate ml-1">
+            {selected.address}
+          </span>
+          <ChevronDown
+            size={15}
+            className={`shrink-0 text-slate-400 transition-transform duration-200 ml-auto ${open ? "rotate-180" : ""}`}
+          />
+        </button>
+
+        <AnimatePresence>
+          {open && (
+            <motion.ul
+              initial={{ opacity: 0, y: -6, scale: 0.97 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -6, scale: 0.97 }}
+              transition={{ duration: 0.15 }}
+              className="absolute z-50 left-0 right-0 mt-2 bg-white border border-slate-100 rounded-2xl shadow-xl overflow-hidden"
+            >
+              {EMAILS.map((dept) => (
+                <li key={dept.address}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onSelect(dept);
+                      setOpen(false);
+                    }}
+                    className={`w-full flex items-center gap-3 px-4 py-3 text-sm transition-colors hover:bg-slate-50 cursor-pointer ${
+                      selected.address === dept.address ? "bg-slate-50" : ""
+                    }`}
+                  >
+                    <span
+                      className="shrink-0 w-2.5 h-2.5 rounded-full"
+                      style={{
+                        backgroundColor: dept.color,
+                        boxShadow: `0 0 8px ${dept.color}80`,
+                      }}
+                    />
+                    <span className="font-bold text-slate-800">{dept.dept}</span>
+                    <span className="text-xs text-slate-400 truncate">{dept.address}</span>
+                    {selected.address === dept.address && (
+                      <Check size={14} className="ml-auto shrink-0 text-emerald-500" />
+                    )}
+                  </button>
+                </li>
+              ))}
+            </motion.ul>
+          )}
+        </AnimatePresence>
+      </div>
+    </div>
   );
 }
 
@@ -152,6 +250,8 @@ export default function ContactPremium() {
   }, [pathname]);
 
   const t = dictionaries[currentLang];
+
+  const [selectedDept, setSelectedDept] = useState(EMAILS[0]);
 
   const [formData, setFormData] = useState({
     nome: "",
@@ -172,18 +272,40 @@ export default function ContactPremium() {
     e.preventDefault();
     if (isSending) return;
     setIsSending(true);
+
     try {
+      // 1. Save to Firestore
       await addDoc(collection(db, "comments"), {
         userName: formData.nome,
         userEmail: formData.email,
         userPhone: formData.telefone,
         planType: formData.plano,
         text: formData.mensagem,
+        targetDept: selectedDept.dept,
+        targetEmail: selectedDept.address,
         createdAt: serverTimestamp(),
         targetId: "Cotação Premium",
         status: "novo",
         lang: currentLang,
       });
+
+      // 2. Send email via Resend API
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          nome: formData.nome,
+          email: formData.email,
+          telefone: formData.telefone,
+          plano: formData.plano,
+          mensagem: formData.mensagem,
+          targetDept: selectedDept.dept,
+          targetEmail: selectedDept.address,
+        }),
+      });
+
+      if (!res.ok) throw new Error("Falha no envio do e-mail.");
+
       setSentStatus(true);
       setFormData({ nome: "", email: "", telefone: "", plano: t.planIndividual, mensagem: "" });
       setTimeout(() => setSentStatus(false), 5000);
@@ -208,16 +330,16 @@ export default function ContactPremium() {
           transition={{ duration: 0.6 }}
           className="relative bg-white rounded-[2.5rem] shadow-2xl shadow-slate-200/60 border border-slate-100 overflow-hidden"
         >
-          {/* Background accent */}
+          {/* Background accents */}
           <div className="absolute top-0 right-0 w-72 h-72 rounded-full bg-[#ffb703]/6 blur-3xl pointer-events-none" />
           <div className="absolute bottom-0 left-0 w-56 h-56 rounded-full bg-blue-500/4 blur-3xl pointer-events-none" />
 
           <div className="relative z-10 grid lg:grid-cols-2 gap-0">
 
-            {/* ─── LADO ESQUERDO ─── */}
+            {/* ─── LEFT SIDE ─── */}
             <div className="p-8 md:p-12 lg:p-14 space-y-8 border-b lg:border-b-0 lg:border-r border-slate-100">
 
-              {/* Badge + Título */}
+              {/* Badge + Title */}
               <div>
                 <span className="inline-flex items-center px-3 py-1 rounded-full bg-[#ffb703]/12 text-[#ffb703] border border-yellow-400/25 text-[10px] font-black uppercase tracking-[0.3em] mb-5">
                   {t.badge}
@@ -228,7 +350,7 @@ export default function ContactPremium() {
                 <p className="text-slate-400 text-sm">{t.subtitle}</p>
               </div>
 
-              {/* Telefone */}
+              {/* Phone */}
               <div className="flex items-center gap-4 p-4 rounded-2xl bg-slate-50 border border-slate-100">
                 <div className="w-11 h-11 rounded-xl bg-[#ffb703] flex items-center justify-center shrink-0 shadow-sm">
                   <Phone size={18} className="text-black" />
@@ -246,7 +368,7 @@ export default function ContactPremium() {
                 </div>
               </div>
 
-              {/* Ícones de ação rápida */}
+              {/* Quick action icons */}
               <div className="flex gap-3">
                 {[
                   { icon: <Phone size={18} />, href: "tel:+553133718600", label: "Ligar" },
@@ -267,19 +389,7 @@ export default function ContactPremium() {
                 ))}
               </div>
 
-              {/* ─── EMAILS POR DEPARTAMENTO ─── */}
-              <div>
-                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 mb-4">
-                  {t.emailsTitle}
-                </p>
-                <div className="space-y-2.5">
-                  {EMAILS.map((e) => (
-                    <EmailCard key={e.address} {...e} />
-                  ))}
-                </div>
-              </div>
-
-              {/* Mapa */}
+              {/* Map */}
               <div className="rounded-2xl overflow-hidden border border-slate-100 shadow-inner">
                 <iframe
                   src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3751.050519342749!2d-43.9855512!3d-19.921272!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xa6971279169a21%3A0x6b403932782e4e7e!2sProtect%20Rastreamento!5e0!3m2!1spt-BR!2sbr!4v1700000000000!5m2!1spt-BR!2sbr"
@@ -291,7 +401,7 @@ export default function ContactPremium() {
               </div>
             </div>
 
-            {/* ─── FORMULÁRIO ─── */}
+            {/* ─── FORM ─── */}
             <div className="p-8 md:p-12 lg:p-14">
               <div className="mb-8">
                 <div className="w-full text-center px-4 py-3 rounded-xl bg-[#ffb703] text-black text-[10px] font-extrabold uppercase tracking-widest shadow-sm">
@@ -370,6 +480,29 @@ export default function ContactPremium() {
                   </div>
                 </div>
 
+                {/* ─── DEPARTMENT SELECTOR (new) ─── */}
+                <DeptSelector
+                  selected={selectedDept}
+                  onSelect={setSelectedDept}
+                  label={t.labelDept}
+                />
+
+                {/* Destination hint */}
+                <motion.div
+                  key={selectedDept.address}
+                  initial={{ opacity: 0, x: -6 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  className="flex items-center gap-2 px-3 py-2 rounded-xl border text-xs font-medium"
+                  style={{
+                    borderColor: `${selectedDept.color}40`,
+                    backgroundColor: `${selectedDept.color}08`,
+                    color: selectedDept.color,
+                  }}
+                >
+                  <Mail size={13} />
+                  <span className="truncate">{selectedDept.address}</span>
+                </motion.div>
+
                 <div className="space-y-1.5">
                   <label className="text-[11px] font-bold text-slate-600 ml-1 uppercase tracking-wider">
                     {t.labelMessage}
@@ -390,7 +523,14 @@ export default function ContactPremium() {
                   className="w-full mt-2 py-4 rounded-xl bg-[#ffb703] text-black font-black text-sm uppercase tracking-widest shadow-lg hover:bg-[#e6a502] hover:shadow-[#ffb703]/30 active:scale-[0.98] transition-all disabled:opacity-60 disabled:cursor-not-allowed"
                 >
                   <span className="flex items-center justify-center gap-2">
-                    {isSending ? <Loader2 className="animate-spin" size={18} /> : t.btnSend}
+                    {isSending ? (
+                      <Loader2 className="animate-spin" size={18} />
+                    ) : (
+                      <>
+                        <Mail size={16} />
+                        {t.btnSend}
+                      </>
+                    )}
                   </span>
                 </button>
 
