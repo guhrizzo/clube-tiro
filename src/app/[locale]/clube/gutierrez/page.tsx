@@ -289,6 +289,7 @@ export default function UnidadeBHPage() {
             <span className="text-slate-400 text-[10px] uppercase tracking-widest">{galleryImages.length} fotos</span>
           </div>
 
+          {/* grid — ordem esquerda para direita, linha por linha */}
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
             {galleryImages.map((src, i) => (
               <motion.div
