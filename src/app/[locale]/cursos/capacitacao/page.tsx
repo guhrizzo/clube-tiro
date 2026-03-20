@@ -11,7 +11,7 @@ import { Quote, Shield, Users, Award, ChevronRight, ChevronLeft, X } from "lucid
 const SUPPORTED_LANGS = ["pt", "en", "es"] as const;
 type Lang = (typeof SUPPORTED_LANGS)[number];
 
-const galleryImages = Array.from({ length: 16 }, (_, i) => `/guardas${i + 1}.jpg`);
+const galleryImages = Array.from({ length: 20 }, (_, i) => `/guardas${i + 1}.jpg`);
 
 const stats = [
   { value: "4", unit: "décadas", label: "de experiência" },
@@ -98,18 +98,60 @@ export default function CapacitacaoPage() {
         </div>
 
         {/* Texto narrativo */}
-        <div className="bg-zinc-900/50 border border-zinc-800 p-8 md:p-10 rounded-sm mb-12">
-          <p className="text-gray-300 text-sm md:text-base leading-relaxed">
-            O <span className="text-white font-bold">GRUPO PROTECT</span>, ao longo de quase 4 décadas atuando na área
+        <div className="bg-zinc-900/50 border border-zinc-800 p-8 md:p-10 rounded-sm mb-8">
+          <p className="text-gray-300 text-sm md:text-base leading-relaxed mb-4">
+            O <span className="text-white font-bold">GRUPO PROTECT</span>, há mais de 32 anos atuando na área
             de treinamento, qualificação e capacitação, prepara o cidadão para o manuseio de armamentos e munições tanto
             para a <span className="text-[#ffb703] font-semibold">prática esportiva</span>,{" "}
             <span className="text-[#ffb703] font-semibold">profissional</span> e{" "}
-            <span className="text-[#ffb703] font-semibold">segurança pessoal</span>. Já prestamos treinamento e formação
-            para mais de <span className="text-white font-bold">3.000 policiais municipais</span> de Belo Horizonte,
-            Nova Lima, Contagem, Sete Lagoas, dentre outras cidades, além de inúmeros Policiais Civis, Militares e
-            Federais, juízes, magistrados e promotores — ajudando e qualificando com excelência em todas as suas
-            prestações de serviço.
+            <span className="text-[#ffb703] font-semibold">segurança pessoal</span>. Possui sede própria e já prestou
+            treinamento para os guardas dos municípios de Belo Horizonte, Contagem, Nova Lima, Sete Lagoas, dentre
+            outras — obtendo aprovação em alto nível em todas as suas prestações de serviço.
           </p>
+          <p className="text-gray-300 text-sm md:text-base leading-relaxed">
+            Ao longo dos anos mantendo a <span className="text-white font-bold">liderança no mercado</span>,
+            sofisticando e aprimorando para melhor servir a comunidade nacional, sempre com grande experiência e
+            desempenho excepcional — destacando-se a cada ano e superando em atendimento, qualidade, serviços e
+            venda de produtos.
+          </p>
+        </div>
+
+        {/* Cartas de Capacidade Técnica */}
+        <div className="mb-16">
+          <div className="flex items-center gap-4 mb-6">
+            <span className="text-[#ffb703] text-[10px] font-black uppercase tracking-[0.4em]">— Cartas de Capacidade Técnica</span>
+            <div className="flex-1 h-px bg-zinc-800" />
+          </div>
+
+          <div className="grid gap-3">
+            {[
+              { org: "Magistrados e Servidores da Justiça do Trabalho de MG", service: "Curso teórico e prático de tiro" },
+              { org: "Fundação Guimarães Rosa", service: "Ministrada a disciplina uso legal e progressivo da força, emprego de equipamentos letais e treinamento prático de manuseio de arma de fogo" },
+              { org: "Banco Central do Brasil", service: "Avaliação técnica no emprego de armamento e tiro para porte" },
+              { org: "Guarda Municipal de Belo Horizonte – MG", service: "Treinamento, capacitação e avaliação teóricos e práticos de manuseio de arma de fogo e uso progressivo da força" },
+              { org: "Guarda Municipal de Contagem – MG", service: "Treinamento, capacitação e avaliação teóricos e práticos de manuseio de arma de fogo e uso progressivo da força" },
+              { org: "Guarda Municipal de Sete Lagoas – MG", service: "Treinamento, capacitação e avaliação teóricos e práticos de manuseio de arma de fogo e uso progressivo da força" },
+              { org: "Município de Mariana – MG", service: "Fornecimento de coletes balísticos" },
+              { org: "Guarda Municipal de Nova Lima – MG", service: "Treinamento, capacitação e avaliação teóricos e práticos de manuseio de arma de fogo e uso progressivo da força" },
+            ].map((item, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, x: -12 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true, margin: "-30px" }}
+                transition={{ duration: 0.35, delay: i * 0.06 }}
+                className="flex gap-4 border border-zinc-800 bg-zinc-900/40 p-5 hover:border-zinc-600 transition-colors"
+              >
+                <div className="shrink-0 w-6 h-6 flex items-center justify-center border border-[#ffb703]/40 mt-0.5">
+                  <span className="text-[9px] font-black text-[#ffb703]">{String(i + 1).padStart(2, "0")}</span>
+                </div>
+                <div>
+                  <p className="text-white font-bold text-sm uppercase tracking-wide leading-tight mb-1">{item.org}</p>
+                  <p className="text-zinc-400 text-xs leading-relaxed">{item.service}</p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
         </div>
 
         {/* Stats */}
