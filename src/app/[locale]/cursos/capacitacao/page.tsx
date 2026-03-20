@@ -222,6 +222,30 @@ export default function CapacitacaoPage() {
         </div>
       </section>
 
+      {/* ─── VÍDEO ─── */}
+      <section className="max-w-5xl mx-auto mt-10 px-6">
+        <div className="flex items-center gap-4 mb-8">
+          <span className="text-[#ffb703] text-[10px] font-black uppercase tracking-[0.4em]">— Vídeo</span>
+          <div className="flex-1 h-px bg-zinc-800" />
+        </div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-60px" }}
+          transition={{ duration: 0.5 }}
+          className="relative w-full overflow-hidden border border-zinc-800 bg-zinc-900"
+        >
+          <video
+            src="/guardasVideo.mp4"
+            controls
+            playsInline
+            className="w-full h-auto block"
+            poster="/guardas1.jpg"
+          />
+        </motion.div>
+      </section>
+
       {/* ─── CURSOS ─── */}
       <section className="max-w-5xl mx-auto mt-24 px-6">
         <div className="flex items-center gap-4 mb-10">

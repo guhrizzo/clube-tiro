@@ -5,7 +5,7 @@ import { FaWhatsapp, FaArrowRight } from "react-icons/fa";
 import { motion } from "framer-motion";
 
 interface WhatsAppInputProps {
-  phoneNumber: string; // Ex: "553133718600"
+  phoneNumber: 31992118500; // Ex: "553133718600"
   placeholder?: string;
 }
 

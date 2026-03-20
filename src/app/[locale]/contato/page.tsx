@@ -72,7 +72,7 @@ export default function ContactPage() {
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState("");
   const pathname = usePathname();
-  const phoneNumber = "553133718600";
+  const phoneNumber = "31992118500";
 
   // Detectar idioma atual
   const currentLang = useMemo<Lang>(() => {
@@ -197,7 +197,7 @@ export default function ContactPage() {
               {/* OUTROS MEIOS DE CONTATO */}
               <div className="flex flex-col md:flex-row gap-6">
                 <a
-                  href="tel:+553133718600"
+                  href="tel:+553133718500"
                   className="flex items-center gap-4 p-5 bg-white border border-slate-200 rounded-2xl hover:shadow-lg transition-all group"
                 >
                   <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-900 group-hover:bg-[#ffc300] transition-colors">
@@ -205,7 +205,7 @@ export default function ContactPage() {
                   </div>
                   <div>
                     <p className="text-slate-500 text-[10px] uppercase font-bold tracking-widest">{ct.callAction}</p>
-                    <p className="text-slate-900 font-bold text-sm">(31) 3371-8600</p>
+                    <p className="text-slate-900 font-bold text-sm">(31) 3371-8500</p>
                   </div>
                 </a>
 

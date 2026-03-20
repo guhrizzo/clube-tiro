@@ -360,10 +360,10 @@ export default function ContactPremium() {
                     {t.phone}
                   </p>
                   <a
-                    href="tel:+553133718600"
+                    href="tel:+553133718500"
                     className="text-slate-900 font-bold text-sm hover:text-[#ffb703] transition-colors"
                   >
-                    +55 (31) 3371-8600
+                    +55 (31) 3371-8500
                   </a>
                 </div>
               </div>
@@ -372,7 +372,7 @@ export default function ContactPremium() {
               <div className="flex gap-3">
                 {[
                   { icon: <Phone size={18} />, href: "tel:+553133718600", label: "Ligar" },
-                  { icon: <MessageCircle size={18} />, href: "https://wa.me/553133718600", label: "WhatsApp" },
+                  { icon: <MessageCircle size={18} />, href: "https://wa.me/31992118500", label: "WhatsApp" },
                   { icon: <Mail size={18} />, href: `mailto:${EMAILS[0].address}`, label: "E-mail" },
                 ].map((item) => (
                   <a
