@@ -9,7 +9,7 @@ export async function POST(req: Request) {
     const { nome, email, telefone, plano, mensagem, targetDept, targetEmail } = await req.json();
 
     const { error } = await resend.emails.send({
-      from: "Site Protect <clube.gustavorizzo.net.br>", // domínio verificado no Resend
+      from: "Site Protect <email@clube.gustavorizzo.net.br>", // domínio verificado no Resend
       to: [targetEmail],
       replyTo: email,
       subject: `[${targetDept}] Novo contato via site – ${nome}`,
