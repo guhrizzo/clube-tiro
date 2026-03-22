@@ -6,10 +6,18 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function POST(req: Request) {
   try {
-    const { nome, email, telefone, plano, mensagem, targetDept, targetEmail } = await req.json();
+    console.log("🔵 /api/contact chamado");
 
-    const { error } = await resend.emails.send({
-      from: "Site Protect <email@clube.gustavorizzo.net.br>", // domínio verificado no Resend
+    const body = await req.json();
+    console.log("📦 Body recebido:", JSON.stringify(body));
+
+    const { nome, email, telefone, plano, mensagem, targetDept, targetEmail } = body;
+
+    console.log("🔑 RESEND_API_KEY presente:", !!process.env.RESEND_API_KEY);
+    console.log("📧 Enviando para:", targetEmail);
+
+    const { data, error } = await resend.emails.send({
+      from: "Site Protect <contato@clube.gustavorizzo.net.br>",
       to: [targetEmail],
       replyTo: email,
       subject: `[${targetDept}] Novo contato via site – ${nome}`,
@@ -20,7 +28,6 @@ export async function POST(req: Request) {
           <body style="font-family:sans-serif;background:#f8fafc;padding:32px">
             <div style="max-width:560px;margin:0 auto;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 2px 12px #0001">
 
-              <!-- Header -->
               <div style="background:#ffb703;padding:24px 32px">
                 <p style="margin:0;font-size:11px;font-weight:800;letter-spacing:.2em;text-transform:uppercase;color:#000;opacity:.6">
                   Grupo Protect
@@ -30,7 +37,6 @@ export async function POST(req: Request) {
                 </h1>
               </div>
 
-              <!-- Body -->
               <div style="padding:32px">
                 <table style="width:100%;border-collapse:collapse">
                   ${row("Nome", nome)}
@@ -49,7 +55,6 @@ export async function POST(req: Request) {
                 </div>
               </div>
 
-              <!-- Footer -->
               <div style="padding:16px 32px;background:#f1f5f9;text-align:center">
                 <p style="margin:0;font-size:11px;color:#94a3b8">
                   Enviado automaticamente pelo site do Grupo Protect
@@ -63,18 +68,18 @@ export async function POST(req: Request) {
     });
 
     if (error) {
-      console.error("Resend error:", error);
+      console.error("❌ Resend error:", JSON.stringify(error));
       return NextResponse.json({ error }, { status: 500 });
     }
 
+    console.log("✅ Email enviado! ID:", data?.id);
     return NextResponse.json({ ok: true });
   } catch (err) {
-    console.error("API /contact error:", err);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    console.error("❌ API /contact exception:", err);
+    return NextResponse.json({ error: String(err) }, { status: 500 });
   }
 }
 
-/* util */
 function row(label: string, value: string) {
   return `
     <tr>
