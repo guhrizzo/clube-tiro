@@ -241,18 +241,12 @@ export default function ContactPremium() {
   const [isSending, setIsSending] = useState(false);
   const [sentStatus, setSentStatus] = useState(false);
 
-  // 🐛 DEBUG STATE
-  const [debugInfo, setDebugInfo] = useState<string | null>(null);
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (isSending) return;
     setIsSending(true);
-    setDebugInfo(null);
 
     try {
-      // 1. Firestore
-      setDebugInfo("⏳ Salvando no Firestore...");
       await addDoc(collection(db, "comments"), {
         userName: formData.nome,
         userEmail: formData.email,
@@ -266,37 +260,29 @@ export default function ContactPremium() {
         status: "novo",
         lang: currentLang,
       });
-      setDebugInfo("✅ Firestore OK — chamando /api/contact...");
-
-      // 2. Resend
-      const payload = {
-        nome: formData.nome,
-        email: formData.email,
-        telefone: formData.telefone,
-        plano: formData.plano,
-        mensagem: formData.mensagem,
-        targetDept: selectedDept.dept,
-        targetEmail: selectedDept.address,
-      };
 
       const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({
+          nome: formData.nome,
+          email: formData.email,
+          telefone: formData.telefone,
+          plano: formData.plano,
+          mensagem: formData.mensagem,
+          targetDept: selectedDept.dept,
+          targetEmail: selectedDept.address,
+        }),
       });
 
-      const responseText = await res.text();
-      setDebugInfo(`📡 Status HTTP: ${res.status}\n📄 Resposta: ${responseText}`);
-
-      if (!res.ok) throw new Error(`HTTP ${res.status}: ${responseText}`);
+      if (!res.ok) throw new Error("Falha no envio do e-mail.");
 
       setSentStatus(true);
       setFormData({ nome: "", email: "", telefone: "", plano: t.planIndividual, mensagem: "" });
       setTimeout(() => setSentStatus(false), 5000);
-      setTimeout(() => setDebugInfo(null), 8000);
-    } catch (error: any) {
+    } catch (error) {
       console.error("Erro ao enviar cotação:", error);
-      setDebugInfo(`❌ ERRO: ${error?.message ?? String(error)}`);
+      alert(t.error);
     } finally {
       setIsSending(false);
     }
@@ -440,20 +426,6 @@ export default function ContactPremium() {
                     {isSending ? <Loader2 className="animate-spin" size={18} /> : <><Mail size={16} />{t.btnSend}</>}
                   </span>
                 </button>
-
-                {/* 🐛 DEBUG BOX — remova após resolver o erro */}
-                <AnimatePresence>
-                  {debugInfo && (
-                    <motion.div
-                      initial={{ opacity: 0, y: 8 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0 }}
-                      className="p-3 rounded-xl border border-slate-200 bg-slate-900 text-emerald-400 font-mono text-xs whitespace-pre-wrap break-all"
-                    >
-                      {debugInfo}
-                    </motion.div>
-                  )}
-                </AnimatePresence>
 
                 <AnimatePresence>
                   {sentStatus && (
