@@ -284,12 +284,26 @@ export default function UnidadeNovaLimaPage() {
 
         {/* ── Galeria ── */}
         <div className="mt-20 border-t border-slate-200 pt-12">
-          <div className="flex items-center gap-4 mb-10">
+          <div className="flex items-center gap-4 mb-4">
             <span className="h-px w-12 bg-[#ffb703]" />
             <span className="text-[#ffb703] text-xs font-bold uppercase tracking-[0.3em]">Galeria</span>
             <div className="flex-1 h-px bg-slate-200" />
             <span className="text-slate-400 text-[10px] uppercase tracking-widest">{galleryImages.length} fotos</span>
           </div>
+
+          {/* Título da galeria */}
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="mb-10"
+          >
+            <h2 className="text-3xl md:text-4xl font-black uppercase italic leading-tight text-slate-900">
+              Fotos da <span className="text-[#ffb703]">1ª Inauguração</span>
+            </h2>
+            <p className="text-slate-400 text-sm mt-2">Registros históricos da abertura do clube</p>
+          </motion.div>
 
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
             {galleryImages.map((src, i) => (
@@ -324,6 +338,44 @@ export default function UnidadeNovaLimaPage() {
               </motion.div>
             ))}
           </div>
+
+          {/* ── Banner Em Breve ── */}
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-40px" }}
+            transition={{ duration: 0.6 }}
+            className="mt-10 relative rounded-2xl overflow-hidden border border-[#ffb703]/30"
+            style={{ background: "#1a1508" }}
+          >
+            {/* Subtle radial glow */}
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+              <div className="w-96 h-40 rounded-full bg-[#ffb703]/10 blur-3xl" />
+            </div>
+
+            {/* Corner border accents */}
+            <span className="absolute top-3 left-3 w-5 h-5 border-t-2 border-l-2 border-[#ffb703]/60 rounded-tl-sm" />
+            <span className="absolute top-3 right-3 w-5 h-5 border-t-2 border-r-2 border-[#ffb703]/60 rounded-tr-sm" />
+            <span className="absolute bottom-3 left-3 w-5 h-5 border-b-2 border-l-2 border-[#ffb703]/60 rounded-bl-sm" />
+            <span className="absolute bottom-3 right-3 w-5 h-5 border-b-2 border-r-2 border-[#ffb703]/60 rounded-br-sm" />
+
+            <div className="relative z-10 py-14 px-8 flex flex-col items-center text-center gap-4">
+              <div className="flex items-center gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#ffb703] animate-pulse" />
+                <span className="text-[#ffb703] text-[10px] font-black uppercase tracking-[0.4em]">Em Breve</span>
+                <span className="w-1.5 h-1.5 rounded-full bg-[#ffb703] animate-pulse" />
+              </div>
+
+              <h3 className="text-3xl md:text-5xl font-black uppercase italic text-[#ffb703] leading-none tracking-tight">
+                Inauguração em Breve
+              </h3>
+
+              <p className="text-slate-400 text-xs md:text-sm uppercase tracking-[0.2em] max-w-md leading-relaxed">
+                Acompanhe nossas redes sociais e fique por dentro de
+                todas as novidades.
+              </p>
+            </div>
+          </motion.div>
         </div>
       </section>
 
