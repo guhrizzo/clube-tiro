@@ -11,7 +11,7 @@ import Image from "next/image";
 import { useState, useEffect, useCallback } from "react";
 import { db } from "lib/firebase";
 import { collection, getDocs, query, orderBy } from "firebase/firestore";
-
+import { fetchOrderedPhotos } from "lib/fetchPhotos";
 // ─── Tipo ───
 interface GalleryPhoto {
   id: string;
@@ -78,28 +78,20 @@ export default function UnidadeNovaLimaPage() {
 
   // ─── Busca fotos no Firestore ───
   useEffect(() => {
-    async function fetchPhotos() {
-      try {
-        setLoadingPhotos(true);
-        setErrorPhotos(null);
-        const q = query(collection(db, "nova-lima"), orderBy("createdAt", "asc"));
-        const snapshot = await getDocs(q);
-        const data: GalleryPhoto[] = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          url: doc.data().url as string,
-          title: doc.data().title as string,
-          description: doc.data().description as string | undefined,
-        }));
-        setPhotos(data);
-      } catch (err: any) {
-        console.error("Erro ao buscar fotos:", err);
-        setErrorPhotos("Não foi possível carregar as fotos. Tente novamente mais tarde.");
-      } finally {
-        setLoadingPhotos(false);
-      }
+  async function load() {
+    try {
+      setLoadingPhotos(true);
+      setErrorPhotos(null);
+      const data = await fetchOrderedPhotos("nova-lima");
+      setPhotos(data);
+    } catch {
+      setErrorPhotos("Não foi possível carregar as fotos. Tente novamente mais tarde.");
+    } finally {
+      setLoadingPhotos(false);
     }
-    fetchPhotos();
-  }, []);
+  }
+  load();
+}, []);
 
   return (
     <main className="min-h-screen bg-[#fafafa] text-slate-900">

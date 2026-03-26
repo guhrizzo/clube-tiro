@@ -9,6 +9,7 @@ import Image from "next/image";
 import { Quote, Shield, Users, Award, ChevronRight, ChevronLeft, X } from "lucide-react";
 import { db } from "lib/firebase";
 import { collection, getDocs, query, orderBy } from "firebase/firestore";
+import { fetchOrderedPhotos } from "lib/fetchPhotos";
 
 const SUPPORTED_LANGS = ["pt", "en", "es"] as const;
 type Lang = (typeof SUPPORTED_LANGS)[number];
@@ -86,30 +87,21 @@ export default function CapacitacaoPage() {
   }, [lightboxIndex, goPrev, goNext]);
 
   // ─── Busca fotos no Firestore ───
-  useEffect(() => {
-    async function fetchPhotos() {
-      try {
-        setLoadingPhotos(true);
-        setErrorPhotos(null);
-        const q = query(collection(db, "guardas"), orderBy("createdAt", "asc"));
-        const snapshot = await getDocs(q);
-        const data: GalleryPhoto[] = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          url: doc.data().url as string,
-          title: doc.data().title as string,
-          description: doc.data().description as string | undefined,
-        }));
-        setPhotos(data);
-      } catch (err: any) {
-        console.error("Erro ao buscar fotos:", err);
-        setErrorPhotos("Não foi possível carregar as fotos. Tente novamente mais tarde.");
-      } finally {
-        setLoadingPhotos(false);
-      }
+useEffect(() => {
+  async function load() {
+    try {
+      setLoadingPhotos(true);
+      setErrorPhotos(null);
+      const data = await fetchOrderedPhotos("guardas");
+      setPhotos(data);
+    } catch {
+      setErrorPhotos("Não foi possível carregar as fotos. Tente novamente mais tarde.");
+    } finally {
+      setLoadingPhotos(false);
     }
-    fetchPhotos();
-  }, []);
-
+  }
+  load();
+}, []);
   const openWhatsApp = (message: string) => {
     const phone = "5531992118500";
     const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
