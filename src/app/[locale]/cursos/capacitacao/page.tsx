@@ -7,11 +7,30 @@ import { dictionaries } from "dictionaries";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { Quote, Shield, Users, Award, ChevronRight, ChevronLeft, X } from "lucide-react";
+import { db } from "lib/firebase";
+import { collection, getDocs, query, orderBy } from "firebase/firestore";
 
 const SUPPORTED_LANGS = ["pt", "en", "es"] as const;
 type Lang = (typeof SUPPORTED_LANGS)[number];
 
-const galleryImages = Array.from({ length: 23 }, (_, i) => `/guardas${i + 1}.jpg`);
+// ─── Tipo ───
+interface GalleryPhoto {
+  id: string;
+  url: string;
+  title: string;
+  description?: string;
+}
+
+// ─── Skeleton ───
+function GallerySkeleton() {
+  return (
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+      {Array.from({ length: 8 }).map((_, i) => (
+        <div key={i} className="rounded-sm bg-zinc-800 animate-pulse aspect-square" />
+      ))}
+    </div>
+  );
+}
 
 const stats = [
   { value: "4", unit: "décadas", label: "de experiência" },
@@ -38,10 +57,22 @@ export default function CapacitacaoPage() {
 
   const t = (dictionaries as any)[currentLang].guardTraining;
 
+  // ─── Estado da galeria ───
+  const [photos, setPhotos] = useState<GalleryPhoto[]>([]);
+  const [loadingPhotos, setLoadingPhotos] = useState(true);
+  const [errorPhotos, setErrorPhotos] = useState<string | null>(null);
+
+  // ─── Lightbox ───
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const closeLightbox = () => setLightboxIndex(null);
-  const goPrev = useCallback(() => setLightboxIndex((p) => (p === null ? null : (p - 1 + galleryImages.length) % galleryImages.length)), []);
-  const goNext = useCallback(() => setLightboxIndex((p) => (p === null ? null : (p + 1) % galleryImages.length)), []);
+
+  const goPrev = useCallback(() =>
+    setLightboxIndex((p) => (p === null ? null : (p - 1 + photos.length) % photos.length)),
+  [photos.length]);
+
+  const goNext = useCallback(() =>
+    setLightboxIndex((p) => (p === null ? null : (p + 1) % photos.length)),
+  [photos.length]);
 
   useEffect(() => {
     if (lightboxIndex === null) return;
@@ -53,6 +84,31 @@ export default function CapacitacaoPage() {
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
   }, [lightboxIndex, goPrev, goNext]);
+
+  // ─── Busca fotos no Firestore ───
+  useEffect(() => {
+    async function fetchPhotos() {
+      try {
+        setLoadingPhotos(true);
+        setErrorPhotos(null);
+        const q = query(collection(db, "guardas"), orderBy("createdAt", "asc"));
+        const snapshot = await getDocs(q);
+        const data: GalleryPhoto[] = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          url: doc.data().url as string,
+          title: doc.data().title as string,
+          description: doc.data().description as string | undefined,
+        }));
+        setPhotos(data);
+      } catch (err: any) {
+        console.error("Erro ao buscar fotos:", err);
+        setErrorPhotos("Não foi possível carregar as fotos. Tente novamente mais tarde.");
+      } finally {
+        setLoadingPhotos(false);
+      }
+    }
+    fetchPhotos();
+  }, []);
 
   const openWhatsApp = (message: string) => {
     const phone = "5531992118500";
@@ -89,7 +145,6 @@ export default function CapacitacaoPage() {
           <div className="flex-1 h-px bg-zinc-800" />
         </div>
 
-        {/* Aspas + texto principal */}
         <div className="relative mb-14">
           <Quote size={72} className="text-zinc-800 absolute -top-4 -left-3 select-none" />
           <p className="text-xl md:text-2xl font-black italic text-white leading-snug pl-12 pt-4 max-w-4xl">
@@ -97,7 +152,6 @@ export default function CapacitacaoPage() {
           </p>
         </div>
 
-        {/* Texto narrativo */}
         <div className="bg-zinc-900/50 border border-zinc-800 p-8 md:p-10 rounded-sm mb-8">
           <p className="text-gray-300 text-sm md:text-base leading-relaxed mb-4">
             O <span className="text-white font-bold">GRUPO PROTECT</span>, há mais de 32 anos atuando na área
@@ -194,32 +248,58 @@ export default function CapacitacaoPage() {
         <div className="flex items-center gap-4 mb-8">
           <span className="text-[#ffb703] text-[10px] font-black uppercase tracking-[0.4em]">— Galeria</span>
           <div className="flex-1 h-px bg-zinc-800" />
+          {!loadingPhotos && !errorPhotos && (
+            <span className="text-zinc-500 text-[10px] uppercase tracking-widest">
+              {photos.length} {photos.length === 1 ? "foto" : "fotos"}
+            </span>
+          )}
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          {galleryImages.map((src, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, y: 16 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-60px" }}
-              transition={{ duration: 0.4, delay: (i % 8) * 0.05 }}
-              onClick={() => setLightboxIndex(i)}
-              className="relative overflow-hidden group aspect-square cursor-zoom-in"
-            >
-              <span className="absolute top-2 left-2 z-10 text-[9px] font-black text-white/30 tracking-widest select-none">
-                {String(i + 1).padStart(2, "0")}
-              </span>
-              <div className="absolute inset-0 z-10 bg-[#ffb703]/0 group-hover:bg-[#ffb703]/10 transition-colors duration-300" />
-              <Image
-                src={src}
-                alt={`Capacitação – foto ${i + 1}`}
-                fill
-                className="object-cover grayscale group-hover:grayscale-0 transition-all duration-500"
-              />
-            </motion.div>
-          ))}
-        </div>
+        {/* Estado: carregando */}
+        {loadingPhotos && <GallerySkeleton />}
+
+        {/* Estado: erro */}
+        {errorPhotos && (
+          <div className="flex items-center justify-center py-20">
+            <p className="text-zinc-500 text-sm">{errorPhotos}</p>
+          </div>
+        )}
+
+        {/* Estado: vazio */}
+        {!loadingPhotos && !errorPhotos && photos.length === 0 && (
+          <div className="flex items-center justify-center py-20">
+            <p className="text-zinc-500 text-sm">Nenhuma foto disponível no momento.</p>
+          </div>
+        )}
+
+        {/* Estado: fotos carregadas */}
+        {!loadingPhotos && !errorPhotos && photos.length > 0 && (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            {photos.map((photo, i) => (
+              <motion.div
+                key={photo.id}
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-60px" }}
+                transition={{ duration: 0.4, delay: (i % 8) * 0.05 }}
+                onClick={() => setLightboxIndex(i)}
+                className="relative overflow-hidden group aspect-square cursor-zoom-in"
+              >
+                <span className="absolute top-2 left-2 z-10 text-[9px] font-black text-white/30 tracking-widest select-none">
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+                <div className="absolute inset-0 z-10 bg-[#ffb703]/0 group-hover:bg-[#ffb703]/10 transition-colors duration-300" />
+                <Image
+                  src={photo.url}
+                  alt={photo.title || `Capacitação – foto ${i + 1}`}
+                  fill
+                  sizes="(max-width: 768px) 50vw, 25vw"
+                  className="object-cover grayscale group-hover:grayscale-0 transition-all duration-500"
+                />
+              </motion.div>
+            ))}
+          </div>
+        )}
       </section>
 
       {/* ─── VÍDEO ─── */}
@@ -293,12 +373,10 @@ export default function CapacitacaoPage() {
             "Quase 4 décadas formando profissionais com excelência."
           </p>
           <p className="text-zinc-500 text-xs uppercase tracking-widest mb-8">— Grupo Protect</p>
-          <a
-            href="https://wa.me/5531992118500"
+          <a href="https://wa.me/5531992118500"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 bg-[#ffb703] text-black px-8 py-4 font-black uppercase text-xs tracking-widest hover:bg-[#e6a502] transition-colors"
-          >
+            className="inline-flex items-center gap-2 bg-[#ffb703] text-black px-8 py-4 font-black uppercase text-xs tracking-widest hover:bg-[#e6a502] transition-colors">
             Falar no WhatsApp <ChevronRight size={16} />
           </a>
         </motion.div>
@@ -306,7 +384,7 @@ export default function CapacitacaoPage() {
 
       {/* ─── LIGHTBOX ─── */}
       <AnimatePresence>
-        {lightboxIndex !== null && (
+        {lightboxIndex !== null && photos[lightboxIndex] && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -315,7 +393,6 @@ export default function CapacitacaoPage() {
             className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center"
             onClick={closeLightbox}
           >
-            {/* Fechar */}
             <button
               onClick={closeLightbox}
               className="absolute top-5 right-5 z-10 text-white/60 hover:text-white transition-colors"
@@ -323,12 +400,10 @@ export default function CapacitacaoPage() {
               <X size={28} />
             </button>
 
-            {/* Contador */}
             <span className="absolute top-6 left-1/2 -translate-x-1/2 text-[11px] font-black text-white/30 tracking-widest uppercase select-none">
-              {String(lightboxIndex + 1).padStart(2, "0")} / {String(galleryImages.length).padStart(2, "0")}
+              {String(lightboxIndex + 1).padStart(2, "0")} / {String(photos.length).padStart(2, "0")}
             </span>
 
-            {/* Seta esquerda */}
             <button
               onClick={(e) => { e.stopPropagation(); goPrev(); }}
               className="absolute left-4 md:left-8 z-10 w-10 h-10 flex items-center justify-center border border-white/20 text-white/60 hover:text-white hover:border-[#ffb703] transition-colors"
@@ -336,7 +411,6 @@ export default function CapacitacaoPage() {
               <ChevronLeft size={22} />
             </button>
 
-            {/* Imagem */}
             <motion.div
               key={lightboxIndex}
               initial={{ opacity: 0, scale: 0.96 }}
@@ -347,15 +421,14 @@ export default function CapacitacaoPage() {
               onClick={(e) => e.stopPropagation()}
             >
               <Image
-                src={galleryImages[lightboxIndex]}
-                alt={`Capacitação – foto ${lightboxIndex + 1}`}
+                src={photos[lightboxIndex].url}
+                alt={photos[lightboxIndex].title || `Capacitação – foto ${lightboxIndex + 1}`}
                 fill
                 className="object-contain"
                 sizes="90vw"
               />
             </motion.div>
 
-            {/* Seta direita */}
             <button
               onClick={(e) => { e.stopPropagation(); goNext(); }}
               className="absolute right-4 md:right-8 z-10 w-10 h-10 flex items-center justify-center border border-white/20 text-white/60 hover:text-white hover:border-[#ffb703] transition-colors"
@@ -365,6 +438,7 @@ export default function CapacitacaoPage() {
           </motion.div>
         )}
       </AnimatePresence>
+
     </main>
   );
 }

@@ -9,8 +9,31 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { useState, useEffect, useCallback } from "react";
+import { db } from "lib/firebase";
+import { collection, getDocs, query, orderBy } from "firebase/firestore";
 
-const galleryImages = Array.from({ length: 19 }, (_, i) => `/lima${i + 1}.jpeg`);
+// ─── Tipo ───
+interface GalleryPhoto {
+  id: string;
+  url: string;
+  title: string;
+  description?: string;
+}
+
+// ─── Skeleton ───
+function GallerySkeleton() {
+  return (
+    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+      {Array.from({ length: 8 }).map((_, i) => (
+        <div
+          key={i}
+          className="rounded-xl bg-slate-200 animate-pulse"
+          style={{ paddingBottom: "75%", height: 0 }}
+        />
+      ))}
+    </div>
+  );
+}
 
 const features = [
   { icon: Target,   label: "Clube de Tiro", desc: "Campos de tiro com infraestrutura de alto nível para desportistas" },
@@ -22,19 +45,26 @@ const features = [
 ];
 
 export default function UnidadeNovaLimaPage() {
+  // ─── Estado da galeria ───
+  const [photos, setPhotos] = useState<GalleryPhoto[]>([]);
+  const [loadingPhotos, setLoadingPhotos] = useState(true);
+  const [errorPhotos, setErrorPhotos] = useState<string | null>(null);
+
+  // ─── Lightbox ───
   const [lightbox, setLightbox] = useState<number | null>(null);
 
   const openLightbox = (i: number) => setLightbox(i);
   const closeLightbox = () => setLightbox(null);
 
   const prev = useCallback(() => {
-    setLightbox((i) => (i !== null ? (i - 1 + galleryImages.length) % galleryImages.length : null));
-  }, []);
+    setLightbox((i) => (i !== null ? (i - 1 + photos.length) % photos.length : null));
+  }, [photos.length]);
 
   const next = useCallback(() => {
-    setLightbox((i) => (i !== null ? (i + 1) % galleryImages.length : null));
-  }, []);
+    setLightbox((i) => (i !== null ? (i + 1) % photos.length : null));
+  }, [photos.length]);
 
+  // ─── Keyboard navigation ───
   useEffect(() => {
     if (lightbox === null) return;
     const handler = (e: KeyboardEvent) => {
@@ -45,6 +75,31 @@ export default function UnidadeNovaLimaPage() {
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
   }, [lightbox, prev, next]);
+
+  // ─── Busca fotos no Firestore ───
+  useEffect(() => {
+    async function fetchPhotos() {
+      try {
+        setLoadingPhotos(true);
+        setErrorPhotos(null);
+        const q = query(collection(db, "nova-lima"), orderBy("createdAt", "asc"));
+        const snapshot = await getDocs(q);
+        const data: GalleryPhoto[] = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          url: doc.data().url as string,
+          title: doc.data().title as string,
+          description: doc.data().description as string | undefined,
+        }));
+        setPhotos(data);
+      } catch (err: any) {
+        console.error("Erro ao buscar fotos:", err);
+        setErrorPhotos("Não foi possível carregar as fotos. Tente novamente mais tarde.");
+      } finally {
+        setLoadingPhotos(false);
+      }
+    }
+    fetchPhotos();
+  }, []);
 
   return (
     <main className="min-h-screen bg-[#fafafa] text-slate-900">
@@ -103,12 +158,12 @@ export default function UnidadeNovaLimaPage() {
                 <span className="text-slate-400">Bairro Água Limpa</span><br />
                 <span className="text-slate-900 font-semibold">Nova Lima • MG</span>
               </p>
-              <a
-                href="https://www.google.com/maps/dir/?api=1&destination=Rua+dos+Radialistas,38,Nova+Lima,MG"
+                <a href="https://www.google.com/maps/dir/?api=1&destination=Rua+dos+Radialistas,38,Nova+Lima,MG"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 text-[#ffb703] hover:text-[#e6a502] font-bold text-sm uppercase tracking-wider transition-colors group"
-              >
+                className="inline-flex items-center gap-2 text-[#ffb703] hover:text-[#e6a502] font-bold text-sm uppercase tracking-wider transition-colors group">
+                
+              
                 <Navigation size={16} />
                 Como Chegar
                 <ExternalLink size={14} className="opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -152,18 +207,14 @@ export default function UnidadeNovaLimaPage() {
               <p className="text-slate-400 text-sm mb-4 relative">
                 Entre em contato conosco para mais informações sobre nossos serviços.
               </p>
-              <a
-                href="tel:+5531971078500"
-                className="block text-2xl font-black text-[#ffb703] hover:text-white transition-colors mb-2 relative"
-              >
+              <a href="tel:+5531971078500"
+                className="block text-2xl font-black text-[#ffb703] hover:text-white transition-colors mb-2 relative">
                 (31) 97107-8500
               </a>
-              <a
-                href="https://wa.me/5531971078500"
+              <a href="https://wa.me/5531971078500"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 mt-4 px-6 py-3 bg-[#ffb703] text-slate-900 rounded-xl font-bold text-sm uppercase tracking-wider hover:bg-[#e6a502] transition-colors relative"
-              >
+                className="inline-flex items-center gap-2 mt-4 px-6 py-3 bg-[#ffb703] text-slate-900 rounded-xl font-bold text-sm uppercase tracking-wider hover:bg-[#e6a502] transition-colors relative">
                 WhatsApp
                 <ExternalLink size={16} />
               </a>
@@ -215,26 +266,21 @@ export default function UnidadeNovaLimaPage() {
           </div>
 
           <div className="grid md:grid-cols-2 gap-12 items-start">
-
-            {/* Texto + Stats */}
             <div className="space-y-6">
               <h2 className="text-3xl md:text-4xl font-black uppercase italic leading-tight text-slate-900">
                 Quase <span className="text-[#ffb703]">4 décadas</span> de referência
               </h2>
-
               <p className="text-slate-600 text-sm leading-relaxed">
                 Referência em segurança patrimonial e pública há quase quatro décadas, o{" "}
                 <strong className="text-slate-900">Grupo PROTECT</strong> iniciou, há cerca de 30 anos, um
                 empreendimento com a compra de uma grande área em local nobre,{" "}
                 <strong className="text-slate-900">ao lado do Alphaville Nova Lima</strong>.
               </p>
-
               <p className="text-slate-600 text-sm leading-relaxed">
                 O clube campestre de tiro, após o encerramento das atividades de sua sede em Shopping
                 Center, recebe uma nova e ampla reforma com o objetivo de atualizar e melhor qualificar
                 seus atiradores desportistas.
               </p>
-
               <p className="text-slate-600 text-sm leading-relaxed">
                 O projeto contempla áreas de pousada, restaurante, condomínio, museu e muitos outros
                 entretenimentos qualificados, tornando-se uma das{" "}
@@ -243,7 +289,6 @@ export default function UnidadeNovaLimaPage() {
                 </strong>{" "}
                 do estado.
               </p>
-
               <div className="grid grid-cols-3 gap-4 pt-4">
                 {[
                   { value: "~40", label: "Anos de atuação" },
@@ -258,7 +303,6 @@ export default function UnidadeNovaLimaPage() {
               </div>
             </div>
 
-            {/* Feature list */}
             <div className="space-y-3">
               {features.map((f, i) => (
                 <motion.div
@@ -282,16 +326,19 @@ export default function UnidadeNovaLimaPage() {
           </div>
         </motion.div>
 
-        {/* ── Galeria ── */}
+        {/* ── Galeria Dinâmica ── */}
         <div className="mt-20 border-t border-slate-200 pt-12">
           <div className="flex items-center gap-4 mb-4">
             <span className="h-px w-12 bg-[#ffb703]" />
             <span className="text-[#ffb703] text-xs font-bold uppercase tracking-[0.3em]">Galeria</span>
             <div className="flex-1 h-px bg-slate-200" />
-            <span className="text-slate-400 text-[10px] uppercase tracking-widest">{galleryImages.length} fotos</span>
+            {!loadingPhotos && !errorPhotos && (
+              <span className="text-slate-400 text-[10px] uppercase tracking-widest">
+                {photos.length} {photos.length === 1 ? "foto" : "fotos"}
+              </span>
+            )}
           </div>
 
-          {/* Título da galeria */}
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -305,39 +352,60 @@ export default function UnidadeNovaLimaPage() {
             <p className="text-slate-400 text-sm mt-2">Registros históricos da abertura do clube</p>
           </motion.div>
 
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-            {galleryImages.map((src, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 16 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-60px" }}
-                transition={{ duration: 0.4, delay: (i % 8) * 0.04 }}
-                onClick={() => openLightbox(i)}
-                className="rounded-xl group cursor-pointer shadow-sm overflow-hidden"
-                style={{ position: "relative", paddingBottom: "75%", height: 0 }}
-              >
-                <span
-                  className="absolute top-2 left-2 z-10 text-[9px] font-black text-white/60 tracking-widest select-none drop-shadow"
-                  style={{ zIndex: 10 }}
+          {/* Estado: carregando */}
+          {loadingPhotos && <GallerySkeleton />}
+
+          {/* Estado: erro */}
+          {errorPhotos && (
+            <div className="flex flex-col items-center justify-center py-20 text-center">
+              <p className="text-slate-400 text-sm">{errorPhotos}</p>
+            </div>
+          )}
+
+          {/* Estado: vazio */}
+          {!loadingPhotos && !errorPhotos && photos.length === 0 && (
+            <div className="flex flex-col items-center justify-center py-20 text-center">
+              <p className="text-slate-400 text-sm">Nenhuma foto disponível no momento.</p>
+            </div>
+          )}
+
+          {/* Estado: fotos carregadas */}
+          {!loadingPhotos && !errorPhotos && photos.length > 0 && (
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+              {photos.map((photo, i) => (
+                <motion.div
+                  key={photo.id}
+                  initial={{ opacity: 0, y: 16 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: "-60px" }}
+                  transition={{ duration: 0.4, delay: (i % 8) * 0.04 }}
+                  onClick={() => openLightbox(i)}
+                  className="rounded-xl group cursor-pointer shadow-sm overflow-hidden"
+                  style={{ position: "relative", paddingBottom: "75%", height: 0 }}
                 >
-                  {String(i + 1).padStart(2, "0")}
-                </span>
-                <div className="absolute inset-0 z-10 bg-black/0 group-hover:bg-black/20 transition-colors duration-300 flex items-center justify-center">
-                  <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-white text-xs font-bold uppercase tracking-widest bg-black/40 px-3 py-1 rounded-full backdrop-blur-sm">
-                    Ver
+                  <span
+                    className="absolute top-2 left-2 z-10 text-[9px] font-black text-white/60 tracking-widest select-none drop-shadow"
+                    style={{ zIndex: 10 }}
+                  >
+                    {String(i + 1).padStart(2, "0")}
                   </span>
-                </div>
-                <Image
-                  src={src}
-                  alt={`Nova Lima – foto ${i + 1}`}
-                  fill
-                  className="object-cover group-hover:scale-105 transition-transform duration-500"
-                  style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%" }}
-                />
-              </motion.div>
-            ))}
-          </div>
+                  <div className="absolute inset-0 z-10 bg-black/0 group-hover:bg-black/20 transition-colors duration-300 flex items-center justify-center">
+                    <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-white text-xs font-bold uppercase tracking-widest bg-black/40 px-3 py-1 rounded-full backdrop-blur-sm">
+                      Ver
+                    </span>
+                  </div>
+                  <Image
+                    src={photo.url}
+                    alt={photo.title || `Nova Lima – foto ${i + 1}`}
+                    fill
+                    sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                    className="object-cover group-hover:scale-105 transition-transform duration-500"
+                    style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%" }}
+                  />
+                </motion.div>
+              ))}
+            </div>
+          )}
 
           {/* ── Banner Em Breve ── */}
           <motion.div
@@ -348,40 +416,36 @@ export default function UnidadeNovaLimaPage() {
             className="mt-10 relative rounded-2xl overflow-hidden border border-[#ffb703]/30"
             style={{ background: "#1a1508" }}
           >
-            {/* Subtle radial glow */}
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
               <div className="w-96 h-40 rounded-full bg-[#ffb703]/10 blur-3xl" />
             </div>
-
-            {/* Corner border accents */}
             <span className="absolute top-3 left-3 w-5 h-5 border-t-2 border-l-2 border-[#ffb703]/60 rounded-tl-sm" />
             <span className="absolute top-3 right-3 w-5 h-5 border-t-2 border-r-2 border-[#ffb703]/60 rounded-tr-sm" />
             <span className="absolute bottom-3 left-3 w-5 h-5 border-b-2 border-l-2 border-[#ffb703]/60 rounded-bl-sm" />
             <span className="absolute bottom-3 right-3 w-5 h-5 border-b-2 border-r-2 border-[#ffb703]/60 rounded-br-sm" />
-
             <div className="relative z-10 py-14 px-8 flex flex-col items-center text-center gap-4">
               <div className="flex items-center gap-2">
                 <span className="w-1.5 h-1.5 rounded-full bg-[#ffb703] animate-pulse" />
                 <span className="text-[#ffb703] text-[10px] font-black uppercase tracking-[0.4em]">Em Breve</span>
                 <span className="w-1.5 h-1.5 rounded-full bg-[#ffb703] animate-pulse" />
               </div>
-
               <h3 className="text-3xl md:text-5xl font-black uppercase italic text-[#ffb703] leading-none tracking-tight">
                 Inauguração em Breve
               </h3>
-
               <p className="text-slate-400 text-xs md:text-sm uppercase tracking-[0.2em] max-w-md leading-relaxed">
-                Acompanhe nossas redes sociais e fique por dentro de
-                todas as novidades.
+                Acompanhe nossas redes sociais e fique por dentro de todas as novidades.
               </p>
             </div>
           </motion.div>
         </div>
+        {/* ── Fim Galeria ── */}
+
       </section>
+      {/* ── Fim seção principal ── */}
 
       {/* ── Lightbox ── */}
       <AnimatePresence>
-        {lightbox !== null && (
+        {lightbox !== null && photos[lightbox] && (
           <motion.div
             key="lightbox"
             initial={{ opacity: 0 }}
@@ -399,7 +463,7 @@ export default function UnidadeNovaLimaPage() {
             </button>
 
             <span className="absolute top-5 left-5 z-20 text-white/50 text-xs font-bold uppercase tracking-widest">
-              {String(lightbox + 1).padStart(2, "0")} / {String(galleryImages.length).padStart(2, "0")}
+              {String(lightbox + 1).padStart(2, "0")} / {String(photos.length).padStart(2, "0")}
             </span>
 
             <button
@@ -419,12 +483,22 @@ export default function UnidadeNovaLimaPage() {
               onClick={(e) => e.stopPropagation()}
             >
               <Image
-                src={galleryImages[lightbox]}
-                alt={`Nova Lima – foto ${lightbox + 1}`}
+                src={photos[lightbox].url}
+                alt={photos[lightbox].title || `Nova Lima – foto ${lightbox + 1}`}
                 width={1200}
                 height={800}
                 className="w-full h-auto max-h-[85vh] object-contain"
               />
+              {(photos[lightbox].title || photos[lightbox].description) && (
+                <div className="absolute bottom-0 left-0 right-0 px-6 py-4 bg-linear-to-t from-black/80 to-transparent">
+                  {photos[lightbox].title && (
+                    <p className="text-white font-bold text-sm">{photos[lightbox].title}</p>
+                  )}
+                  {photos[lightbox].description && (
+                    <p className="text-white/60 text-xs mt-1">{photos[lightbox].description}</p>
+                  )}
+                </div>
+              )}
             </motion.div>
 
             <button
@@ -434,11 +508,10 @@ export default function UnidadeNovaLimaPage() {
               <ChevronRight size={28} />
             </button>
 
-            {/* Thumbnail strip */}
             <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 overflow-x-auto max-w-[80vw] px-4 pb-1">
-              {galleryImages.map((src, i) => (
+              {photos.map((photo, i) => (
                 <button
-                  key={i}
+                  key={photo.id}
                   onClick={(e) => { e.stopPropagation(); setLightbox(i); }}
                   className={`relative shrink-0 w-12 h-8 rounded overflow-hidden border-2 transition-all ${
                     i === lightbox
@@ -446,13 +519,15 @@ export default function UnidadeNovaLimaPage() {
                       : "border-transparent opacity-40 hover:opacity-70"
                   }`}
                 >
-                  <Image src={src} alt="" fill className="object-cover" />
+                  <Image src={photo.url} alt="" fill className="object-cover" />
                 </button>
               ))}
             </div>
           </motion.div>
         )}
       </AnimatePresence>
+      {/* ── Fim Lightbox ── */}
+
     </main>
   );
 }

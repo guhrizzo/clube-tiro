@@ -16,6 +16,8 @@ import {
 import { motion, AnimatePresence, Variants } from "framer-motion";
 import Image from "next/image";
 import { useState, useCallback, useEffect } from "react";
+import { db } from "lib/firebase";
+import { collection, getDocs, query, orderBy } from "firebase/firestore";
 
 const fadeUp: Variants = {
   hidden: { opacity: 0, y: 40 },
@@ -30,19 +32,41 @@ const fadeUp: Variants = {
   }),
 };
 
-// ─── Ajuste o número de fotos aqui ───
-const museumImages = Array.from({ length: 10 }, (_, i) => `/museu${i + 1}.jpeg`);
+// ─── Tipo ───
+interface GalleryPhoto {
+  id: string;
+  url: string;
+  title: string;
+  description?: string;
+}
+
+// ─── Skeleton ───
+function GallerySkeleton() {
+  return (
+    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+      {Array.from({ length: 8 }).map((_, i) => (
+        <div key={i} className="rounded-sm bg-zinc-800 animate-pulse aspect-4/3" />
+      ))}
+    </div>
+  );
+}
 
 export default function MuseuDaPaz() {
+  // ─── Estado da galeria ───
+  const [photos, setPhotos] = useState<GalleryPhoto[]>([]);
+  const [loadingPhotos, setLoadingPhotos] = useState(true);
+  const [errorPhotos, setErrorPhotos] = useState<string | null>(null);
+
+  // ─── Lightbox ───
   const [lightbox, setLightbox] = useState<number | null>(null);
 
   const prev = useCallback(() => {
-    setLightbox((i) => (i !== null ? (i - 1 + museumImages.length) % museumImages.length : null));
-  }, []);
+    setLightbox((i) => (i !== null ? (i - 1 + photos.length) % photos.length : null));
+  }, [photos.length]);
 
   const next = useCallback(() => {
-    setLightbox((i) => (i !== null ? (i + 1) % museumImages.length : null));
-  }, []);
+    setLightbox((i) => (i !== null ? (i + 1) % photos.length : null));
+  }, [photos.length]);
 
   useEffect(() => {
     if (lightbox === null) return;
@@ -54,6 +78,31 @@ export default function MuseuDaPaz() {
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
   }, [lightbox, prev, next]);
+
+  // ─── Busca fotos no Firestore ───
+  useEffect(() => {
+    async function fetchPhotos() {
+      try {
+        setLoadingPhotos(true);
+        setErrorPhotos(null);
+        const q = query(collection(db, "paz"), orderBy("createdAt", "asc"));
+        const snapshot = await getDocs(q);
+        const data: GalleryPhoto[] = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          url: doc.data().url as string,
+          title: doc.data().title as string,
+          description: doc.data().description as string | undefined,
+        }));
+        setPhotos(data);
+      } catch (err: any) {
+        console.error("Erro ao buscar fotos:", err);
+        setErrorPhotos("Não foi possível carregar as fotos. Tente novamente mais tarde.");
+      } finally {
+        setLoadingPhotos(false);
+      }
+    }
+    fetchPhotos();
+  }, []);
 
   return (
     <main className="bg-[#0a0a0a] min-h-screen text-white pb-24 overflow-hidden">
@@ -171,19 +220,16 @@ export default function MuseuDaPaz() {
             Serão também incluídos documentários, exposições e depoimentos de pessoas reconhecidas no cenário, além de vasta divulgação em meios físicos e digital.
           </p>
 
-          {/* ONG parceira */}
           <div className="mt-8 flex items-start gap-4 bg-zinc-900/60 border border-zinc-800 p-6 rounded-lg hover:border-zinc-600 transition-colors">
             <Globe size={22} className="text-[#ffb703] shrink-0 mt-0.5" />
             <div>
               <p className="text-white text-sm font-bold mb-1 uppercase tracking-wider">Parceria Institucional</p>
               <p className="text-gray-400 text-sm leading-relaxed">
                 Tudo isto com a colaboração da ONG{" "}
-                <a
-                  href="https://www.guerreirosdobem.com.br"
+                <a href="https://www.guerreirosdobem.com.br"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-[#ffb703] hover:underline font-bold inline-flex items-center gap-1"
-                >
+                  className="text-[#ffb703] hover:underline font-bold inline-flex items-center gap-1">
                   GUERREIROS DO BEM
                   <ExternalLink size={12} />
                 </a>
@@ -192,14 +238,13 @@ export default function MuseuDaPaz() {
             </div>
           </div>
 
-          {/* Citação final */}
           <blockquote className="mt-8 border-l-2 border-[#ffb703] pl-6 italic text-gray-400 text-base md:text-lg">
             "Aqueles que não conseguem lembrar o passado estão condenados a repeti-lo."
           </blockquote>
         </div>
       </motion.section>
 
-      {/* ================= GALERIA DE FOTOS ================= */}
+      {/* ================= GALERIA ================= */}
       <motion.section
         className="max-w-6xl mx-auto px-6 mt-24"
         initial="hidden"
@@ -212,37 +257,62 @@ export default function MuseuDaPaz() {
           <div className="h-px w-12 bg-[#ffb703]" />
           <span className="text-[#ffb703] text-[10px] font-black uppercase tracking-[0.4em]">Galeria</span>
           <div className="flex-1 h-px bg-zinc-800" />
-          <span className="text-zinc-600 text-[10px] uppercase tracking-widest">{museumImages.length} fotos</span>
+          {!loadingPhotos && !errorPhotos && (
+            <span className="text-zinc-600 text-[10px] uppercase tracking-widest">
+              {photos.length} {photos.length === 1 ? "foto" : "fotos"}
+            </span>
+          )}
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-          {museumImages.map((src, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, y: 16 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-40px" }}
-              transition={{ duration: 0.4, delay: (i % 8) * 0.05 }}
-              onClick={() => setLightbox(i)}
-              className="relative overflow-hidden rounded-sm group cursor-pointer aspect-4/3"
-            >
-              <span className="absolute top-2 left-2 z-10 text-[9px] font-black text-white/40 tracking-widest select-none">
-                {String(i + 1).padStart(2, "0")}
-              </span>
-              <div className="absolute inset-0 z-10 bg-black/0 group-hover:bg-black/30 transition-colors duration-300 flex items-center justify-center">
-                <span className="opacity-0 group-hover:opacity-100 transition-opacity text-white text-[10px] font-black uppercase tracking-widest bg-black/50 px-3 py-1 backdrop-blur-sm">
-                  Ver
+        {/* Estado: carregando */}
+        {loadingPhotos && <GallerySkeleton />}
+
+        {/* Estado: erro */}
+        {errorPhotos && (
+          <div className="flex items-center justify-center py-20">
+            <p className="text-zinc-500 text-sm">{errorPhotos}</p>
+          </div>
+        )}
+
+        {/* Estado: vazio */}
+        {!loadingPhotos && !errorPhotos && photos.length === 0 && (
+          <div className="flex items-center justify-center py-20">
+            <p className="text-zinc-500 text-sm">Nenhuma foto disponível no momento.</p>
+          </div>
+        )}
+
+        {/* Estado: fotos carregadas */}
+        {!loadingPhotos && !errorPhotos && photos.length > 0 && (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+            {photos.map((photo, i) => (
+              <motion.div
+                key={photo.id}
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-40px" }}
+                transition={{ duration: 0.4, delay: (i % 8) * 0.05 }}
+                onClick={() => setLightbox(i)}
+                className="relative overflow-hidden rounded-sm group cursor-pointer aspect-4/3"
+              >
+                <span className="absolute top-2 left-2 z-10 text-[9px] font-black text-white/40 tracking-widest select-none">
+                  {String(i + 1).padStart(2, "0")}
                 </span>
-              </div>
-              <Image
-                src={src}
-                alt={`Museu da Paz – foto ${i + 1}`}
-                fill
-                className="object-cover grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-500"
-              />
-            </motion.div>
-          ))}
-        </div>
+                <div className="absolute inset-0 z-10 bg-black/0 group-hover:bg-black/30 transition-colors duration-300 flex items-center justify-center">
+                  <span className="opacity-0 group-hover:opacity-100 transition-opacity text-white text-[10px] font-black uppercase tracking-widest bg-black/50 px-3 py-1 backdrop-blur-sm">
+                    Ver
+                  </span>
+                </div>
+                <Image
+                  src={photo.url}
+                  alt={photo.title || `Museu da Paz – foto ${i + 1}`}
+                  fill
+                  sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                  className="object-cover grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-500"
+                />
+              </motion.div>
+            ))}
+          </div>
+        )}
       </motion.section>
 
       {/* ================= ALERTA INAUGURAÇÃO ================= */}
@@ -255,18 +325,15 @@ export default function MuseuDaPaz() {
         custom={5}
       >
         <div className="relative overflow-hidden border border-[#ffb703]/40 bg-[#ffb703]/5 p-8 md:p-12 text-center">
-          {/* Pulsing ring */}
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
             <div className="w-64 h-64 rounded-full border border-[#ffb703]/10 animate-ping" />
           </div>
-
           <div className="relative z-10">
             <div className="inline-flex items-center gap-2 mb-5">
               <span className="w-2 h-2 rounded-full bg-[#ffb703] animate-pulse" />
               <span className="text-[#ffb703] text-[10px] font-black uppercase tracking-[0.5em]">Em breve</span>
               <span className="w-2 h-2 rounded-full bg-[#ffb703] animate-pulse" />
             </div>
-
             <p className="text-[#ffb703] text-3xl md:text-5xl font-black uppercase tracking-tight italic">
               Inauguração em Breve
             </p>
@@ -287,7 +354,7 @@ export default function MuseuDaPaz() {
 
       {/* ================= LIGHTBOX ================= */}
       <AnimatePresence>
-        {lightbox !== null && (
+        {lightbox !== null && photos[lightbox] && (
           <motion.div
             key="lightbox"
             initial={{ opacity: 0 }}
@@ -305,7 +372,7 @@ export default function MuseuDaPaz() {
             </button>
 
             <span className="absolute top-5 left-5 z-20 text-white/40 text-xs font-black uppercase tracking-widest">
-              {String(lightbox + 1).padStart(2, "0")} / {String(museumImages.length).padStart(2, "0")}
+              {String(lightbox + 1).padStart(2, "0")} / {String(photos.length).padStart(2, "0")}
             </span>
 
             <button
@@ -325,12 +392,22 @@ export default function MuseuDaPaz() {
               onClick={(e) => e.stopPropagation()}
             >
               <Image
-                src={museumImages[lightbox]}
-                alt={`Museu da Paz – foto ${lightbox + 1}`}
+                src={photos[lightbox].url}
+                alt={photos[lightbox].title || `Museu da Paz – foto ${lightbox + 1}`}
                 width={1200}
                 height={800}
                 className="w-full h-auto max-h-[85vh] object-contain"
               />
+              {(photos[lightbox].title || photos[lightbox].description) && (
+                <div className="absolute bottom-0 left-0 right-0 px-6 py-4 bg-linear-to-t from-black/80 to-transparent">
+                  {photos[lightbox].title && (
+                    <p className="text-white font-bold text-sm">{photos[lightbox].title}</p>
+                  )}
+                  {photos[lightbox].description && (
+                    <p className="text-white/60 text-xs mt-1">{photos[lightbox].description}</p>
+                  )}
+                </div>
+              )}
             </motion.div>
 
             <button
@@ -340,17 +417,15 @@ export default function MuseuDaPaz() {
               <ChevronRight size={28} />
             </button>
 
-            {/* Thumbnail strip */}
             <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 overflow-x-auto max-w-[80vw] px-4 pb-1">
-              {museumImages.map((src, i) => (
+              {photos.map((photo, i) => (
                 <button
-                  key={i}
+                  key={photo.id}
                   onClick={(e) => { e.stopPropagation(); setLightbox(i); }}
-                  className={`relative shrink-0 w-12 h-8 overflow-hidden border-2 transition-all ${
-                    i === lightbox ? "border-[#ffb703] opacity-100" : "border-transparent opacity-40 hover:opacity-70"
-                  }`}
+                  className={`relative shrink-0 w-12 h-8 overflow-hidden border-2 transition-all ${i === lightbox ? "border-[#ffb703] opacity-100" : "border-transparent opacity-40 hover:opacity-70"
+                    }`}
                 >
-                  <Image src={src} alt="" fill className="object-cover" />
+                  <Image src={photo.url} alt="" fill className="object-cover" />
                 </button>
               ))}
             </div>
