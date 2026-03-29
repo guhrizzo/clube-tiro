@@ -313,7 +313,7 @@ useEffect(() => {
             controls
             playsInline
             className="w-full h-auto block"
-            poster="/guardas1.jpg"
+            poster="/guardas-poster.jpg"
           />
         </motion.div>
       </section>

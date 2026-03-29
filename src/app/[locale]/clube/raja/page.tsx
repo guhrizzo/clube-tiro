@@ -12,6 +12,7 @@ import { db } from "lib/firebase";
 import { collection, getDocs, query, orderBy } from "firebase/firestore";
 import { fetchOrderedPhotos } from "lib/fetchPhotos";
 
+
 interface GalleryPhoto {
   id: string;
   url: string;
@@ -282,7 +283,39 @@ export default function RajaPage() {
           )}
         </div>
         {/* ─── Fim Galeria ─── */}
+        {/* ─── Vídeos ─── */}
+        <div className="mt-20 border-t border-zinc-800 pt-12">
+          <div className="flex items-center gap-4 mb-8">
+            <span className="text-[#ffb703] text-[10px] font-black uppercase tracking-[0.4em]">— Vídeos</span>
+            <div className="flex-1 h-px bg-zinc-800" />
+          </div>
 
+          <div className="flex flex-col gap-6">
+            {["rajaVideo1"].map((src, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-60px" }}
+                transition={{ duration: 0.45, delay: i * 0.1 }}
+                className="relative w-full rounded-sm overflow-hidden "
+              >
+  
+                <video
+                  src="/rajaVideo1.mp4"
+                  controls
+                  className="w-full max-h-130 object-cover bg-black"
+                />
+                <video
+                  src="/rajaVideo2.mp4"
+                  controls
+                  className="w-full max-h-130 object-cover mt-16 bg-black"
+                />
+              </motion.div>
+            ))}
+          </div>
+        </div>
+        {/* ─── Fim Vídeos ─── */}
         {/* ─── Redirecionamento ─── */}
         <div className="mt-16 text-center">
           <p className="text-gray-400 text-sm mb-4">

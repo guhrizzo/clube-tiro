@@ -60,12 +60,16 @@ export default function MuseuDaPaz() {
 
   // ─── Lightbox ───
   const [lightbox, setLightbox] = useState<number | null>(null);
+  const [imgLoading, setImgLoading] = useState(false);
 
   const prev = useCallback(() => {
+    setImgLoading(true);
     setLightbox((i) => (i !== null ? (i - 1 + photos.length) % photos.length : null));
   }, [photos.length]);
 
+
   const next = useCallback(() => {
+    setImgLoading(true);
     setLightbox((i) => (i !== null ? (i + 1) % photos.length : null));
   }, [photos.length]);
 
@@ -81,21 +85,21 @@ export default function MuseuDaPaz() {
   }, [lightbox, prev, next]);
 
   // ─── Busca fotos no Firestore ───
-useEffect(() => {
-  async function load() {
-    try {
-      setLoadingPhotos(true);
-      setErrorPhotos(null);
-      const data = await fetchOrderedPhotos("paz");
-      setPhotos(data);
-    } catch {
-      setErrorPhotos("Não foi possível carregar as fotos. Tente novamente mais tarde.");
-    } finally {
-      setLoadingPhotos(false);
+  useEffect(() => {
+    async function load() {
+      try {
+        setLoadingPhotos(true);
+        setErrorPhotos(null);
+        const data = await fetchOrderedPhotos("paz");
+        setPhotos(data);
+      } catch {
+        setErrorPhotos("Não foi possível carregar as fotos. Tente novamente mais tarde.");
+      } finally {
+        setLoadingPhotos(false);
+      }
     }
-  }
-  load();
-}, []);
+    load();
+  }, []);
 
   return (
     <main className="bg-[#0a0a0a] min-h-screen text-white pb-24 overflow-hidden">
@@ -284,7 +288,7 @@ useEffect(() => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-40px" }}
                 transition={{ duration: 0.4, delay: (i % 8) * 0.05 }}
-                onClick={() => setLightbox(i)}
+                onClick={() => { setImgLoading(true); setLightbox(i); }}
                 className="relative overflow-hidden rounded-sm group cursor-pointer aspect-4/3"
               >
                 <span className="absolute top-2 left-2 z-10 text-[9px] font-black text-white/40 tracking-widest select-none">
@@ -384,13 +388,24 @@ useEffect(() => {
               className="relative max-w-5xl max-h-[85vh] w-full mx-16 overflow-hidden shadow-2xl"
               onClick={(e) => e.stopPropagation()}
             >
+              {/* Spinner enquanto a imagem carrega */}
+              {imgLoading && (
+                <div className="absolute inset-0 flex items-center justify-center z-10 bg-black/60">
+                  <div className="w-10 h-10 rounded-full border-2 border-white/10 border-t-[#ffb703] animate-spin" />
+                </div>
+              )}
+
               <Image
                 src={photos[lightbox].url}
                 alt={photos[lightbox].title || `Museu da Paz – foto ${lightbox + 1}`}
                 width={1200}
                 height={800}
                 className="w-full h-auto max-h-[85vh] object-contain"
+                onLoadingComplete={() => setImgLoading(false)}
+                // garante que sempre inicia como loading ao trocar foto
+                onLoad={() => setImgLoading(false)}
               />
+
               {(photos[lightbox].title || photos[lightbox].description) && (
                 <div className="absolute bottom-0 left-0 right-0 px-6 py-4 bg-linear-to-t from-black/80 to-transparent">
                   {photos[lightbox].title && (

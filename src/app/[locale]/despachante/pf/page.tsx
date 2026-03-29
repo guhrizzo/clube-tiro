@@ -47,10 +47,10 @@ const dictionaries = {
         { title: "CRAF e Regularizações", description: "Emissão de CRAF, 2ª via de registro e renovações junto à Polícia Federal." },
         { title: "Porte de Arma", description: "Assessoria completa para obtenção e renovação de porte de arma conforme a lei." },
         { title: "Transferências de Armas", description: "Transferência entre cidadãos e entre Polícia Federal e Exército Brasileiro." },
-        { title: "CR – CAC (Exército)", description: "Processos de Certificado de Registro para atirador, caçador e colecionador." },
+        { title: "CR – CAC (Polícia Federal)", description: "Processos de Certificado de Registro para atirador, caçador e colecionador." },
         { title: "Guias de Tráfego", description: "Emissão de guia de tráfego para transporte de armamentos e munições." },
         { title: "Testes Obrigatórios", description: "Agendamento de teste de tiro e avaliação psicológica." },
-        { title: "Empresas de Segurança", description: "Registro e autorização de funcionamento junto à Polícia Federal." },
+        { title: "Empresas de Segurança", description: "Registro e autorização de funcionamento junto ao Exército e a Polícia Federal." },
         { title: "Cursos de Instrutor", description: "Formação e certificação de instrutores de armamento e tiro." },
       ]
     }

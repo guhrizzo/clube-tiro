@@ -55,7 +55,7 @@ const dictionaries = {
       invoice: "2ª Via de Boleto",
       tracking: "Tecnologia",
       units: "Unidades",
-      contract: "Contrato de Adesão"
+      contract: "Contrato de Adesão",
     },
   },
   en: {
@@ -84,7 +84,7 @@ const dictionaries = {
       federalPolice: "Federal Police",
       army: "Brazilian Army",
       gallery: "Gallery",
-      videos: "Videos"
+      videos: "Videos",
     },
     utilities: {
       declarations: "Issue Declarations",
@@ -93,8 +93,8 @@ const dictionaries = {
       invoice: "Invoice Copy",
       tracking: "Technology",
       units: "Units",
-      contract: "Adhesion Contract"
-    }
+      contract: "Adhesion Contract",
+    },
   },
   es: {
     navbar: {
@@ -122,7 +122,7 @@ const dictionaries = {
       federalPolice: "Policía Federal",
       army: "Ejército Brasileño",
       gallery: "Galería",
-      videos: "Videos"
+      videos: "Videos",
     },
     utilities: {
       declarations: "Emisión de Declaraciones",
@@ -131,13 +131,44 @@ const dictionaries = {
       invoice: "Segunda vía de Recibo",
       tracking: "Tecnología",
       units: "Unidades",
-      contract: "Contrato de Adhesión"
-    }
+      contract: "Contrato de Adhesión",
+    },
   },
 };
 
 const SUPPORTED_LANGS = ["pt", "en", "es"] as const;
 type Lang = (typeof SUPPORTED_LANGS)[number];
+
+const TUTORIAL_URL = "https://www.youtube.com/watch?v=S_PJHmed7aA";
+
+function YoutubeTutorialBlock({ dark = false }: { dark?: boolean }) {
+  return (
+    <div
+      className={`px-4 pt-3 pb-2 border-t mt-1 ${
+        dark ? "border-white/10" : "border-gray-100"
+      }`}
+    >
+      <p
+        className={`text-[10px] uppercase tracking-widest mb-2 font-bold ${
+          dark ? "text-white/40" : "text-gray-400"
+        }`}
+      >
+        Veja um tutorial de acesso
+      </p>
+      <a
+        href={TUTORIAL_URL}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="flex items-center gap-2 text-[#ffb703] hover:text-red-500 transition-colors text-[11px] font-bold uppercase tracking-wider"
+      >
+        <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+          <path d="M8.051 1.999h.089c.822.003 4.987.033 6.11.335a2.01 2.01 0 0 1 1.415 1.42c.101.38.172.883.22 1.402l.01.104.022.26.008.104c.065.914.073 1.77.074 1.957v.075c-.001.194-.01 1.108-.082 2.06l-.008.105-.009.104c-.05.572-.124 1.14-.235 1.558a2.01 2.01 0 0 1-1.415 1.42c-1.16.312-5.569.334-6.18.335h-.142c-.309 0-1.587-.006-2.927-.052l-.17-.006-.087-.004-.171-.007-.171-.007c-1.11-.049-2.167-.128-2.654-.26a2.01 2.01 0 0 1-1.415-1.419c-.111-.417-.185-.986-.235-1.558L.09 9.82l-.008-.104A31 31 0 0 1 0 7.68v-.123c.002-.215.01-.958.064-1.778l.007-.103.003-.052.008-.104.022-.26.01-.104c.048-.519.119-1.023.22-1.402a2.01 2.01 0 0 1 1.415-1.42c.487-.13 1.544-.21 2.654-.26l.17-.007.172-.006.086-.003.171-.007A100 100 0 0 1 7.858 2zM6.4 5.209v4.818l4.157-2.408z" />
+        </svg>
+        Assistir no YouTube
+      </a>
+    </div>
+  );
+}
 
 export default function NavBar() {
   const [open, setOpen] = useState(false);
@@ -163,12 +194,7 @@ export default function NavBar() {
         router.replace(`/${savedLang}${pathname}`);
         return;
       }
-      const browserLang = navigator.language.slice(0, 2) as Lang;
-      if (SUPPORTED_LANGS.includes(browserLang)) {
-        router.replace(`/${browserLang}${pathname}`);
-      } else {
-        router.replace(`/pt${pathname}`);
-      }
+      router.replace(`/pt${pathname}`);
     }
   }, [pathname, router]);
 
@@ -203,20 +229,19 @@ export default function NavBar() {
     isAction?: boolean;
   }
 
-  const utilityItems = [
-    { key: "declarations", icon: <FileText size={14} />, href: "#" },
-    { key: "validate", icon: <BadgeCheck size={14} />, href: "#" },
-    { key: "secretariat", icon: <LayoutDashboard size={14} />, href: "#" },
-    { key: "invoice", icon: <Printer size={14} />, href: "#" },
+  const utilityItems: UtilityItem[] = [
+    { key: "declarations", icon: <FileText size={14} />, href: "http://app.shootinghouse.com.br/documentos/declaracoes" },
+    { key: "validate", icon: <BadgeCheck size={14} />, href: "http://app.shootinghouse.com.br/" },
+    { key: "secretariat", icon: <LayoutDashboard size={14} />, href: "http://app.shootinghouse.com.br/" },
+    { key: "invoice", icon: <Printer size={14} />, href: "http://app.shootinghouse.com.br/" },
     { key: "contract", icon: <FileSignature size={14} />, isAction: true },
   ];
 
- const menuItems = [
+  const menuItems = [
     { key: "presentation", href: "/home" },
     { key: "shop", href: "/loja" },
     {
       key: "club",
-      // sem href aqui → vira dropdown
       children: [
         { labelKey: "Clube", href: "/clube" },
         { labelKey: "gutierrez", href: "/clube/gutierrez" },
@@ -258,13 +283,15 @@ export default function NavBar() {
   return (
     <>
       <header
-        className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${isScrolled ? "bg-white/90 backdrop-blur-md shadow-lg" : "bg-white"
-          }`}
+        className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${
+          isScrolled ? "bg-white/90 backdrop-blur-md shadow-lg" : "bg-white"
+        }`}
       >
         <div className="w-full flex flex-col items-center">
           <div
-            className={`container mx-auto px-4 flex justify-between items-center gap-4 transition-all duration-300 ${isScrolled ? "py-2" : "py-4"
-              }`}
+            className={`container mx-auto px-4 flex justify-between items-center gap-4 transition-all duration-300 ${
+              isScrolled ? "py-2" : "py-4"
+            }`}
           >
             <div className="shrink-0 flex items-center gap-8 justify-center">
               <Image
@@ -294,29 +321,41 @@ export default function NavBar() {
                 <button
                   onClick={() => setShowUtilities(!showUtilities)}
                   className="group relative overflow-hidden flex items-center gap-2 bg-[#1a1a1a] text-[#ffb703]
-      px-5 py-2.5 rounded-md font-bold text-sm cursor-pointer shadow-md transition-all duration-300
-      hover:bg-black hover:shadow-lg hover:shadow-[#ffb703]/20 active:scale-95"
+                    px-5 py-2.5 rounded-md font-bold text-sm cursor-pointer shadow-md transition-all duration-300
+                    hover:bg-black hover:shadow-lg hover:shadow-[#ffb703]/20 active:scale-95"
                 >
                   <User size={16} className="relative z-10 transition-transform" />
                   <span className="relative z-10">{t.accessCAC}</span>
-                  <ChevronDown size={14} className={`relative z-10 transition-transform duration-300 ${showUtilities ? 'rotate-180' : ''}`} />
+                  <ChevronDown
+                    size={14}
+                    className={`relative z-10 transition-transform duration-300 ${
+                      showUtilities ? "rotate-180" : ""
+                    }`}
+                  />
                 </button>
 
                 {showUtilities && (
                   <>
-                    <div className="fixed inset-0 z-40 cursor-pointer" onClick={() => setShowUtilities(false)} />
+                    <div
+                      className="fixed inset-0 z-40 cursor-pointer"
+                      onClick={() => setShowUtilities(false)}
+                    />
                     <div className="absolute right-0 mt-3 w-64 bg-white border border-gray-100 shadow-2xl rounded-xl py-3 z-50 animate-in fade-in zoom-in duration-200">
                       <div className="px-4 py-2 border-b border-gray-50 mb-2">
-                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Links de Acesso</span>
+                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                          Links de Acesso
+                        </span>
                       </div>
-                      {utilityItems.map((item: UtilityItem) => (
+
+                      {/* Items — contract excluded from tutorial */}
+                      {utilityItems.map((item: UtilityItem) =>
                         item.isAction ? (
                           <button
                             key={item.key}
                             onClick={() => {
                               setShowContract(true);
                               setShowUtilities(false);
-                              if (setOpen) setOpen(false);
+                              setOpen(false);
                             }}
                             className="flex w-full items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-[#ffb703]/10 hover:text-black transition-colors border-b border-gray-100 last:border-0 cursor-pointer"
                           >
@@ -339,7 +378,10 @@ export default function NavBar() {
                             </span>
                           </a>
                         )
-                      ))}
+                      )}
+
+                      {/* Tutorial — desktop (light) */}
+                      <YoutubeTutorialBlock dark={false} />
                     </div>
                   </>
                 )}
@@ -352,7 +394,11 @@ export default function NavBar() {
           </div>
 
           {/* NAV DESKTOP */}
-          <div className={`hidden lg:block container mx-auto px-4 transition-all duration-300 ${isScrolled ? "pb-2" : "pb-4"}`}>
+          <div
+            className={`hidden lg:block container mx-auto px-4 transition-all duration-300 ${
+              isScrolled ? "pb-2" : "pb-4"
+            }`}
+          >
             <nav className="bg-[#1a1a1a] rounded-full px-6 py-1 uppercase shadow-xl">
               <ul className="flex items-center gap-8 w-full justify-center h-12">
                 {menuItems.map((item) => (
@@ -369,7 +415,7 @@ export default function NavBar() {
                         {t[item.key]}
                       </span>
                     )}
-                    <span className="absolute bottom-2 left-0 w-full scale-x-0 h-0.5 rounded-2xl bg-[#ffb703] duration-300 origin-left transition-all group-hover:scale-x-100"></span>
+                    <span className="absolute bottom-2 left-0 w-full scale-x-0 h-0.5 rounded-2xl bg-[#ffb703] duration-300 origin-left transition-all group-hover:scale-x-100" />
                     {item.children && (
                       <ul className="absolute left-0 top-full mt-2 w-56 bg-[#1a1a1a] uppercase rounded-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 py-3 z-50 border border-white/5">
                         {item.children.map((child, index) => (
@@ -392,7 +438,7 @@ export default function NavBar() {
         </div>
       </header>
 
-      {/* MOBILE DRAWER */}
+      {/* MOBILE DRAWER OVERLAY */}
       {open && (
         <div
           onClick={() => setOpen(false)}
@@ -401,12 +447,19 @@ export default function NavBar() {
       )}
 
       <aside
-        className={`fixed inset-y-0 right-0 h-full w-[85%] max-w-sm bg-[#0a0a0a] text-white z-101 transform transition-transform duration-500 ease-in-out ${open ? "translate-x-0" : "translate-x-full"
-          } flex flex-col shadow-2xl`}
+        className={`fixed inset-y-0 right-0 h-full w-[85%] max-w-sm bg-[#0a0a0a] text-white z-101 transform transition-transform duration-500 ease-in-out ${
+          open ? "translate-x-0" : "translate-x-full"
+        } flex flex-col shadow-2xl`}
       >
         {/* HEADER DO MENU */}
         <div className="flex items-center justify-between px-6 py-5 border-b border-white/10 bg-black">
-          <Image src="/logo-horizontal-branco2.png" alt="Logo" width={110} height={45} className="object-contain" />
+          <Image
+            src="/logo-horizontal-branco2.png"
+            alt="Logo"
+            width={110}
+            height={45}
+            className="object-contain"
+          />
           <button
             onClick={() => setOpen(false)}
             className="p-2 hover:bg-white/10 rounded-full transition-colors"
@@ -438,8 +491,9 @@ export default function NavBar() {
             <div className="mb-2">
               <button
                 onClick={() => setOpenSub(openSub === "cac" ? null : "cac")}
-                className={`w-full flex items-center justify-between px-4 py-4 rounded-xl transition-all duration-300 ${openSub === "cac" ? "bg-[#ffb703] text-black" : "bg-white/5 text-[#ffb703]"
-                  }`}
+                className={`w-full flex items-center justify-between px-4 py-4 rounded-xl transition-all duration-300 ${
+                  openSub === "cac" ? "bg-[#ffb703] text-black" : "bg-white/5 text-[#ffb703]"
+                }`}
               >
                 <div className="flex items-center gap-3 font-bold text-sm uppercase tracking-wider">
                   <User size={20} />
@@ -447,17 +501,20 @@ export default function NavBar() {
                 </div>
                 <ChevronDown
                   size={18}
-                  className={`transition-transform duration-300 ${openSub === "cac" ? "rotate-180" : ""}`}
+                  className={`transition-transform duration-300 ${
+                    openSub === "cac" ? "rotate-180" : ""
+                  }`}
                 />
               </button>
 
               {/* SUBMENU C.A.C */}
               <div
-                className={`overflow-hidden transition-all duration-300 ease-in-out ${openSub === "cac" ? "max-h-125 opacity-100 mt-2" : "max-h-0 opacity-0"
-                  }`}
+                className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                  openSub === "cac" ? "max-h-125 opacity-100 mt-2" : "max-h-0 opacity-0"
+                }`}
               >
                 <div className="grid grid-cols-1 gap-1 px-2">
-                  {utilityItems.map((item: UtilityItem) => (
+                  {utilityItems.map((item: UtilityItem) =>
                     item.isAction ? (
                       <button
                         key={item.key}
@@ -487,7 +544,10 @@ export default function NavBar() {
                         </span>
                       </a>
                     )
-                  ))}
+                  )}
+
+                  {/* Tutorial — mobile (dark) */}
+                  <YoutubeTutorialBlock dark={true} />
                 </div>
               </div>
             </div>
@@ -515,14 +575,17 @@ export default function NavBar() {
                         <span>{t[item.key]}</span>
                         <ChevronDown
                           size={16}
-                          className={`transition-transform duration-300 ${openSub === item.key ? "rotate-180" : ""}`}
+                          className={`transition-transform duration-300 ${
+                            openSub === item.key ? "rotate-180" : ""
+                          }`}
                         />
                       </button>
 
                       {/* SUBMENU ITENS PADRÃO */}
                       <div
-                        className={`overflow-hidden transition-all duration-300 ${openSub === item.key ? "max-h-125 opacity-100" : "max-h-0 opacity-0"
-                          }`}
+                        className={`overflow-hidden transition-all duration-300 ${
+                          openSub === item.key ? "max-h-125 opacity-100" : "max-h-0 opacity-0"
+                        }`}
                       >
                         <div className="bg-white/5 mx-2 rounded-lg mt-1 mb-2 py-2">
                           {item.children?.map((child, index) => (
@@ -545,11 +608,8 @@ export default function NavBar() {
           </nav>
         </div>
       </aside>
-      
-      <ContractModal 
-        isOpen={showContract} 
-        onClose={() => setShowContract(false)} 
-      />
+
+      <ContractModal isOpen={showContract} onClose={() => setShowContract(false)} />
       <div className="h-24 lg:h-40" />
     </>
   );
@@ -560,21 +620,34 @@ export default function NavBar() {
 function SocialIcon({ href, children }: { href: string; children: React.ReactNode }) {
   return (
     <a href={href} target="_blank" rel="noopener noreferrer" className="group">
-      <div className="bg-[#1a1a1a] p-2 rounded-lg text-[#ffb703] transition-all duration-300 
-                      group-hover:bg-[#ffb703] group-hover:text-black shadow-sm group-active:scale-90">
+      <div
+        className="bg-[#1a1a1a] p-2 rounded-lg text-[#ffb703] transition-all duration-300 
+                      group-hover:bg-[#ffb703] group-hover:text-black shadow-sm group-active:scale-90"
+      >
         {children}
       </div>
     </a>
   );
 }
 
-function FlagBtn({ lang, active = false, onClick }: { lang: Lang; active?: boolean; onClick?: () => void }) {
+function FlagBtn({
+  lang,
+  active = false,
+  onClick,
+}: {
+  lang: Lang;
+  active?: boolean;
+  onClick?: () => void;
+}) {
   const codes: Record<Lang, string> = { pt: "BR", en: "US", es: "ES" };
   return (
     <button
       onClick={onClick}
-      className={`hover:scale-110 transition-all duration-300 cursor-pointer ${active ? "ring-2 ring-[#ffb703] ring-offset-2 ring-offset-white rounded-sm" : "opacity-60 hover:opacity-100"
-        }`}
+      className={`hover:scale-110 transition-all duration-300 cursor-pointer ${
+        active
+          ? "ring-2 ring-[#ffb703] ring-offset-2 ring-offset-white rounded-sm"
+          : "opacity-60 hover:opacity-100"
+      }`}
     >
       <img
         src={`https://purecatamphetamine.github.io/country-flag-icons/3x2/${codes[lang]}.svg`}

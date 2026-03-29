@@ -13,28 +13,28 @@ const projectSteps = [
     phase: "Fase 1",
     title: "O Projeto",
     description: "Engenharia e rascunhos iniciais da estrutura Metraton.",
-    images: ["/truck/pt-1.png", "/truck/pt-2.png", "/truck/pt-3.png","/truck/pt-4.png", "/truck/pt-5.png", "/truck/pt-6.png"],
+    images: ["/truck/pt-1.png", "/truck/pt-2.png", "/truck/pt-3.png", "/truck/pt-5.png", "/truck/pt-6.png"],
     accent: "#ffb703"
   },
   {
     phase: "Fase 2",
     title: "Camuflagem Tática",
     description: "Aplicação das camadas Preto, Marrom e Cinza.",
-    images: ["/truck/c1.jpeg", "/truck/c2.jpeg", "/truck/c3.jpeg"],
+    images: ["/truck/c3.jpeg", "/truck/c6.jpeg", "/truck/c4.jpeg","/truck/c1.jpeg", "/truck/c2.jpeg",],
     accent: "#ffb703"
   },
   {
     phase: "Fase 3",
     title: "Cores Nacionais",
     description: "O contraste vibrante do Verde e Amarelo.",
-    images: ["/truck/va1.jpeg", "/truck/va2.jpeg", "/truck/va3.jpeg", "/truck/va4.jpeg", "/truck/va5.jpeg", "/truck/va6.jpeg", "/truck/va7.jpeg"],
+    images: ["/truck/va1.jpeg", "/truck/va2.jpeg", "/truck/va3.jpeg", "/truck/va4.jpeg", "/truck/va5.jpeg", "/truck/va6.jpeg", "/truck/va7.jpeg", "/truck/va8.jpeg", "/truck/va9.jpeg",],
     accent: "#ffb703"
   },
   {
     phase: "Fase 4",
     title: "Black Edition",
     description: "Finalização estética em Preto Absoluto.",
-    images: ["/truck/b1.jpeg", "/truck/b2.jpeg", "/truck/b3.jpeg", "/truck/b4.jpeg", "/truck/b5.jpeg", "/truck/b6.jpeg"],
+    images: ["/truck/b1.jpeg", "/truck/b2.jpeg", "/truck/b3.jpeg", "/truck/b5.jpeg", "/truck/b6.jpeg"],
     accent: "#ffb703"
   },
 ];
