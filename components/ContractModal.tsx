@@ -112,7 +112,7 @@ function SuccessModal({
   onSave: () => void;
 }) {
   return (
-    <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/70 p-4">
+    <div className="fixed inset-0 z-10000 flex items-center justify-center bg-black/70 p-4">
       <div className="bg-white rounded-sm shadow-2xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-200">
         <div className="bg-gray-900 px-6 pt-8 pb-6 text-center">
           <div className="w-14 h-14 rounded-full bg-green-500/20 flex items-center justify-center mx-auto mb-3">

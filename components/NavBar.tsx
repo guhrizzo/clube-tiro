@@ -144,14 +144,12 @@ const TUTORIAL_URL = "https://www.youtube.com/watch?v=S_PJHmed7aA";
 function YoutubeTutorialBlock({ dark = false }: { dark?: boolean }) {
   return (
     <div
-      className={`px-4 pt-3 pb-2 border-t mt-1 ${
-        dark ? "border-white/10" : "border-gray-100"
-      }`}
+      className={`px-4 pt-3 pb-2 border-t mt-1 ${dark ? "border-white/10" : "border-gray-100"
+        }`}
     >
       <p
-        className={`text-[10px] uppercase tracking-widest mb-2 font-bold ${
-          dark ? "text-white/40" : "text-gray-400"
-        }`}
+        className={`text-[10px] uppercase tracking-widest mb-2 font-bold ${dark ? "text-white/40" : "text-gray-400"
+          }`}
       >
         Veja um tutorial de acesso
       </p>
@@ -189,11 +187,6 @@ export default function NavBar() {
     if (!pathname) return;
     const segments = pathname.split("/").filter(Boolean);
     if (!SUPPORTED_LANGS.includes(segments[0] as Lang)) {
-      const savedLang = localStorage.getItem("lang") as Lang | null;
-      if (savedLang && SUPPORTED_LANGS.includes(savedLang)) {
-        router.replace(`/${savedLang}${pathname}`);
-        return;
-      }
       router.replace(`/pt${pathname}`);
     }
   }, [pathname, router]);
@@ -283,15 +276,13 @@ export default function NavBar() {
   return (
     <>
       <header
-        className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${
-          isScrolled ? "bg-white/90 backdrop-blur-md shadow-lg" : "bg-white"
-        }`}
+        className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${isScrolled ? "bg-white/90 backdrop-blur-md shadow-lg" : "bg-white"
+          }`}
       >
         <div className="w-full flex flex-col items-center">
           <div
-            className={`container mx-auto px-4 flex justify-between items-center gap-4 transition-all duration-300 ${
-              isScrolled ? "py-2" : "py-4"
-            }`}
+            className={`container mx-auto px-4 flex justify-between items-center gap-4 transition-all duration-300 ${isScrolled ? "py-2" : "py-4"
+              }`}
           >
             <div className="shrink-0 flex items-center gap-8 justify-center">
               <Image
@@ -328,9 +319,8 @@ export default function NavBar() {
                   <span className="relative z-10">{t.accessCAC}</span>
                   <ChevronDown
                     size={14}
-                    className={`relative z-10 transition-transform duration-300 ${
-                      showUtilities ? "rotate-180" : ""
-                    }`}
+                    className={`relative z-10 transition-transform duration-300 ${showUtilities ? "rotate-180" : ""
+                      }`}
                   />
                 </button>
 
@@ -395,9 +385,8 @@ export default function NavBar() {
 
           {/* NAV DESKTOP */}
           <div
-            className={`hidden lg:block container mx-auto px-4 transition-all duration-300 ${
-              isScrolled ? "pb-2" : "pb-4"
-            }`}
+            className={`hidden lg:block container mx-auto px-4 transition-all duration-300 ${isScrolled ? "pb-2" : "pb-4"
+              }`}
           >
             <nav className="bg-[#1a1a1a] rounded-full px-6 py-1 uppercase shadow-xl">
               <ul className="flex items-center gap-8 w-full justify-center h-12">
@@ -447,9 +436,8 @@ export default function NavBar() {
       )}
 
       <aside
-        className={`fixed inset-y-0 right-0 h-full w-[85%] max-w-sm bg-[#0a0a0a] text-white z-101 transform transition-transform duration-500 ease-in-out ${
-          open ? "translate-x-0" : "translate-x-full"
-        } flex flex-col shadow-2xl`}
+        className={`fixed inset-y-0 right-0 h-full w-[85%] max-w-sm bg-[#0a0a0a] text-white z-101 transform transition-transform duration-500 ease-in-out ${open ? "translate-x-0" : "translate-x-full"
+          } flex flex-col shadow-2xl`}
       >
         {/* HEADER DO MENU */}
         <div className="flex items-center justify-between px-6 py-5 border-b border-white/10 bg-black">
@@ -491,9 +479,8 @@ export default function NavBar() {
             <div className="mb-2">
               <button
                 onClick={() => setOpenSub(openSub === "cac" ? null : "cac")}
-                className={`w-full flex items-center justify-between px-4 py-4 rounded-xl transition-all duration-300 ${
-                  openSub === "cac" ? "bg-[#ffb703] text-black" : "bg-white/5 text-[#ffb703]"
-                }`}
+                className={`w-full flex items-center justify-between px-4 py-4 rounded-xl transition-all duration-300 ${openSub === "cac" ? "bg-[#ffb703] text-black" : "bg-white/5 text-[#ffb703]"
+                  }`}
               >
                 <div className="flex items-center gap-3 font-bold text-sm uppercase tracking-wider">
                   <User size={20} />
@@ -501,17 +488,15 @@ export default function NavBar() {
                 </div>
                 <ChevronDown
                   size={18}
-                  className={`transition-transform duration-300 ${
-                    openSub === "cac" ? "rotate-180" : ""
-                  }`}
+                  className={`transition-transform duration-300 ${openSub === "cac" ? "rotate-180" : ""
+                    }`}
                 />
               </button>
 
               {/* SUBMENU C.A.C */}
               <div
-                className={`overflow-hidden transition-all duration-300 ease-in-out ${
-                  openSub === "cac" ? "max-h-125 opacity-100 mt-2" : "max-h-0 opacity-0"
-                }`}
+                className={`overflow-hidden transition-all duration-300 ease-in-out ${openSub === "cac" ? "max-h-125 opacity-100 mt-2" : "max-h-0 opacity-0"
+                  }`}
               >
                 <div className="grid grid-cols-1 gap-1 px-2">
                   {utilityItems.map((item: UtilityItem) =>
@@ -575,17 +560,15 @@ export default function NavBar() {
                         <span>{t[item.key]}</span>
                         <ChevronDown
                           size={16}
-                          className={`transition-transform duration-300 ${
-                            openSub === item.key ? "rotate-180" : ""
-                          }`}
+                          className={`transition-transform duration-300 ${openSub === item.key ? "rotate-180" : ""
+                            }`}
                         />
                       </button>
 
                       {/* SUBMENU ITENS PADRÃO */}
                       <div
-                        className={`overflow-hidden transition-all duration-300 ${
-                          openSub === item.key ? "max-h-125 opacity-100" : "max-h-0 opacity-0"
-                        }`}
+                        className={`overflow-hidden transition-all duration-300 ${openSub === item.key ? "max-h-125 opacity-100" : "max-h-0 opacity-0"
+                          }`}
                       >
                         <div className="bg-white/5 mx-2 rounded-lg mt-1 mb-2 py-2">
                           {item.children?.map((child, index) => (
@@ -643,11 +626,10 @@ function FlagBtn({
   return (
     <button
       onClick={onClick}
-      className={`hover:scale-110 transition-all duration-300 cursor-pointer ${
-        active
+      className={`hover:scale-110 transition-all duration-300 cursor-pointer ${active
           ? "ring-2 ring-[#ffb703] ring-offset-2 ring-offset-white rounded-sm"
           : "opacity-60 hover:opacity-100"
-      }`}
+        }`}
     >
       <img
         src={`https://purecatamphetamine.github.io/country-flag-icons/3x2/${codes[lang]}.svg`}
