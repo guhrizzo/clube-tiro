@@ -199,7 +199,6 @@ export default function NavBar() {
 
   const changeLang = (lang: Lang) => {
     if (!pathname) return;
-    localStorage.setItem("lang", lang);
     const segments = pathname.split("/").filter(Boolean);
     if (SUPPORTED_LANGS.includes(segments[0] as Lang)) {
       segments.shift();
@@ -627,8 +626,8 @@ function FlagBtn({
     <button
       onClick={onClick}
       className={`hover:scale-110 transition-all duration-300 cursor-pointer ${active
-          ? "ring-2 ring-[#ffb703] ring-offset-2 ring-offset-white rounded-sm"
-          : "opacity-60 hover:opacity-100"
+        ? "ring-2 ring-[#ffb703] ring-offset-2 ring-offset-white rounded-sm"
+        : "opacity-60 hover:opacity-100"
         }`}
     >
       <img
