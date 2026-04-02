@@ -103,7 +103,7 @@ function SuccessModal({ email, onClose, onPrint, onSave }: {
   email: string; onClose: () => void; onPrint: () => void; onSave: () => void;
 }) {
   return (
-    <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/70 p-4">
+    <div className="fixed inset-0 z-10000 flex items-center justify-center bg-black/70 p-4">
       <div className="bg-white rounded-sm shadow-2xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-200">
         <div className="bg-gray-900 px-6 pt-8 pb-6 text-center">
           <div className="w-14 h-14 rounded-full bg-green-500/20 flex items-center justify-center mx-auto mb-3">
@@ -644,7 +644,7 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
         <SuccessModal email={formData.email} onClose={handleSuccessClose} onPrint={handlePrint} onSave={handleSave} />
       )}
 
-      <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 p-0 md:p-6"
+      <div className="fixed inset-0 z-9999 flex items-center justify-center bg-black/60 p-0 md:p-6"
         role="dialog" aria-modal="true" aria-labelledby="contract-title">
         <div ref={modalRef} tabIndex={-1}
           className="bg-white w-full max-w-6xl h-full md:h-[95vh] flex flex-col shadow-2xl md:rounded overflow-hidden outline-none">
