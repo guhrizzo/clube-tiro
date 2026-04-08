@@ -6,8 +6,8 @@ import { Camera, Maximize2, X, ChevronLeft, ChevronRight, Loader2 } from "lucide
 // Importações do Firebase
 import { db } from "../../../../../lib/firebase";
 import { collection, onSnapshot, query, orderBy } from "firebase/firestore";
-import NavBar from "components/NavBar";
-import ScrollToTop from "components/BackTop";
+import NavBar from "../../../../../components/NavBar";
+import ScrollToTop from "../../../../../components/BackTop";
 
 interface PhotoItem {
   id: string; // Alterado para string (ID do Firestore)

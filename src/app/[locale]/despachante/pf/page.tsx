@@ -2,8 +2,8 @@
 
 import { useMemo } from "react";
 import { usePathname } from "next/navigation";
-import NavBar from "components/NavBar";
-import ScrollToTop from "components/BackTop";
+import NavBar from "../../../../../components/NavBar";
+import ScrollToTop from "../../../../../components/BackTop";
 import {
   ShieldCheck,
   Target,

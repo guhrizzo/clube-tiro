@@ -6,7 +6,7 @@ import { useState, useMemo, useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
 
 // FIREBASE
-import { db } from "lib/firebase";
+import { db } from "../lib/firebase";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 
 /* ---------------- EMAILS POR DEPARTAMENTO ---------------- */

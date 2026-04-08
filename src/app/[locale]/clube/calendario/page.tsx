@@ -4,13 +4,13 @@ import React, { useState, useEffect } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import listPlugin from "@fullcalendar/list";
-import { db } from "lib/firebase";
+import { db } from "../../../../../lib/firebase";
 import { collection, onSnapshot, query, orderBy } from "firebase/firestore";
 import { Loader2, Clock, FileText, X, Tag } from "lucide-react";
-import NavBar from "components/NavBar";
-import ProximosEventos from "components/ProximoEvento";
-import { useLang } from "context/LangContext"; // Hook que você já tem
-import { dictionaries } from "dictionaries";
+import NavBar from "../../../../../components/NavBar";
+import ProximosEventos from "../../../../../components/ProximoEvento";
+import { useLang } from "../../../../../context/LangContext"; // Hook que você já tem
+import { dictionaries } from "../../../../../dictionaries";
 import "./calendar.css";
 
 export default function AgendaClient() {

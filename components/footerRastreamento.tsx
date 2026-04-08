@@ -16,8 +16,8 @@ import {
   FaApple,
   FaClock,
 } from "react-icons/fa";
-import { dictionaries } from "dictionaries";
-import { useLang } from "context/LangContext";
+import { dictionaries } from "../dictionaries";
+
 
 const SUPPORTED_LANGS = ["pt", "en", "es"] as const;
 type Lang = (typeof SUPPORTED_LANGS)[number];

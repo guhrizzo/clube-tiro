@@ -17,10 +17,9 @@ import {
   Award,
   ClipboardList
 } from "lucide-react";
-import ScrollToTop from "components/BackTop";
-import NavBar from "components/NavBar";
-import { dictionaries } from "dictionaries";
-import { useLang } from "context/LangContext";
+import ScrollToTop from "../../../../../components/BackTop";
+import NavBar from "../../../../../components/NavBar";
+import { dictionaries } from "../../../../../dictionaries";
 
 // Mapeamento de ícones para manter a ordem do array de serviços
 const iconsEB = [

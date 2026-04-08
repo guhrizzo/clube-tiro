@@ -2,8 +2,8 @@
 
 import { useMemo } from "react";
 import { usePathname } from "next/navigation";
-import NavBar from "components/NavBar";
-import { dictionaries } from "dictionaries";
+import NavBar from "../../../../../components/NavBar";
+import { dictionaries } from "../../../../../dictionaries";
 
 const SUPPORTED_LANGS = ["pt", "en", "es"] as const;
 type Lang = (typeof SUPPORTED_LANGS)[number];

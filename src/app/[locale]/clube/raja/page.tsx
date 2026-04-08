@@ -1,16 +1,15 @@
 "use client";
 
-import Navbar from "components/NavBar";
+import Navbar from "../../../../../components/NavBar";
 import { Clock, MapPin, AlertTriangle, Scale, ArrowRight, Quote, ChevronLeft, ChevronRight, X } from "lucide-react";
 import { useParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { dictionaries } from "dictionaries";
-import { useLang } from "context/LangContext";
+import { dictionaries } from "../../../../../dictionaries";
+import { useLang } from "../../../../../context/LangContext";
 import Image from "next/image";
 import { useState, useEffect, useCallback } from "react";
-import { db } from "lib/firebase";
-import { collection, getDocs, query, orderBy } from "firebase/firestore";
-import { fetchOrderedPhotos } from "lib/fetchPhotos";
+
+import { fetchOrderedPhotos } from "../../../../../lib/fetchPhotos";
 
 
 interface GalleryPhoto {

@@ -1,6 +1,6 @@
-import TrackingSection from "components/TrackServices"
-import NavBar from "components/NavBar";
-import FAQSection from "components/FAQsection";
+import TrackingSection from "../../../../components/TrackServices"
+import NavBar from "../../../../components/NavBar";
+import FAQSection from "../../../../components/FAQsection";
 
 export default function Rastreamento() {
     return (

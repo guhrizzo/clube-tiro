@@ -14,8 +14,8 @@ import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 import AOS from "aos";
 import "aos/dist/aos.css";
-import NavBar from "components/NavBar";
-import ContactPremium from "components/Contact";
+import NavBar from "../../../../components/NavBar";
+import ContactPremium from "../../../../components/Contact";
 
 /* ---------------- DICTIONARY ---------------- */
 const dictionaries = {

@@ -4,9 +4,9 @@ import { useEffect, useState } from "react";
 import { Truck, ChevronRight, Maximize2, X, PlayCircle } from "lucide-react";
 import { motion } from "framer-motion";
 
-import NavBar from "components/NavBar";
-import MetratonFinalPhase from "components/5phase";
-import ScrollToTop from "components/BackTop";
+import NavBar from "../../../../components/NavBar";
+import MetratonFinalPhase from "../../../../components/5phase";
+import ScrollToTop from "../../../../components/BackTop";
 
 const projectSteps = [
   {

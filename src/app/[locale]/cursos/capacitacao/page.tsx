@@ -2,14 +2,13 @@
 
 import { useMemo, useState, useCallback, useEffect } from "react";
 import { usePathname } from "next/navigation";
-import NavBar from "components/NavBar";
-import { dictionaries } from "dictionaries";
+import NavBar from "../../../../../components/NavBar";
+import { dictionaries } from "../../../../../dictionaries";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { Quote, Shield, Users, Award, ChevronRight, ChevronLeft, X } from "lucide-react";
-import { db } from "lib/firebase";
-import { collection, getDocs, query, orderBy } from "firebase/firestore";
-import { fetchOrderedPhotos } from "lib/fetchPhotos";
+
+import { fetchOrderedPhotos } from "../../../../../lib/fetchPhotos";
 
 const SUPPORTED_LANGS = ["pt", "en", "es"] as const;
 type Lang = (typeof SUPPORTED_LANGS)[number];

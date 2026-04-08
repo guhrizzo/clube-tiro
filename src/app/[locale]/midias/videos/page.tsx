@@ -2,11 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { Play, Video, X, MonitorPlay } from "lucide-react";
-import NavBar from "components/NavBar";
+import NavBar from "../../../../../components/NavBar";
 // Importe a configuração do seu firebase
 import { db } from "../../../../../lib/firebase"; 
 import { collection, onSnapshot, query, orderBy } from "firebase/firestore";
-import ScrollToTop from "components/BackTop";
+import ScrollToTop from "../../../../../components/BackTop";
 
 interface VideoItem {
   id: string;

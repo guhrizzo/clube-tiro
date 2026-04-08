@@ -1,6 +1,6 @@
 "use client";
 
-import Navbar from "components/NavBar";
+import Navbar from "../../../../../components/NavBar";
 import {
   MapPin, Clock, Phone, Navigation, ExternalLink,
   ChevronLeft, ChevronRight, X,
@@ -9,9 +9,7 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { useState, useEffect, useCallback } from "react";
-import { db } from "lib/firebase";
-import { collection, getDocs, query, orderBy } from "firebase/firestore";
-import { fetchOrderedPhotos } from "lib/fetchPhotos";
+import { fetchOrderedPhotos } from "../../../../../lib/fetchPhotos";
 // ─── Tipo ───
 interface GalleryPhoto {
   id: string;

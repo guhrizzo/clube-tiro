@@ -1,6 +1,6 @@
 "use client";
 
-import NavBar from "components/NavBar";
+import NavBar from "../../../../components/NavBar";
 import {
   Shield,
   Globe,
@@ -16,9 +16,8 @@ import {
 import { motion, AnimatePresence, Variants } from "framer-motion";
 import Image from "next/image";
 import { useState, useCallback, useEffect } from "react";
-import { db } from "lib/firebase";
-import { collection, getDocs, query, orderBy } from "firebase/firestore";
-import { fetchOrderedPhotos } from "lib/fetchPhotos";
+
+import { fetchOrderedPhotos } from "../../../../lib/fetchPhotos";
 
 const fadeUp: Variants = {
   hidden: { opacity: 0, y: 40 },

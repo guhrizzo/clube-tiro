@@ -10,7 +10,7 @@ import { collection, query, orderBy, getDocs } from "firebase/firestore";
 import NavBar from "../../../../components/NavBar";
 import ContactPremium from "../../../../components/Contact";
 import { ChevronDown, Filter } from "lucide-react";
-import ScrollToTop from "components/BackTop";
+import ScrollToTop from "../../../../components/BackTop";
 
 type Noticia = {
     id: string;
