@@ -108,13 +108,13 @@ function SigBlock({
 }) {
   return (
     <div>
-      <div className="h-16 flex items-end pb-1">
+      <div className="h-16 flex  -pb-4 justify-center">
         {imgSrc && (
           <img
             src={imgSrc}
             alt={imgAlt}
             crossOrigin="anonymous"
-            className="max-h-14 max-w-full object-contain object-left"
+            className="max-h-20 max-w-full object-contain object-left"
           />
         )}
       </div>
@@ -147,7 +147,7 @@ function SuccessModal({
   onSave: () => void;
 }) {
   return (
-    <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/70 p-4">
+    <div className="fixed inset-0 z-10000 flex items-center justify-center bg-black/70 p-4">
       <div className="bg-white rounded-sm shadow-2xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-200">
         <div className="bg-gray-900 px-6 pt-8 pb-6 text-center">
           <div className="w-14 h-14 rounded-full bg-green-500/20 flex items-center justify-center mx-auto mb-3">
@@ -477,25 +477,7 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
             <Printer size={13} />
             <span className="hidden sm:inline">Imprimir</span>
           </button>
-          <button
-            type="button"
-            onClick={handleSave}
-            disabled={savingPdf}
-            title="Salvar como PDF"
-            className="flex items-center gap-1.5 px-2.5 py-1.5 text-[11px] text-gray-500 hover:text-gray-800 hover:bg-gray-100 transition rounded-sm cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
-          >
-            {savingPdf ? (
-              <>
-                <div className="w-3 h-3 border border-gray-500 border-t-transparent rounded-full animate-spin" />
-                <span className="hidden sm:inline">Gerando...</span>
-              </>
-            ) : (
-              <>
-                <Download size={13} />
-                <span className="hidden sm:inline">Salvar PDF</span>
-              </>
-            )}
-          </button>
+          
           <div className="w-px h-4 bg-gray-200 mx-1 hidden md:block" />
           <button
             onClick={onClose}
@@ -781,9 +763,10 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
             </p>
             <div className="grid grid-cols-2 gap-8">
               <SigBlock
+                
                 imgSrc="/assinatura2.png"
                 imgAlt="Assinatura Protect"
-                borderColor="border-gray-500"
+              
                 lines={[
                   "PROTECT CLUBE MINEIRO DE TIRO",
                   "CNPJ: 01.244.200/0001-52",
@@ -791,7 +774,7 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
                 ]}
               />
               <SigBlock
-                borderColor="border-gray-500"
+                
                 lines={[
                   formData.nome || "SÓCIO USUÁRIO (COLABORADOR)",
                   `CPF: ${formData.cpf || "___________________________"}`,
