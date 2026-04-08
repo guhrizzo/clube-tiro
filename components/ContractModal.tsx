@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import jsPDF from "jspdf";
 import {
   X,
   CheckCircle,
@@ -375,34 +376,58 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
       setSavingPdf(false);
     }
   };
-
+  
   const handleConfirm = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!accepted) { alert("Você precisa aceitar os termos."); return; }
-    const dateErr = validateDateInput(formData.nascimento);
-    if (dateErr || formData.nascimento.length < 10) {
-      setDateError(dateErr || "Data incompleta");
-      return;
-    }
-    setLoading(true);
+  e.preventDefault();
+  if (!accepted) { alert("Você precisa aceitar os termos."); return; }
+  const dateErr = validateDateInput(formData.nascimento);
+  if (dateErr || formData.nascimento.length < 10) {
+    setDateError(dateErr || "Data incompleta");
+    return;
+  }
+  setLoading(true);
+  try {
+    const savedData = {
+      ...formData,
+      nascimento: dateToISO(formData.nascimento),
+      plano: `${plano} anos`,
+      valorTotal: p.totalRaw,
+      valorParcela: p.parcelaRaw,
+      dataAssinatura: new Date().toISOString(),
+      versaoContrato: p.versao,
+      hash: Math.random().toString(36).substring(2, 15),
+    };
+
+    await saveContractSignature(savedData);
+
+    // ── Gera PDF e envia email diretamente ──────────────────────────
     try {
-      await saveContractSignature({
-        ...formData,
-        nascimento: dateToISO(formData.nascimento),
-        plano: `${plano} anos`,
-        valorTotal: p.totalRaw,
-        valorParcela: p.parcelaRaw,
-        dataAssinatura: new Date().toISOString(),
-        versaoContrato: p.versao,
-        hash: Math.random().toString(36).substring(2, 15),
+      const { generateContractPDFBase64 } = await import("../lib/buildContractPDF");
+      const pdfBase64 = await generateContractPDFBase64(savedData);
+      await fetch("/api/send-contract", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          nome: formData.nome,
+          email: formData.email,
+          cpf: formData.cpf,
+          pdfBase64,
+          cc: "clube@grupoprotect.com.br",
+        }),
       });
-      setShowSuccess(true);
-    } catch {
-      alert("Erro ao salvar assinatura. Tente novamente.");
-    } finally {
-      setLoading(false);
+    } catch (emailErr) {
+      console.error("Erro ao enviar email (não crítico):", emailErr);
+      // Não bloqueia o fluxo — o contrato já foi salvo
     }
-  };
+    // ────────────────────────────────────────────────────────────────
+
+    setShowSuccess(true);
+  } catch {
+    alert("Erro ao salvar assinatura. Tente novamente.");
+  } finally {
+    setLoading(false);
+  }
+};
 
   const handleSuccessClose = () => { setShowSuccess(false); onClose(); };
 
