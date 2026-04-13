@@ -468,25 +468,40 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
           </span>
         </div>
         <div className="flex items-center gap-1">
-          <button
-            type="button"
-            onClick={handlePrint}
-            title="Imprimir contrato"
-            className="flex items-center gap-1.5 px-2.5 py-1.5 text-[11px] text-gray-500 hover:text-gray-800 hover:bg-gray-100 transition rounded-sm cursor-pointer"
-          >
-            <Printer size={13} />
-            <span className="hidden sm:inline">Imprimir</span>
-          </button>
-          
-          <div className="w-px h-4 bg-gray-200 mx-1 hidden md:block" />
-          <button
-            onClick={onClose}
-            className="text-gray-400 hover:text-gray-700 transition p-1 cursor-pointer hidden md:block"
-            aria-label="Fechar"
-          >
-            <X size={18} />
-          </button>
-        </div>
+           <button
+             type="button"
+             onClick={handlePrint}
+             title="Imprimir contrato"
+             className="flex items-center gap-1.5 px-2.5 py-1.5 text-[11px] text-gray-500 hover:text-gray-800 hover:bg-gray-100 transition rounded-sm cursor-pointer"
+           >
+             <Printer size={13} />
+             <span className="hidden sm:inline">Imprimir</span>
+           </button>
+           
+           <button
+             type="button"
+             onClick={handleSave}
+             disabled={savingPdf}
+             title="Salvar contrato como PDF"
+             className="flex items-center gap-1.5 px-2.5 py-1.5 text-[11px] text-gray-500 hover:text-gray-800 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition rounded-sm cursor-pointer"
+           >
+             {savingPdf ? (
+               <div className="w-3 h-3 border border-gray-500 border-t-transparent rounded-full animate-spin" />
+             ) : (
+               <Download size={13} />
+             )}
+             <span className="hidden sm:inline">{savingPdf ? "Salvando..." : "Salvar PDF"}</span>
+           </button>
+           
+           <div className="w-px h-4 bg-gray-200 mx-1 hidden md:block" />
+           <button
+             onClick={onClose}
+             className="text-gray-400 hover:text-gray-700 transition p-1 cursor-pointer hidden md:block"
+             aria-label="Fechar"
+           >
+             <X size={18} />
+           </button>
+         </div>
       </div>
 
       <div className="flex-1 overflow-y-auto bg-gray-50 px-4 md:px-6 py-8" ref={scrollRef}>
