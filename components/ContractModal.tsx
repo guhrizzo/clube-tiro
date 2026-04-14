@@ -513,73 +513,73 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
   };
 
   const handleConfirm = async (e: React.FormEvent) => {
-  e.preventDefault();
-  if (!accepted) { alert("Você precisa aceitar os termos."); return; }
-  const dateErr = validateDateInput(formData.nascimento);
-  if (dateErr || formData.nascimento.length < 10) {
-    setDateError(dateErr || "Data incompleta");
-    return;
-  }
-  setLoading(true);
-  try {
-    const savedData = {
-      ...formData,
-      nascimento: dateToISO(formData.nascimento),
-      plano: `${plano} anos`,
-      planoKey: plano,
-      valorTotal: p.totalRaw,
-      valorParcela: p.parcelaRaw,
-      dataAssinatura: new Date().toISOString(),
-      versaoContrato: p.versao,
-      hash: Math.random().toString(36).substring(2, 15),
-    };
-
-    await saveContractSignature(savedData);
-
-    // ✅ Cria registro na coleção "assinaturas"
-    await addDoc(collection(db, "assinaturas"), {
-      nomeCliente: formData.nome,
-      email: formData.email,
-      cpf: formData.cpf,
-      tipoContrato: `adesão_sócio - ${plano} anos`,
-      status: "ativo",
-      dataAssinatura: Timestamp.now(),
-      dataAssinaturaString: new Date().toISOString().split("T")[0],
-      descricao:`✓ Li e concordo integralmente com todos os termos e cláusulas do contrato de adesão ${p.nomeContrato} (${plano} anos), incluindo as condições de pagamento, rescisão e responsabilidades. Contrato assinado digitalmente em ${new Date().toLocaleDateString("pt-BR")} às ${new Date().toLocaleTimeString("pt-BR")}. Valor total: ${p.total} (${p.parcela}/ano). RG: ${formData.rg} | Profissão: ${formData.profissao} | Naturalidade: ${formData.naturalidade}.`,
-      createdAt: Timestamp.now(),
-      updatedAt: Timestamp.now(),
-    });
-
-    try {
-      const { generateContractPDFBase64 } = await import("../lib/buildContractPDF");
-
-      const pdfBase64 = await generateContractPDFBase64({
-        ...savedData,
-        plano: `${plano} anos`,
-      });
-
-      await fetch("/api/send-contract", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          nome: formData.nome,
-          email: formData.email,
-          cpf: formData.cpf,
-          pdfBase64,
-          cc: "clube@grupoprotect.com.br",
-        }),
-      });
-    } catch (emailErr) {
-      console.error("Erro ao enviar email (não crítico):", emailErr);
+    e.preventDefault();
+    if (!accepted) { alert("Você precisa aceitar os termos."); return; }
+    const dateErr = validateDateInput(formData.nascimento);
+    if (dateErr || formData.nascimento.length < 10) {
+      setDateError(dateErr || "Data incompleta");
+      return;
     }
+    setLoading(true);
+    try {
+      const savedData = {
+        ...formData,
+        nascimento: dateToISO(formData.nascimento),
+        plano: `${plano} anos`,
+        planoKey: plano,
+        valorTotal: p.totalRaw,
+        valorParcela: p.parcelaRaw,
+        dataAssinatura: new Date().toISOString(),
+        versaoContrato: p.versao,
+        hash: Math.random().toString(36).substring(2, 15),
+      };
 
-    setShowSuccess(true);
-  } catch {
-    alert("Erro ao salvar assinatura. Tente novamente.");
-  } finally {
-    setLoading(false);
-  }
-};
+      await saveContractSignature(savedData);
+
+      // ✅ Cria registro na coleção "assinaturas"
+      await addDoc(collection(db, "assinaturas"), {
+        nomeCliente: formData.nome,
+        email: formData.email,
+        cpf: formData.cpf,
+        tipoContrato: `adesão_sócio - ${plano} anos`,
+        status: "ativo",
+        dataAssinatura: Timestamp.now(),
+        dataAssinaturaString: new Date().toISOString().split("T")[0],
+        descricao: `✓ Li e concordo integralmente com todos os termos e cláusulas do contrato de adesão ${p.nomeContrato} (${plano} anos), incluindo as condições de pagamento, rescisão e responsabilidades. Contrato assinado digitalmente em ${new Date().toLocaleDateString("pt-BR")} às ${new Date().toLocaleTimeString("pt-BR")}. Valor total: ${p.total} (${p.parcela}/ano). RG: ${formData.rg} | Profissão: ${formData.profissao} | Naturalidade: ${formData.naturalidade}.`,
+        createdAt: Timestamp.now(),
+        updatedAt: Timestamp.now(),
+      });
+
+      try {
+        const { generateContractPDFBase64 } = await import("../lib/buildContractPDF");
+
+        const pdfBase64 = await generateContractPDFBase64({
+          ...savedData,
+          plano: `${plano} anos`,
+        });
+
+        await fetch("/api/send-contract", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            nome: formData.nome,
+            email: formData.email,
+            cpf: formData.cpf,
+            pdfBase64,
+            cc: "clube@grupoprotect.com.br",
+          }),
+        });
+      } catch (emailErr) {
+        console.error("Erro ao enviar email (não crítico):", emailErr);
+      }
+
+      setShowSuccess(true);
+    } catch {
+      alert("Erro ao salvar assinatura. Tente novamente.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleSuccessClose = () => { setShowSuccess(false); onClose(); };
 
@@ -1162,6 +1162,8 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
             <span className="text-xs text-gray-600 leading-relaxed">
               Li e concordo integralmente com todos os termos e cláusulas do contrato,
               incluindo as condições de pagamento, rescisão e responsabilidades.
+              Ao assinar, seus dados serão registrados com segurança e protegidos
+              de acordo com a LGPD (Lei nº 13.709/2018).
             </span>
           </label>
           <button
