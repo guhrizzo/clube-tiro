@@ -261,21 +261,21 @@ export default function ContactPremium() {
         lang: currentLang,
       });
 
-      const res = await fetch("/api/contact", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          nome: formData.nome,
-          email: formData.email,
-          telefone: formData.telefone,
-          plano: formData.plano,
-          mensagem: formData.mensagem,
-          targetDept: selectedDept.dept,
-          targetEmail: selectedDept.address,
-        }),
-      });
+      // const res = await fetch("/api/contact", {
+      //   method: "POST",
+      //   headers: { "Content-Type": "application/json" },
+      //   body: JSON.stringify({
+      //     nome: formData.nome,
+      //     email: formData.email,
+      //     telefone: formData.telefone,
+      //     plano: formData.plano,
+      //     mensagem: formData.mensagem,
+      //     targetDept: selectedDept.dept,
+      //     targetEmail: selectedDept.address,
+      //   }),
+      // });
 
-      if (!res.ok) throw new Error("Falha no envio do e-mail.");
+      // if (!res.ok) throw new Error("Falha no envio do e-mail.");
 
       setSentStatus(true);
       setFormData({ nome: "", email: "", telefone: "", plano: t.planIndividual, mensagem: "" });

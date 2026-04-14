@@ -39,7 +39,7 @@ export async function POST(req: Request) {
           <body style="font-family: sans-serif; background: #f8fafc; padding: 32px;">
             <div style="max-width: 560px; margin: 0 auto; background: #fff; border-radius: 16px; overflow: hidden; box-shadow: 0 2px 12px rgba(0,0,0,0.1);">
               
-              <div style="background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%); padding: 24px 32px; text-align: center;">
+              <div style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); padding: 24px 32px; text-align: center;">
                 <h1 style="margin: 0; font-size: 24px; font-weight: 900; color: #fff;">
                   ✓ Contrato Assinado com Sucesso!
                 </h1>
@@ -54,8 +54,8 @@ export async function POST(req: Request) {
                   Seu contrato de adesão foi assinado com sucesso! Segue em anexo uma cópia em PDF para seus registros.
                 </p>
 
-                <div style="background: #f0f9ff; border-left: 4px solid #0284c7; padding: 16px; border-radius: 8px; margin: 24px 0;">
-                  <p style="margin: 0; font-size: 12px; color: #0c4a6e; line-height: 1.6;">
+                <div style="background: #fffbeb; border-left: 4px solid #f59e0b; padding: 16px; border-radius: 8px; margin: 24px 0;">
+                  <p style="margin: 0; font-size: 12px; color: #92400e; line-height: 1.6;">
                     <strong>📋 Informações do Contrato:</strong><br/>
                     CPF: ${cpf}<br/>
                     Data: ${new Date().toLocaleDateString("pt-BR")}
@@ -132,7 +132,7 @@ export async function POST(req: Request) {
                     </tr>
                     <tr style="border-bottom: 1px solid #e2e8f0;">
                       <td style="padding: 8px 0; font-size: 12px; color: #64748b; font-weight: 600;">Email:</td>
-                      <td style="padding: 8px 0; font-size: 12px; color: #1e293b;"><a href="mailto:${email}" style="color: #0284c7;">${email}</a></td>
+                       <td style="padding: 8px 0; font-size: 12px; color: #1e293b;"><a href="mailto:${email}" style="color: #f59e0b;">${email}</a></td>
                     </tr>
                     <tr>
                       <td style="padding: 8px 0; font-size: 12px; color: #64748b; font-weight: 600;">Data:</td>
