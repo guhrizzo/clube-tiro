@@ -16,6 +16,9 @@ import {
 } from "lucide-react";
 import { saveContractSignature } from "../lib/firebase";
 
+import { collection, addDoc, Timestamp } from "firebase/firestore";
+import { db } from "../lib/firebase";
+
 interface ContractModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -510,59 +513,73 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
   };
 
   const handleConfirm = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!accepted) { alert("Você precisa aceitar os termos."); return; }
-    const dateErr = validateDateInput(formData.nascimento);
-    if (dateErr || formData.nascimento.length < 10) {
-      setDateError(dateErr || "Data incompleta");
-      return;
-    }
-    setLoading(true);
+  e.preventDefault();
+  if (!accepted) { alert("Você precisa aceitar os termos."); return; }
+  const dateErr = validateDateInput(formData.nascimento);
+  if (dateErr || formData.nascimento.length < 10) {
+    setDateError(dateErr || "Data incompleta");
+    return;
+  }
+  setLoading(true);
+  try {
+    const savedData = {
+      ...formData,
+      nascimento: dateToISO(formData.nascimento),
+      plano: `${plano} anos`,
+      planoKey: plano,
+      valorTotal: p.totalRaw,
+      valorParcela: p.parcelaRaw,
+      dataAssinatura: new Date().toISOString(),
+      versaoContrato: p.versao,
+      hash: Math.random().toString(36).substring(2, 15),
+    };
+
+    await saveContractSignature(savedData);
+
+    // ✅ Cria registro na coleção "assinaturas"
+    await addDoc(collection(db, "assinaturas"), {
+      nomeCliente: formData.nome,
+      email: formData.email,
+      cpf: formData.cpf,
+      tipoContrato: `adesão_sócio - ${plano} anos`,
+      status: "ativo",
+      dataAssinatura: Timestamp.now(),
+      dataAssinaturaString: new Date().toISOString().split("T")[0],
+      descricao:`✓ Li e concordo integralmente com todos os termos e cláusulas do contrato de adesão ${p.nomeContrato} (${plano} anos), incluindo as condições de pagamento, rescisão e responsabilidades. Contrato assinado digitalmente em ${new Date().toLocaleDateString("pt-BR")} às ${new Date().toLocaleTimeString("pt-BR")}. Valor total: ${p.total} (${p.parcela}/ano). RG: ${formData.rg} | Profissão: ${formData.profissao} | Naturalidade: ${formData.naturalidade}.`,
+      createdAt: Timestamp.now(),
+      updatedAt: Timestamp.now(),
+    });
+
     try {
-      const savedData = {
-        ...formData,
-        nascimento: dateToISO(formData.nascimento),
+      const { generateContractPDFBase64 } = await import("../lib/buildContractPDF");
+
+      const pdfBase64 = await generateContractPDFBase64({
+        ...savedData,
         plano: `${plano} anos`,
-        planoKey: plano,
-        valorTotal: p.totalRaw,
-        valorParcela: p.parcelaRaw,
-        dataAssinatura: new Date().toISOString(),
-        versaoContrato: p.versao,
-        hash: Math.random().toString(36).substring(2, 15),
-      };
+      });
 
-      await saveContractSignature(savedData);
-
-      try {
-        const { generateContractPDFBase64 } = await import("../lib/buildContractPDF");
-
-        const pdfBase64 = await generateContractPDFBase64({
-          ...savedData,
-          plano: `${plano} anos`,
-        });
-
-        await fetch("/api/send-contract", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            nome: formData.nome,
-            email: formData.email,
-            cpf: formData.cpf,
-            pdfBase64,
-            cc: "clube@grupoprotect.com.br",
-          }),
-        });
-      } catch (emailErr) {
-        console.error("Erro ao enviar email (não crítico):", emailErr);
-      }
-
-      setShowSuccess(true);
-    } catch {
-      alert("Erro ao salvar assinatura. Tente novamente.");
-    } finally {
-      setLoading(false);
+      await fetch("/api/send-contract", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          nome: formData.nome,
+          email: formData.email,
+          cpf: formData.cpf,
+          pdfBase64,
+          cc: "clube@grupoprotect.com.br",
+        }),
+      });
+    } catch (emailErr) {
+      console.error("Erro ao enviar email (não crítico):", emailErr);
     }
-  };
+
+    setShowSuccess(true);
+  } catch {
+    alert("Erro ao salvar assinatura. Tente novamente.");
+  } finally {
+    setLoading(false);
+  }
+};
 
   const handleSuccessClose = () => { setShowSuccess(false); onClose(); };
 
@@ -988,8 +1005,8 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
                   type="button"
                   onClick={() => { setPlano(key); setAccepted(false); }}
                   className={`flex flex-col items-start px-3 py-2.5 border text-left transition-all cursor-pointer rounded-sm ${active
-                      ? "border-gray-900 bg-gray-900 text-white"
-                      : "border-gray-200 hover:border-gray-400 text-gray-700"
+                    ? "border-gray-900 bg-gray-900 text-white"
+                    : "border-gray-200 hover:border-gray-400 text-gray-700"
                     }`}
                 >
                   <span className="text-xs font-bold uppercase tracking-wider">
@@ -1290,8 +1307,8 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
               type="button"
               onClick={() => setMobileTab("contrato")}
               className={`flex-1 flex items-center justify-center gap-2 py-3.5 text-xs font-semibold uppercase tracking-widest transition-colors cursor-pointer ${mobileTab === "contrato"
-                  ? "text-gray-900 border-b-2 border-gray-900"
-                  : "text-gray-400 hover:text-gray-600"
+                ? "text-gray-900 border-b-2 border-gray-900"
+                : "text-gray-400 hover:text-gray-600"
                 }`}
             >
               <AlignLeft size={14} /> Contrato
@@ -1300,8 +1317,8 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
               type="button"
               onClick={() => setMobileTab("dados")}
               className={`flex-1 flex items-center justify-center gap-2 py-3.5 text-xs font-semibold uppercase tracking-widest transition-colors cursor-pointer ${mobileTab === "dados"
-                  ? "text-gray-900 border-b-2 border-gray-900"
-                  : "text-gray-400 hover:text-gray-600"
+                ? "text-gray-900 border-b-2 border-gray-900"
+                : "text-gray-400 hover:text-gray-600"
                 }`}
             >
               <PenLine size={14} /> Preencher
