@@ -297,19 +297,207 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
 
   const p = PLANOS[plano];
 
-  const handlePrint = () => {
+  const handlePrint = async () => {
     const ref = getActiveContractRef();
     if (!ref.current) return;
-    const node = ref.current;
-    const win = window.open("", "_blank");
-    if (!win) return;
-    win.document.write(`<!DOCTYPE html>
-<html lang="pt-BR"><head><meta charset="UTF-8"/><title>Contrato PROTECT</title>
-<style>*{box-sizing:border-box;}body{margin:0;padding:32px;background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact;}img{max-height:56px!important;max-width:180px!important;width:auto!important;height:auto!important;display:block;}@media print{body{padding:0;}@page{margin:16mm;size:A4;}}</style>
-</head><body>${node.outerHTML}</body></html>`);
-    win.document.close();
-    win.focus();
-    setTimeout(() => { win.print(); win.close(); }, 800);
+    setSavingPdf(true);
+
+    try {
+      const domtoimage = (await import("dom-to-image-more")).default;
+      const jsPDFModule = (await import("jspdf")).default;
+      const node = ref.current;
+
+      // Clona e processa estilos
+      const clone = node.cloneNode(true) as HTMLElement;
+
+      const processNode = (orig: Element, cloned: Element) => {
+        if (!(orig instanceof HTMLElement) || !(cloned instanceof HTMLElement)) return;
+        const computed = window.getComputedStyle(orig);
+        cloned.style.cssText = "";
+        cloned.style.fontFamily = computed.fontFamily;
+        cloned.style.fontSize = computed.fontSize;
+        cloned.style.fontWeight = computed.fontWeight;
+        cloned.style.fontStyle = computed.fontStyle;
+        cloned.style.lineHeight = computed.lineHeight;
+        cloned.style.textAlign = computed.textAlign;
+        cloned.style.textDecoration = computed.textDecoration;
+        cloned.style.letterSpacing = computed.letterSpacing;
+        cloned.style.color = computed.color;
+        cloned.style.backgroundColor = computed.backgroundColor;
+        cloned.style.display = computed.display;
+        cloned.style.flexDirection = computed.flexDirection;
+        cloned.style.justifyContent = computed.justifyContent;
+        cloned.style.alignItems = computed.alignItems;
+        cloned.style.gap = computed.gap;
+        cloned.style.padding = computed.padding;
+        cloned.style.margin = computed.margin;
+        cloned.style.width = computed.width;
+        cloned.style.maxWidth = computed.maxWidth;
+        cloned.style.height = computed.height;
+        cloned.style.minHeight = computed.minHeight;
+        cloned.style.gridTemplateColumns = computed.gridTemplateColumns;
+        cloned.style.whiteSpace = computed.whiteSpace;
+        cloned.style.overflow = "visible";
+
+        const tag = orig.tagName.toLowerCase();
+        const cls = orig.className || "";
+        const isInlineSpan = tag === "span" && orig.children.length === 0;
+        const hasBorderB = cls.includes("border-b");
+        const isHr = tag === "hr";
+        const isBorderT = cls.includes("border-t");
+
+        if (isHr) {
+          cloned.style.borderTop = "1px solid #d1d5db";
+          cloned.style.borderBottom = "none";
+          cloned.style.borderLeft = "none";
+          cloned.style.borderRight = "none";
+        } else if (isInlineSpan && hasBorderB) {
+          const borderColor = cls.includes("border-gray-7") ? "#374151" : "#9ca3af";
+          cloned.style.borderBottom = `1px solid ${borderColor}`;
+          cloned.style.borderTop = "none";
+          cloned.style.borderLeft = "none";
+          cloned.style.borderRight = "none";
+        } else if (isBorderT) {
+          cloned.style.borderTop = "1px solid #9ca3af";
+          cloned.style.borderBottom = "none";
+          cloned.style.borderLeft = "none";
+          cloned.style.borderRight = "none";
+          cloned.style.paddingTop = computed.paddingTop;
+        } else {
+          cloned.style.border = "none";
+          cloned.style.outline = "none";
+          cloned.style.boxShadow = "none";
+        }
+
+        Array.from(orig.children).forEach((child, i) => {
+          if (cloned.children[i]) processNode(child, cloned.children[i]);
+        });
+      };
+
+      processNode(node, clone);
+
+      // Converte imagens para base64
+      const origImgs = Array.from(node.querySelectorAll("img"));
+      const cloneImgs = Array.from(clone.querySelectorAll("img"));
+      await Promise.all(
+        origImgs.map((img, i) =>
+          new Promise<void>((resolve) => {
+            const c = document.createElement("canvas");
+            c.width = img.naturalWidth || 200;
+            c.height = img.naturalHeight || 80;
+            const ctx = c.getContext("2d");
+            if (!ctx) { resolve(); return; }
+            const tmp = new Image();
+            tmp.crossOrigin = "anonymous";
+            tmp.onload = () => {
+              ctx.drawImage(tmp, 0, 0);
+              if (cloneImgs[i]) cloneImgs[i].src = c.toDataURL("image/png");
+              resolve();
+            };
+            tmp.onerror = () => {
+              if (cloneImgs[i]) cloneImgs[i].style.display = "none";
+              resolve();
+            };
+            tmp.src = img.src;
+          })
+        )
+      );
+
+      clone.style.position = "fixed";
+      clone.style.top = "-99999px";
+      clone.style.left = "0";
+      clone.style.width = node.offsetWidth + "px";
+      clone.style.background = "#ffffff";
+      clone.style.border = "none";
+      clone.style.boxShadow = "none";
+      document.body.appendChild(clone);
+
+      const scale = 2;
+      const dataUrl = await domtoimage.toJpeg(clone, {
+        quality: 0.95,
+        bgcolor: "#ffffff",
+        width: clone.offsetWidth * scale,
+        height: clone.offsetHeight * scale,
+        style: {
+          transform: `scale(${scale})`,
+          transformOrigin: "top left",
+          width: clone.offsetWidth + "px",
+          height: clone.offsetHeight + "px",
+        },
+      });
+
+      document.body.removeChild(clone);
+
+      // Carrega o dataUrl num HTMLImageElement para calcular paginação
+      const capturedImg = await new Promise<HTMLImageElement>((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => resolve(img);
+        img.onerror = reject;
+        img.src = dataUrl;
+      });
+
+      // Calcula paginação para A4
+      const pageWidthMm = 210;  // A4 width
+      const pageHeightMm = 297; // A4 height
+      const marginMm = 10;      // 10mm margin
+      const usableWidthMm = pageWidthMm - marginMm * 2;
+      const usableHeightMm = pageHeightMm - marginMm * 2;
+
+      // Quantos px da imagem cabem em uma página
+      const pxPerMm = capturedImg.width / usableWidthMm;
+      const pageHeightPx = usableHeightMm * pxPerMm;
+
+      const totalPages = Math.ceil(capturedImg.height / pageHeightPx);
+
+      // Cria PDF com múltiplas páginas
+      const pdf = new jsPDFModule({
+        unit: "mm",
+        format: "a4",
+        orientation: "portrait",
+        compress: true,
+      });
+
+      for (let pageIndex = 0; pageIndex < totalPages; pageIndex++) {
+        if (pageIndex > 0) pdf.addPage();
+
+        const srcY = Math.round(pageIndex * pageHeightPx);
+        const srcH = Math.min(pageHeightPx, capturedImg.height - srcY);
+
+        const slice = document.createElement("canvas");
+        slice.width = capturedImg.width;
+        slice.height = Math.round(srcH);
+        const ctx = slice.getContext("2d")!;
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0, 0, slice.width, slice.height);
+        ctx.drawImage(
+          capturedImg,
+          0, srcY,
+          capturedImg.width, srcH,
+          0, 0,
+          capturedImg.width, srcH
+        );
+
+        const sliceDataUrl = slice.toDataURL("image/jpeg", 0.92);
+        const sliceHeightMm = srcH / pxPerMm;
+
+        pdf.addImage(sliceDataUrl, "JPEG", marginMm, marginMm, usableWidthMm, sliceHeightMm);
+      }
+
+      // Abre PDF em nova janela para impressão
+      const blobUrl = pdf.output("bloburi");
+      const win = window.open(blobUrl, "_blank");
+      if (!win) {
+        // Fallback: tenta com URL tradicional
+        const url = pdf.output("bloburi");
+        window.open(url);
+      }
+
+      setSavingPdf(false);
+    } catch (err) {
+      console.error("Erro ao preparar para impressão:", err);
+      alert("Erro ao preparar para impressão. Tente novamente.");
+      setSavingPdf(false);
+    }
   };
 
   const handleSave = async () => {
