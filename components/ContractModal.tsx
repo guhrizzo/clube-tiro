@@ -225,11 +225,9 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const modalRef = useRef<HTMLDivElement>(null);
 
-  // ── CORREÇÃO 1: um ref por painel, nunca dois apontando pro mesmo nó ──────
   const contractRefDesktop = useRef<HTMLDivElement>(null);
   const contractRefMobile = useRef<HTMLDivElement>(null);
 
-  // Retorna o ref ativo conforme o painel visível
   const getActiveContractRef = () =>
     window.innerWidth >= 768 ? contractRefDesktop : contractRefMobile;
 
@@ -441,6 +439,14 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
 
       document.body.removeChild(clone);
 
+      // Carrega o dataUrl num HTMLImageElement para poder fatiá-lo
+      const capturedImg = await new Promise<HTMLImageElement>((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => resolve(img);
+        img.onerror = reject;
+        img.src = dataUrl;
+      });
+
       const pdf = new jsPDF({
         unit: "mm",
         format: "a4",
@@ -448,18 +454,45 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
         compress: true,
       });
 
-      const pageWidth = pdf.internal.pageSize.getWidth();
-      const pageHeight = pdf.internal.pageSize.getHeight();
+      const pageWidthMm = pdf.internal.pageSize.getWidth();
+      const pageHeightMm = pdf.internal.pageSize.getHeight();
       const margin = 12;
-      const usableHeight = pageHeight - margin * 2;
-      const imgWidth = pageWidth - margin * 2;
-      const imgHeightMm = (node.offsetHeight * imgWidth) / node.offsetWidth;
-      const totalPages = Math.ceil(imgHeightMm / usableHeight);
+      const usableWidthMm = pageWidthMm - margin * 2;
+      const usableHeightMm = pageHeightMm - margin * 2;
 
-      for (let i = 0; i < totalPages; i++) {
-        if (i > 0) pdf.addPage();
-        const yOffset = margin - i * usableHeight;
-        pdf.addImage(dataUrl, "JPEG", margin, yOffset, imgWidth, imgHeightMm);
+      // Quantos px da imagem cabem em uma página
+      const pxPerMm = capturedImg.width / usableWidthMm;
+      const pageHeightPx = usableHeightMm * pxPerMm;
+
+      // Margem de segurança: reduz cada página em ~8mm para nunca cortar texto
+      const safePageHeightPx = (usableHeightMm - 8) * pxPerMm;
+
+      const totalPages = Math.ceil(capturedImg.height / safePageHeightPx);
+
+      for (let pageIndex = 0; pageIndex < totalPages; pageIndex++) {
+        if (pageIndex > 0) pdf.addPage();
+
+        const srcY = Math.round(pageIndex * safePageHeightPx);
+        const srcH = Math.min(safePageHeightPx, capturedImg.height - srcY);
+
+        const slice = document.createElement("canvas");
+        slice.width = capturedImg.width;
+        slice.height = Math.round(srcH);
+        const ctx = slice.getContext("2d")!;
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0, 0, slice.width, slice.height);
+        ctx.drawImage(
+          capturedImg,
+          0, srcY,
+          capturedImg.width, srcH,
+          0, 0,
+          capturedImg.width, srcH
+        );
+
+        const sliceDataUrl = slice.toDataURL("image/jpeg", 0.92);
+        const sliceHeightMm = srcH / pxPerMm;
+
+        pdf.addImage(sliceDataUrl, "JPEG", margin, margin, usableWidthMm, sliceHeightMm);
       }
 
       const filename = `Contrato_PROTECT_${(formData.nome || "socio")
@@ -486,12 +519,11 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
     }
     setLoading(true);
     try {
-      // ── CORREÇÃO 2: plano passado como string "5 anos"/"3 anos" E como chave numérica
       const savedData = {
         ...formData,
         nascimento: dateToISO(formData.nascimento),
-        plano: `${plano} anos`,          // "3 anos" ou "5 anos"
-        planoKey: plano,                  // "3" ou "5" — chave extra para garantia
+        plano: `${plano} anos`,
+        planoKey: plano,
         valorTotal: p.totalRaw,
         valorParcela: p.parcelaRaw,
         dataAssinatura: new Date().toISOString(),
@@ -504,10 +536,9 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
       try {
         const { generateContractPDFBase64 } = await import("../lib/buildContractPDF");
 
-        // ── CORREÇÃO 3: passa plano explicitamente para evitar ambiguidade
         const pdfBase64 = await generateContractPDFBase64({
           ...savedData,
-          plano: `${plano} anos`, // garante o valor do estado atual, não do Firebase
+          plano: `${plano} anos`,
         });
 
         await fetch("/api/send-contract", {
@@ -561,7 +592,6 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
       </span>
     );
 
-  // ── Conteúdo do contrato (JSX puro, sem ref — o ref fica no wrapper) ──────
   const contractContent = (
     <div className="max-w-170 mx-auto bg-white border border-gray-200 px-6 md:px-10 py-12 text-[13px] text-gray-800 leading-relaxed font-serif shadow-sm">
       <div className="text-center mb-8 pb-6 border-b border-gray-200">
@@ -879,7 +909,6 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
     </div>
   );
 
-  // ── Document Panel ─────────────────────────────────────────────────────────
   const renderDocumentPanel = (refProp: React.RefObject<HTMLDivElement>) => (
     <div className="flex-[1.6] flex flex-col overflow-hidden border-r border-gray-200">
       <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between bg-white shrink-0">
@@ -925,7 +954,6 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
       </div>
 
       <div className="flex-1 overflow-y-auto bg-gray-50 px-4 md:px-6 py-8" ref={scrollRef}>
-        {/* ── CORREÇÃO 1: ref único por painel ── */}
         <div ref={refProp}>
           {contractContent}
         </div>
@@ -933,7 +961,6 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
     </div>
   );
 
-  // ── Form Panel ─────────────────────────────────────────────────────────────
   const renderFormPanel = () => (
     <div className="w-full md:w-85 shrink-0 flex flex-col bg-white border-t md:border-t-0 border-gray-200">
       <div className="px-6 py-4 border-b border-gray-200 bg-gray-50 shrink-0">
@@ -960,11 +987,10 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
                   key={key}
                   type="button"
                   onClick={() => { setPlano(key); setAccepted(false); }}
-                  className={`flex flex-col items-start px-3 py-2.5 border text-left transition-all cursor-pointer rounded-sm ${
-                    active
+                  className={`flex flex-col items-start px-3 py-2.5 border text-left transition-all cursor-pointer rounded-sm ${active
                       ? "border-gray-900 bg-gray-900 text-white"
                       : "border-gray-200 hover:border-gray-400 text-gray-700"
-                  }`}
+                    }`}
                 >
                   <span className="text-xs font-bold uppercase tracking-wider">
                     {op.label}
@@ -1258,27 +1284,25 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
           tabIndex={-1}
           className="bg-white w-full max-w-6xl h-full md:h-[95vh] flex flex-col shadow-2xl md:rounded overflow-hidden outline-none"
         >
-          {/* ── MOBILE: tab bar ── */}
+          {/* MOBILE: tab bar */}
           <div className="md:hidden flex shrink-0 border-b border-gray-200 bg-white">
             <button
               type="button"
               onClick={() => setMobileTab("contrato")}
-              className={`flex-1 flex items-center justify-center gap-2 py-3.5 text-xs font-semibold uppercase tracking-widest transition-colors cursor-pointer ${
-                mobileTab === "contrato"
+              className={`flex-1 flex items-center justify-center gap-2 py-3.5 text-xs font-semibold uppercase tracking-widest transition-colors cursor-pointer ${mobileTab === "contrato"
                   ? "text-gray-900 border-b-2 border-gray-900"
                   : "text-gray-400 hover:text-gray-600"
-              }`}
+                }`}
             >
               <AlignLeft size={14} /> Contrato
             </button>
             <button
               type="button"
               onClick={() => setMobileTab("dados")}
-              className={`flex-1 flex items-center justify-center gap-2 py-3.5 text-xs font-semibold uppercase tracking-widest transition-colors cursor-pointer ${
-                mobileTab === "dados"
+              className={`flex-1 flex items-center justify-center gap-2 py-3.5 text-xs font-semibold uppercase tracking-widest transition-colors cursor-pointer ${mobileTab === "dados"
                   ? "text-gray-900 border-b-2 border-gray-900"
                   : "text-gray-400 hover:text-gray-600"
-              }`}
+                }`}
             >
               <PenLine size={14} /> Preencher
             </button>
@@ -1291,14 +1315,14 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
             </button>
           </div>
 
-          {/* ── MOBILE: painel ativo — usa ref mobile ── */}
+          {/* MOBILE: painel ativo */}
           <div className="md:hidden flex-1 overflow-y-auto flex flex-col">
             {mobileTab === "contrato"
               ? renderDocumentPanel(contractRefMobile)
               : renderFormPanel()}
           </div>
 
-          {/* ── DESKTOP: side-by-side — usa ref desktop ── */}
+          {/* DESKTOP: side-by-side */}
           <div className="hidden md:flex flex-1 overflow-hidden flex-row">
             {renderDocumentPanel(contractRefDesktop)}
             {renderFormPanel()}
