@@ -336,98 +336,231 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
   };
 
   const handleSave = async () => {
-    if (!contractRef.current) return;
-    setSavingPdf(true);
-    try {
-      if (!(window as any).html2pdf) {
-        await new Promise<void>((resolve, reject) => {
-          const script = document.createElement("script");
-          script.src =
-            "https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js";
-          script.onload = () => resolve();
-          script.onerror = () => reject(new Error("Falha ao carregar html2pdf.js"));
-          document.head.appendChild(script);
-        });
-      }
-      const opt = {
-        margin: [12, 14, 12, 14],
-        filename: `Contrato_PROTECT_${(formData.nome || "socio")
-          .replace(/\s+/g, "_")
-          .normalize("NFD")
-          .replace(/[\u0300-\u036f]/g, "")}.pdf`,
-        image: { type: "jpeg", quality: 0.98 },
-        html2canvas: {
-          scale: 2,
-          useCORS: true,
-          logging: false,
-          allowTaint: true,
-          backgroundColor: "#ffffff",
-        },
-        jsPDF: { unit: "mm", format: "a4", orientation: "portrait", compress: true },
-        pagebreak: { mode: ["avoid-all", "css"] },
-      };
-      await (window as any).html2pdf().set(opt).from(contractRef.current).save();
-    } catch (err) {
-      console.error("Erro ao gerar PDF:", err);
-      alert(
-        "Não foi possível gerar o PDF. Tente usar o botão Imprimir e salvar como PDF pelo navegador."
-      );
-    } finally {
-      setSavingPdf(false);
-    }
-  };
-  
-  const handleConfirm = async (e: React.FormEvent) => {
-  e.preventDefault();
-  if (!accepted) { alert("Você precisa aceitar os termos."); return; }
-  const dateErr = validateDateInput(formData.nascimento);
-  if (dateErr || formData.nascimento.length < 10) {
-    setDateError(dateErr || "Data incompleta");
-    return;
-  }
-  setLoading(true);
+  if (!contractRef.current) return;
+  setSavingPdf(true);
+
   try {
-    const savedData = {
-      ...formData,
-      nascimento: dateToISO(formData.nascimento),
-      plano: `${plano} anos`,
-      valorTotal: p.totalRaw,
-      valorParcela: p.parcelaRaw,
-      dataAssinatura: new Date().toISOString(),
-      versaoContrato: p.versao,
-      hash: Math.random().toString(36).substring(2, 15),
+    const domtoimage = (await import("dom-to-image-more")).default;
+    const node = contractRef.current;
+
+    // Clona profundamente e limpa manualmente todos os elementos
+    const clone = node.cloneNode(true) as HTMLElement;
+
+    // Função recursiva que copia estilos computados e limpa bordas indesejadas
+    const processNode = (orig: Element, cloned: Element) => {
+      if (!(orig instanceof HTMLElement) || !(cloned instanceof HTMLElement)) return;
+
+      const computed = window.getComputedStyle(orig);
+
+      // Copia estilos essenciais
+      cloned.style.cssText = "";
+      cloned.style.fontFamily = computed.fontFamily;
+      cloned.style.fontSize = computed.fontSize;
+      cloned.style.fontWeight = computed.fontWeight;
+      cloned.style.fontStyle = computed.fontStyle;
+      cloned.style.lineHeight = computed.lineHeight;
+      cloned.style.textAlign = computed.textAlign;
+      cloned.style.textDecoration = computed.textDecoration;
+      cloned.style.letterSpacing = computed.letterSpacing;
+      cloned.style.color = computed.color;
+      cloned.style.backgroundColor = computed.backgroundColor;
+      cloned.style.display = computed.display;
+      cloned.style.flexDirection = computed.flexDirection;
+      cloned.style.justifyContent = computed.justifyContent;
+      cloned.style.alignItems = computed.alignItems;
+      cloned.style.gap = computed.gap;
+      cloned.style.padding = computed.padding;
+      cloned.style.margin = computed.margin;
+      cloned.style.width = computed.width;
+      cloned.style.maxWidth = computed.maxWidth;
+      cloned.style.height = computed.height;
+      cloned.style.minHeight = computed.minHeight;
+      cloned.style.gridTemplateColumns = computed.gridTemplateColumns;
+      cloned.style.whiteSpace = computed.whiteSpace;
+      cloned.style.overflow = "visible";
+
+      // Bordas: só copia se for elemento de texto com border-b legítimo (span inline)
+      const tag = orig.tagName.toLowerCase();
+      const cls = orig.className || "";
+
+      const isInlineSpan = tag === "span" && orig.children.length === 0;
+      const hasBorderB = cls.includes("border-b");
+      const isHr = tag === "hr";
+      const isBorderT = cls.includes("border-t"); // separador de assinatura
+
+      if (isHr) {
+        cloned.style.borderTop = "1px solid #d1d5db";
+        cloned.style.borderBottom = "none";
+        cloned.style.borderLeft = "none";
+        cloned.style.borderRight = "none";
+      } else if (isInlineSpan && hasBorderB) {
+        const borderColor = cls.includes("border-gray-7") ? "#374151" : "#9ca3af";
+        cloned.style.borderBottom = `1px solid ${borderColor}`;
+        cloned.style.borderTop = "none";
+        cloned.style.borderLeft = "none";
+        cloned.style.borderRight = "none";
+      } else if (isBorderT) {
+        cloned.style.borderTop = "1px solid #9ca3af";
+        cloned.style.borderBottom = "none";
+        cloned.style.borderLeft = "none";
+        cloned.style.borderRight = "none";
+        cloned.style.paddingTop = computed.paddingTop;
+      } else {
+        // Remove TODAS as bordas de divs e outros elementos
+        cloned.style.border = "none";
+        cloned.style.outline = "none";
+        cloned.style.boxShadow = "none";
+      }
+
+      Array.from(orig.children).forEach((child, i) => {
+        if (cloned.children[i]) processNode(child, cloned.children[i]);
+      });
     };
 
-    await saveContractSignature(savedData);
+    processNode(node, clone);
 
-    // ── Gera PDF e envia email diretamente ──────────────────────────
-    try {
-      const { generateContractPDFBase64 } = await import("../lib/buildContractPDF");
-      const pdfBase64 = await generateContractPDFBase64(savedData);
-      await fetch("/api/send-contract", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          nome: formData.nome,
-          email: formData.email,
-          cpf: formData.cpf,
-          pdfBase64,
-          cc: "clube@grupoprotect.com.br",
-        }),
-      });
-    } catch (emailErr) {
-      console.error("Erro ao enviar email (não crítico):", emailErr);
-      // Não bloqueia o fluxo — o contrato já foi salvo
+    // Copia imagens como base64
+    const origImgs = Array.from(node.querySelectorAll("img"));
+    const cloneImgs = Array.from(clone.querySelectorAll("img"));
+    await Promise.all(
+      origImgs.map((img, i) =>
+        new Promise<void>((resolve) => {
+          const c = document.createElement("canvas");
+          c.width = img.naturalWidth || 200;
+          c.height = img.naturalHeight || 80;
+          const ctx = c.getContext("2d");
+          if (!ctx) { resolve(); return; }
+          const tmp = new Image();
+          tmp.crossOrigin = "anonymous";
+          tmp.onload = () => {
+            ctx.drawImage(tmp, 0, 0);
+            if (cloneImgs[i]) cloneImgs[i].src = c.toDataURL("image/png");
+            resolve();
+          };
+          tmp.onerror = () => {
+            if (cloneImgs[i]) cloneImgs[i].style.display = "none";
+            resolve();
+          };
+          tmp.src = img.src;
+        })
+      )
+    );
+
+    // Monta clone fora da tela para medir
+    clone.style.position = "fixed";
+    clone.style.top = "-99999px";
+    clone.style.left = "0";
+    clone.style.width = node.offsetWidth + "px";
+    clone.style.background = "#ffffff";
+    clone.style.border = "none";
+    clone.style.boxShadow = "none";
+    document.body.appendChild(clone);
+
+    const scale = 2;
+    const dataUrl = await domtoimage.toJpeg(clone, {
+      quality: 0.95,
+      bgcolor: "#ffffff",
+      width: clone.offsetWidth * scale,
+      height: clone.offsetHeight * scale,
+      style: {
+        transform: `scale(${scale})`,
+        transformOrigin: "top left",
+        width: clone.offsetWidth + "px",
+        height: clone.offsetHeight + "px",
+      },
+    });
+
+    document.body.removeChild(clone);
+
+    const pdf = new jsPDF({
+      unit: "mm",
+      format: "a4",
+      orientation: "portrait",
+      compress: true,
+    });
+
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
+    const margin = 12;
+    const usableHeight = pageHeight - margin * 2;
+    const imgWidth = pageWidth - margin * 2;
+    const imgHeightMm = (node.offsetHeight * imgWidth) / node.offsetWidth;
+
+    // Calcula páginas necessárias, garantindo que o conteúdo caiba sem página extra
+    const totalPages = Math.ceil(imgHeightMm / usableHeight);
+
+    for (let i = 0; i < totalPages; i++) {
+      if (i > 0) pdf.addPage();
+      const yOffset = margin - i * usableHeight;
+      pdf.addImage(dataUrl, "JPEG", margin, yOffset, imgWidth, imgHeightMm);
     }
-    // ────────────────────────────────────────────────────────────────
 
-    setShowSuccess(true);
-  } catch {
-    alert("Erro ao salvar assinatura. Tente novamente.");
+    const filename = `Contrato_PROTECT_${(formData.nome || "socio")
+      .replace(/\s+/g, "_")
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")}.pdf`;
+
+    pdf.save(filename);
+
+  } catch (err) {
+    console.error("Erro ao gerar PDF:", err);
+    alert("Erro ao gerar PDF. Use o botão Imprimir → Salvar como PDF.");
   } finally {
-    setLoading(false);
+    setSavingPdf(false);
   }
 };
+
+  const handleConfirm = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!accepted) { alert("Você precisa aceitar os termos."); return; }
+    const dateErr = validateDateInput(formData.nascimento);
+    if (dateErr || formData.nascimento.length < 10) {
+      setDateError(dateErr || "Data incompleta");
+      return;
+    }
+    setLoading(true);
+    try {
+      const savedData = {
+        ...formData,
+        nascimento: dateToISO(formData.nascimento),
+        plano: `${plano} anos`,
+        valorTotal: p.totalRaw,
+        valorParcela: p.parcelaRaw,
+        dataAssinatura: new Date().toISOString(),
+        versaoContrato: p.versao,
+        hash: Math.random().toString(36).substring(2, 15),
+      };
+
+      await saveContractSignature(savedData);
+
+      // ── Gera PDF e envia email diretamente ──────────────────────────
+      try {
+        const { generateContractPDFBase64 } = await import("../lib/buildContractPDF");
+        const pdfBase64 = await generateContractPDFBase64(savedData);
+        await fetch("/api/send-contract", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            nome: formData.nome,
+            email: formData.email,
+            cpf: formData.cpf,
+            pdfBase64,
+            cc: "clube@grupoprotect.com.br",
+          }),
+        });
+      } catch (emailErr) {
+        console.error("Erro ao enviar email (não crítico):", emailErr);
+        // Não bloqueia o fluxo — o contrato já foi salvo
+      }
+      // ────────────────────────────────────────────────────────────────
+
+      setShowSuccess(true);
+    } catch {
+      alert("Erro ao salvar assinatura. Tente novamente.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleSuccessClose = () => { setShowSuccess(false); onClose(); };
 
@@ -468,40 +601,40 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
           </span>
         </div>
         <div className="flex items-center gap-1">
-           <button
-             type="button"
-             onClick={handlePrint}
-             title="Imprimir contrato"
-             className="flex items-center gap-1.5 px-2.5 py-1.5 text-[11px] text-gray-500 hover:text-gray-800 hover:bg-gray-100 transition rounded-sm cursor-pointer"
-           >
-             <Printer size={13} />
-             <span className="hidden sm:inline">Imprimir</span>
-           </button>
-           
-           <button
-             type="button"
-             onClick={handleSave}
-             disabled={savingPdf}
-             title="Salvar contrato como PDF"
-             className="flex items-center gap-1.5 px-2.5 py-1.5 text-[11px] text-gray-500 hover:text-gray-800 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition rounded-sm cursor-pointer"
-           >
-             {savingPdf ? (
-               <div className="w-3 h-3 border border-gray-500 border-t-transparent rounded-full animate-spin" />
-             ) : (
-               <Download size={13} />
-             )}
-             <span className="hidden sm:inline">{savingPdf ? "Salvando..." : "Salvar PDF"}</span>
-           </button>
-           
-           <div className="w-px h-4 bg-gray-200 mx-1 hidden md:block" />
-           <button
-             onClick={onClose}
-             className="text-gray-400 hover:text-gray-700 transition p-1 cursor-pointer hidden md:block"
-             aria-label="Fechar"
-           >
-             <X size={18} />
-           </button>
-         </div>
+          <button
+            type="button"
+            onClick={handlePrint}
+            title="Imprimir contrato"
+            className="flex items-center gap-1.5 px-2.5 py-1.5 text-[11px] text-gray-500 hover:text-gray-800 hover:bg-gray-100 transition rounded-sm cursor-pointer"
+          >
+            <Printer size={13} />
+            <span className="hidden sm:inline">Imprimir</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={handleSave}
+            disabled={savingPdf}
+            title="Salvar contrato como PDF"
+            className="flex items-center gap-1.5 px-2.5 py-1.5 text-[11px] text-gray-500 hover:text-gray-800 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition rounded-sm cursor-pointer"
+          >
+            {savingPdf ? (
+              <div className="w-3 h-3 border border-gray-500 border-t-transparent rounded-full animate-spin" />
+            ) : (
+              <Download size={13} />
+            )}
+            <span className="hidden sm:inline">{savingPdf ? "Salvando..." : "Salvar PDF"}</span>
+          </button>
+
+          <div className="w-px h-4 bg-gray-200 mx-1 hidden md:block" />
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-gray-700 transition p-1 cursor-pointer hidden md:block"
+            aria-label="Fechar"
+          >
+            <X size={18} />
+          </button>
+        </div>
       </div>
 
       <div className="flex-1 overflow-y-auto bg-gray-50 px-4 md:px-6 py-8" ref={scrollRef}>
@@ -778,10 +911,10 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
             </p>
             <div className="grid grid-cols-2 gap-8">
               <SigBlock
-                
+
                 imgSrc="/assinatura2.png"
                 imgAlt="Assinatura Protect"
-              
+
                 lines={[
                   "PROTECT CLUBE MINEIRO DE TIRO",
                   "CNPJ: 01.244.200/0001-52",
@@ -789,7 +922,7 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
                 ]}
               />
               <SigBlock
-                
+
                 lines={[
                   formData.nome || "SÓCIO USUÁRIO (COLABORADOR)",
                   `CPF: ${formData.cpf || "___________________________"}`,
@@ -856,11 +989,10 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
                   key={key}
                   type="button"
                   onClick={() => { setPlano(key); setAccepted(false); }}
-                  className={`flex flex-col items-start px-3 py-2.5 border text-left transition-all cursor-pointer rounded-sm ${
-                    active
-                      ? "border-gray-900 bg-gray-900 text-white"
-                      : "border-gray-200 hover:border-gray-400 text-gray-700"
-                  }`}
+                  className={`flex flex-col items-start px-3 py-2.5 border text-left transition-all cursor-pointer rounded-sm ${active
+                    ? "border-gray-900 bg-gray-900 text-white"
+                    : "border-gray-200 hover:border-gray-400 text-gray-700"
+                    }`}
                 >
                   <span className="text-xs font-bold uppercase tracking-wider">
                     {op.label}
@@ -1161,22 +1293,20 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
             <button
               type="button"
               onClick={() => setMobileTab("contrato")}
-              className={`flex-1 flex items-center justify-center gap-2 py-3.5 text-xs font-semibold uppercase tracking-widest transition-colors cursor-pointer ${
-                mobileTab === "contrato"
-                  ? "text-gray-900 border-b-2 border-gray-900"
-                  : "text-gray-400 hover:text-gray-600"
-              }`}
+              className={`flex-1 flex items-center justify-center gap-2 py-3.5 text-xs font-semibold uppercase tracking-widest transition-colors cursor-pointer ${mobileTab === "contrato"
+                ? "text-gray-900 border-b-2 border-gray-900"
+                : "text-gray-400 hover:text-gray-600"
+                }`}
             >
               <AlignLeft size={14} /> Contrato
             </button>
             <button
               type="button"
               onClick={() => setMobileTab("dados")}
-              className={`flex-1 flex items-center justify-center gap-2 py-3.5 text-xs font-semibold uppercase tracking-widest transition-colors cursor-pointer ${
-                mobileTab === "dados"
-                  ? "text-gray-900 border-b-2 border-gray-900"
-                  : "text-gray-400 hover:text-gray-600"
-              }`}
+              className={`flex-1 flex items-center justify-center gap-2 py-3.5 text-xs font-semibold uppercase tracking-widest transition-colors cursor-pointer ${mobileTab === "dados"
+                ? "text-gray-900 border-b-2 border-gray-900"
+                : "text-gray-400 hover:text-gray-600"
+                }`}
             >
               <PenLine size={14} /> Preencher
             </button>
