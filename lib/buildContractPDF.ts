@@ -197,38 +197,49 @@ export async function generateContractPDFMobile(contract: ContractData): Promise
     overflow: visible;
   `;
   
-  // Usa o mesmo HTML do contrato e remove TODAS as bordas de forma agressiva
+  // Usa o mesmo HTML do contrato e remove bordas desnecessárias, mantendo as de assinatura
   let contractHTML = getContractHTML(contract);
   
-  // Remove TODAS as definições de border no HTML antes de inserir
+  // Remove APENAS as bordas de containers/seções, mantém as bordas-top de assinatura
+  // Estratégia: remove "border:" (que é border: 1px solid #e5e7eb) mas mantém "border-top:"
   contractHTML = contractHTML
-    .replace(/border\s*:\s*[^;]*;/g, '')           // Remove border: ...
-    .replace(/border-top\s*:\s*[^;]*;/g, '')        // Remove border-top: ...
-    .replace(/border-bottom\s*:\s*[^;]*;/g, '')     // Remove border-bottom: ...
-    .replace(/border-left\s*:\s*[^;]*;/g, '')       // Remove border-left: ...
-    .replace(/border-right\s*:\s*[^;]*;/g, '')      // Remove border-right: ...
-    .replace(/border-radius\s*:\s*[^;]*;/g, '')     // Remove border-radius: ...
-    .replace(/box-shadow\s*:\s*[^;]*;/g, '');       // Remove box-shadow: ...
+    .replace(/;\s*border\s*:\s*[^;]*;/g, ';')       // Remove border: ... (container borders)
+    .replace(/border-bottom\s*:\s*[^;]*;/g, '')     // Remove border-bottom
+    .replace(/border-left\s*:\s*[^;]*;/g, '')       // Remove border-left
+    .replace(/border-right\s*:\s*[^;]*;/g, '')      // Remove border-right
+    .replace(/border-radius\s*:\s*[^;]*;/g, '')     // Remove border-radius
+    .replace(/box-shadow\s*:\s*[^;]*;/g, '');       // Remove box-shadow
   
   container.innerHTML = contractHTML;
   document.body.appendChild(container);
   
-  // Força remover bordas de TODOS os elementos usando recursão
-  const removeAllBorders = (element: Element): void => {
+  // Inteligentemente remove bordas mantendo as de assinatura
+  const removeUnnecessaryBorders = (element: Element): void => {
     if (element instanceof HTMLElement) {
-      element.style.border = 'none';
-      element.style.borderTop = 'none';
-      element.style.borderBottom = 'none';
-      element.style.borderLeft = 'none';
-      element.style.borderRight = 'none';
+      const tag = element.tagName.toLowerCase();
+      const style = element.getAttribute('style') || '';
+      
+      // Remove border compound, mas mantém border-top que é usado em assinaturas
+      if (style.includes('border:') && !style.includes('border-top')) {
+        element.style.border = 'none';
+      }
+      if (style.includes('border-bottom')) {
+        element.style.borderBottom = 'none';
+      }
+      if (style.includes('border-left')) {
+        element.style.borderLeft = 'none';
+      }
+      if (style.includes('border-right')) {
+        element.style.borderRight = 'none';
+      }
       element.style.borderRadius = '0';
       element.style.boxShadow = 'none';
       element.style.outline = 'none';
     }
-    Array.from(element.children).forEach(child => removeAllBorders(child));
+    Array.from(element.children).forEach(child => removeUnnecessaryBorders(child));
   };
   
-  removeAllBorders(container);
+  removeUnnecessaryBorders(container);
   
   // Aguarda as imagens carregarem
   const imgs = container.querySelectorAll("img");
@@ -279,8 +290,8 @@ export async function generateContractPDFMobile(contract: ContractData): Promise
   const pxPerMm = capturedImg.width / usableWidthMm;
   const pageHeightPx = usableHeightMm * pxPerMm;
 
-  // Margem de segurança: reduz cada página em ~8mm para nunca cortar texto
-  const safePageHeightPx = (usableHeightMm - 8) * pxPerMm;
+  // Margem de segurança: reduz cada página em ~3mm para evitar cortes enquanto mantém mais conteúdo
+  const safePageHeightPx = (usableHeightMm - 3) * pxPerMm;
 
   const totalPages = Math.ceil(capturedImg.height / safePageHeightPx);
 
@@ -467,8 +478,8 @@ export async function generateContractPDFBase64FromElement(element: HTMLElement)
   const pxPerMm = capturedImg.width / usableWidthMm;
   const pageHeightPx = usableHeightMm * pxPerMm;
 
-  // Margem de segurança: reduz cada página em ~8mm para nunca cortar texto
-  const safePageHeightPx = (usableHeightMm - 8) * pxPerMm;
+  // Margem de segurança: reduz cada página em ~3mm para evitar cortes enquanto mantém mais conteúdo
+  const safePageHeightPx = (usableHeightMm - 3) * pxPerMm;
 
   const totalPages = Math.ceil(capturedImg.height / safePageHeightPx);
 
@@ -720,9 +731,9 @@ function getContractHTML(contract: ContractData): string {
       </p>
 
       <div style="margin-top: 32px; display: flex; gap: 24px;">
-        <div style="flex: 1;">
-          <div style="height: 56px; margin-bottom: 16px; display: flex; align-items: center; justify-content: center;">
-            <img src="/assinatura2.png" alt="PROTECT" style="max-height: 56px; max-width: 100%; object-fit: contain;" crossorigin="anonymous" />
+        <div style="flex: 1; display: flex; flex-direction: column;">
+          <div style="height: 60px; margin-bottom: 12px; display: flex; align-items: flex-end; justify-content: center;">
+            <img src="/assinatura2.png" alt="PROTECT" style="height: 100%; max-width: 95%; object-fit: scale-down;" crossorigin="anonymous" />
           </div>
           <div style="border-top: 1px solid #4b5563; padding-top: 8px;">
             <p style="margin: 0; font-weight: bold; font-size: 13px;">PROTECT CLUBE MINEIRO DE TIRO</p>
@@ -731,8 +742,8 @@ function getContractHTML(contract: ContractData): string {
           </div>
         </div>
 
-        <div style="flex: 1;">
-          <div style="height: 56px; margin-bottom: 16px;"></div>
+        <div style="flex: 1; display: flex; flex-direction: column;">
+          <div style="height: 60px; margin-bottom: 12px;"></div>
           <div style="border-top: 1px solid #4b5563; padding-top: 8px;">
             <p style="margin: 0; font-weight: bold; font-size: 13px;">${nome}</p>
             <p style="margin: 0; font-size: 11px; color: #6b7280;">CPF: ${cpf}</p>
@@ -741,9 +752,9 @@ function getContractHTML(contract: ContractData): string {
       </div>
 
       <div style="margin-top: 32px; display: flex; gap: 24px;">
-        <div style="flex: 1;">
-          <div style="height: 56px; margin-bottom: 16px; display: flex; align-items: center; justify-content: center;">
-            <img src="/assinatura1.png" alt="Testemunha 1" style="max-height: 56px; max-width: 100%; object-fit: contain;" crossorigin="anonymous" />
+        <div style="flex: 1; display: flex; flex-direction: column;">
+          <div style="height: 60px; margin-bottom: 12px; display: flex; align-items: flex-end; justify-content: center;">
+            <img src="/assinatura1.png" alt="Testemunha 1" style="height: 100%; max-width: 95%; object-fit: scale-down;" crossorigin="anonymous" />
           </div>
           <div style="border-top: 1px solid #4b5563; padding-top: 8px;">
             <p style="margin: 0; font-size: 11px; color: #6b7280;">TESTEMUNHA 1</p>
@@ -752,9 +763,9 @@ function getContractHTML(contract: ContractData): string {
           </div>
         </div>
 
-        <div style="flex: 1;">
-          <div style="height: 56px; margin-bottom: 16px; display: flex; align-items: center; justify-content: center;">
-            <img src="/assinatura3.png" alt="Testemunha 2" style="max-height: 56px; max-width: 100%; object-fit: contain;" crossorigin="anonymous" />
+        <div style="flex: 1; display: flex; flex-direction: column;">
+          <div style="height: 60px; margin-bottom: 12px; display: flex; align-items: flex-end; justify-content: center;">
+            <img src="/assinatura3.png" alt="Testemunha 2" style="height: 100%; max-width: 95%; object-fit: scale-down;" crossorigin="anonymous" />
           </div>
           <div style="border-top: 1px solid #4b5563; padding-top: 8px;">
             <p style="margin: 0; font-size: 11px; color: #6b7280;">TESTEMUNHA 2</p>
