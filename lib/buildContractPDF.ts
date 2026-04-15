@@ -176,6 +176,119 @@ export async function generateContractPDFBase64(contract: ContractData): Promise
   }
 }
 
+// Função específica para mobile - renderiza em largura fixa de desktop
+export async function generateContractPDFMobile(contract: ContractData): Promise<string> {
+  const domtoimage = (await import("dom-to-image-more")).default;
+  const jsPDFModule = (await import("jspdf")).default;
+  
+  // Cria um container com largura fixa de desktop (670px)
+  const container = document.createElement("div");
+  container.style.cssText = `
+    position: fixed;
+    top: -99999px;
+    left: 0;
+    width: 750px;
+    background: white;
+    padding: 48px 40px;
+    box-sizing: border-box;
+    z-index: -9999;
+  `;
+  
+  // Usa o mesmo HTML do contrato
+  container.innerHTML = getContractHTML(contract);
+  document.body.appendChild(container);
+  
+  // Aguarda as imagens carregarem
+  const imgs = container.querySelectorAll("img");
+  const imagePromises = Array.from(imgs).map(img => 
+    new Promise<void>((resolve) => {
+      if (img.complete) resolve();
+      else {
+        img.onload = () => resolve();
+        img.onerror = () => resolve();
+      }
+    })
+  );
+  await Promise.all(imagePromises);
+  
+  // Renderiza para JPEG com escala 2x
+  const scale = 2;
+  const dataUrl = await domtoimage.toJpeg(container, {
+    quality: 0.95,
+    bgcolor: "#ffffff",
+    width: container.offsetWidth * scale,
+    height: container.offsetHeight * scale,
+    style: {
+      transform: `scale(${scale})`,
+      transformOrigin: "top left",
+      width: container.offsetWidth + "px",
+      height: container.offsetHeight + "px",
+    },
+  });
+  
+  document.body.removeChild(container);
+  
+  // Carrega a imagem para calcular paginação
+  const capturedImg = await new Promise<HTMLImageElement>((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = reject;
+    img.src = dataUrl;
+  });
+  
+  // Calcula paginação para A4
+  const pageWidthMm = 210;  // A4 width
+  const pageHeightMm = 297; // A4 height
+  const marginMm = 10;      // 10mm margin
+  const usableWidthMm = pageWidthMm - marginMm * 2;
+  const usableHeightMm = pageHeightMm - marginMm * 2;
+
+  // Quantos px da imagem cabem em uma página
+  const pxPerMm = capturedImg.width / usableWidthMm;
+  const pageHeightPx = usableHeightMm * pxPerMm;
+
+  // Margem de segurança: reduz cada página em ~8mm para nunca cortar texto
+  const safePageHeightPx = (usableHeightMm - 8) * pxPerMm;
+
+  const totalPages = Math.ceil(capturedImg.height / safePageHeightPx);
+
+  // Cria PDF com múltiplas páginas
+  const pdf = new jsPDFModule({
+    unit: "mm",
+    format: "a4",
+    orientation: "portrait",
+    compress: true,
+  });
+
+  for (let pageIndex = 0; pageIndex < totalPages; pageIndex++) {
+    if (pageIndex > 0) pdf.addPage();
+
+    const srcY = Math.round(pageIndex * safePageHeightPx);
+    const srcH = Math.min(safePageHeightPx, capturedImg.height - srcY);
+
+    const slice = document.createElement("canvas");
+    slice.width = capturedImg.width;
+    slice.height = Math.round(srcH);
+    const ctx = slice.getContext("2d")!;
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, slice.width, slice.height);
+    ctx.drawImage(
+      capturedImg,
+      0, srcY,
+      capturedImg.width, srcH,
+      0, 0,
+      capturedImg.width, srcH
+    );
+
+    const sliceDataUrl = slice.toDataURL("image/jpeg", 0.92);
+    const sliceHeightMm = srcH / pxPerMm;
+
+    pdf.addImage(sliceDataUrl, "JPEG", marginMm, marginMm, usableWidthMm, sliceHeightMm);
+  }
+
+  return pdf.output("datauristring").split(",")[1];
+}
+
 // Nova função que recebe o elemento HTML já renderizado do site
 export async function generateContractPDFBase64FromElement(element: HTMLElement): Promise<string> {
   const domtoimage = (await import("dom-to-image-more")).default;

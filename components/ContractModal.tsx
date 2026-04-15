@@ -299,6 +299,46 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
   const p = PLANOS[plano];
 
   const handlePrint = async () => {
+    // Detecção de mobile: se a tela é menor que 768px, usa o modo mobile
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+    
+    if (isMobile) {
+      setSavingPdf(true);
+      try {
+        const { generateContractPDFMobile } = await import("../lib/buildContractPDF");
+        const jsPDFModule = (await import("jspdf")).default;
+        
+        const pdfBase64 = await generateContractPDFMobile({
+          ...formData,
+          nascimento: dateToISO(formData.nascimento),
+          plano: `${plano} anos`,
+        });
+        
+        // Converte base64 para blob e abre em nova janela
+        const byteCharacters = atob(pdfBase64);
+        const byteNumbers = new Array(byteCharacters.length);
+        for (let i = 0; i < byteCharacters.length; i++) {
+          byteNumbers[i] = byteCharacters.charCodeAt(i);
+        }
+        const byteArray = new Uint8Array(byteNumbers);
+        const blob = new Blob([byteArray], { type: "application/pdf" });
+        
+        const blobUrl = URL.createObjectURL(blob);
+        const win = window.open(blobUrl, "_blank");
+        if (!win) {
+          window.open(blobUrl);
+        }
+        
+        setSavingPdf(false);
+        return;
+      } catch (err) {
+        console.error("Erro ao gerar PDF mobile para impressão:", err);
+        alert("Erro ao preparar para impressão. Tente salvar o PDF.");
+        setSavingPdf(false);
+        return;
+      }
+    }
+
     const ref = getActiveContractRef();
     if (!ref.current) {
       alert("Não foi possível acessar o contrato. O modal pode ter sido fechado.");
@@ -528,6 +568,50 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
       } catch (err) {
         console.error("Erro ao salvar PDF do cache:", err);
         // Continua e tenta gerar novamente
+      }
+    }
+
+    // Detecção de mobile: se a tela é menor que 768px, usa o modo mobile
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+    
+    if (isMobile) {
+      setSavingPdf(true);
+      try {
+        const { generateContractPDFMobile } = await import("../lib/buildContractPDF");
+        
+        const pdfBase64 = await generateContractPDFMobile({
+          ...formData,
+          nascimento: dateToISO(formData.nascimento),
+          plano: `${plano} anos`,
+        });
+        
+        const filename = `Contrato_PROTECT_${(formData.nome || "socio")
+          .replace(/\s+/g, "_")
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")}.pdf`;
+        
+        const byteCharacters = atob(pdfBase64);
+        const byteNumbers = new Array(byteCharacters.length);
+        for (let i = 0; i < byteCharacters.length; i++) {
+          byteNumbers[i] = byteCharacters.charCodeAt(i);
+        }
+        const byteArray = new Uint8Array(byteNumbers);
+        const blob = new Blob([byteArray], { type: "application/pdf" });
+        
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        
+        setSavingPdf(false);
+        return;
+      } catch (err) {
+        console.error("Erro ao gerar PDF mobile:", err);
+        // Continua e tenta o método padrão
       }
     }
 
@@ -772,21 +856,33 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
       });
 
       try {
-        const { generateContractPDFBase64FromElement } = await import("../lib/buildContractPDF");
+        // Detecção de mobile: se a tela é menor que 768px, usa o modo mobile
+        const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
         
-        // Usa o elemento do contrato renderizado na tela para garantir que o PDF seja idêntico à visualização
-        const ref = getActiveContractRef();
-        if (!ref.current) {
-          throw new Error("Elemento do contrato não encontrado");
-        }
-        
-        const pdfBase64 = await generateContractPDFBase64FromElement(ref.current);
-
-        // Salva o PDF para uso posterior no modal de sucesso
-        const filename = `Contrato_PROTECT_${(formData.nome || "socio")
+        let pdfBase64: string;
+        let filename = `Contrato_PROTECT_${(formData.nome || "socio")
           .replace(/\s+/g, "_")
           .normalize("NFD")
           .replace(/[\u0300-\u036f]/g, "")}.pdf`;
+        
+        if (isMobile) {
+          // Usa a função mobile que renderiza em largura fixa
+          const { generateContractPDFMobile } = await import("../lib/buildContractPDF");
+          pdfBase64 = await generateContractPDFMobile({
+            ...savedData,
+            plano: `${plano} anos`,
+          });
+        } else {
+          // Desktop: usa o elemento renderizado na tela
+          const { generateContractPDFBase64FromElement } = await import("../lib/buildContractPDF");
+          const ref = getActiveContractRef();
+          if (!ref.current) {
+            throw new Error("Elemento do contrato não encontrado");
+          }
+          pdfBase64 = await generateContractPDFBase64FromElement(ref.current);
+        }
+
+        // Salva o PDF para uso posterior no modal de sucesso
         setSavedPdfData({ pdfBase64, filename });
 
         await fetch("/api/send-contract", {
