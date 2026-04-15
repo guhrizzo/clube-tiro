@@ -197,21 +197,38 @@ export async function generateContractPDFMobile(contract: ContractData): Promise
     overflow: visible;
   `;
   
-  // Usa o mesmo HTML do contrato mas remove bordas externas
-  const contractHTML = getContractHTML(contract);
-  // Remove a borda do container principal do contrato
-  container.innerHTML = contractHTML.replace('border: 1px solid #e5e7eb;', 'border: none;');
+  // Usa o mesmo HTML do contrato e remove TODAS as bordas de forma agressiva
+  let contractHTML = getContractHTML(contract);
+  
+  // Remove TODAS as definições de border no HTML antes de inserir
+  contractHTML = contractHTML
+    .replace(/border\s*:\s*[^;]*;/g, '')           // Remove border: ...
+    .replace(/border-top\s*:\s*[^;]*;/g, '')        // Remove border-top: ...
+    .replace(/border-bottom\s*:\s*[^;]*;/g, '')     // Remove border-bottom: ...
+    .replace(/border-left\s*:\s*[^;]*;/g, '')       // Remove border-left: ...
+    .replace(/border-right\s*:\s*[^;]*;/g, '')      // Remove border-right: ...
+    .replace(/border-radius\s*:\s*[^;]*;/g, '')     // Remove border-radius: ...
+    .replace(/box-shadow\s*:\s*[^;]*;/g, '');       // Remove box-shadow: ...
+  
+  container.innerHTML = contractHTML;
   document.body.appendChild(container);
   
-  // Remove bordas de todos os elementos filhos que tenham bordas de container
-  const allElements = container.querySelectorAll('*');
-  allElements.forEach((el) => {
-    const htmlEl = el as HTMLElement;
-    // Remove bordas de containers principais, mantém apenas divisórias de seção
-    if (htmlEl.style.border && htmlEl.style.border.includes('gray-200')) {
-      htmlEl.style.border = 'none';
+  // Força remover bordas de TODOS os elementos usando recursão
+  const removeAllBorders = (element: Element): void => {
+    if (element instanceof HTMLElement) {
+      element.style.border = 'none';
+      element.style.borderTop = 'none';
+      element.style.borderBottom = 'none';
+      element.style.borderLeft = 'none';
+      element.style.borderRight = 'none';
+      element.style.borderRadius = '0';
+      element.style.boxShadow = 'none';
+      element.style.outline = 'none';
     }
-  });
+    Array.from(element.children).forEach(child => removeAllBorders(child));
+  };
+  
+  removeAllBorders(container);
   
   // Aguarda as imagens carregarem
   const imgs = container.querySelectorAll("img");
