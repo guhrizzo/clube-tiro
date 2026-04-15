@@ -739,12 +739,15 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
       });
 
       try {
-        const { generateContractPDFBase64 } = await import("../lib/buildContractPDF");
-
-        const pdfBase64 = await generateContractPDFBase64({
-          ...savedData,
-          plano: `${plano} anos`,
-        });
+        const { generateContractPDFBase64FromElement } = await import("../lib/buildContractPDF");
+        
+        // Usa o elemento do contrato renderizado na tela para garantir que o PDF seja idêntico à visualização
+        const ref = getActiveContractRef();
+        if (!ref.current) {
+          throw new Error("Elemento do contrato não encontrado");
+        }
+        
+        const pdfBase64 = await generateContractPDFBase64FromElement(ref.current);
 
         await fetch("/api/send-contract", {
           method: "POST",
