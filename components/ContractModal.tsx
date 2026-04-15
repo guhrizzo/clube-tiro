@@ -224,6 +224,7 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
   const [showSuccess, setShowSuccess] = useState(false);
   const [mobileTab, setMobileTab] = useState<"contrato" | "dados">("dados");
   const [dateError, setDateError] = useState<string | null>(null);
+  const [savedPdfData, setSavedPdfData] = useState<{ pdfBase64: string; filename: string } | null>(null);
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const modalRef = useRef<HTMLDivElement>(null);
@@ -299,7 +300,10 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
 
   const handlePrint = async () => {
     const ref = getActiveContractRef();
-    if (!ref.current) return;
+    if (!ref.current) {
+      alert("Não foi possível acessar o contrato. O modal pode ter sido fechado.");
+      return;
+    }
     setSavingPdf(true);
 
     try {
@@ -501,8 +505,37 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
   };
 
   const handleSave = async () => {
+    // Se já temos o PDF salvo (quando vem do modal de sucesso), usa ele diretamente
+    if (savedPdfData) {
+      try {
+        const byteCharacters = atob(savedPdfData.pdfBase64);
+        const byteNumbers = new Array(byteCharacters.length);
+        for (let i = 0; i < byteCharacters.length; i++) {
+          byteNumbers[i] = byteCharacters.charCodeAt(i);
+        }
+        const byteArray = new Uint8Array(byteNumbers);
+        const blob = new Blob([byteArray], { type: "application/pdf" });
+        
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = savedPdfData.filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        return;
+      } catch (err) {
+        console.error("Erro ao salvar PDF do cache:", err);
+        // Continua e tenta gerar novamente
+      }
+    }
+
     const ref = getActiveContractRef();
-    if (!ref.current) return;
+    if (!ref.current) {
+      alert("Não foi possível acessar o contrato. Por favor, feche este modal e tente salvar pelo botão na barra de ferramentas do contrato.");
+      return;
+    }
     setSavingPdf(true);
 
     try {
@@ -749,6 +782,13 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
         
         const pdfBase64 = await generateContractPDFBase64FromElement(ref.current);
 
+        // Salva o PDF para uso posterior no modal de sucesso
+        const filename = `Contrato_PROTECT_${(formData.nome || "socio")
+          .replace(/\s+/g, "_")
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")}.pdf`;
+        setSavedPdfData({ pdfBase64, filename });
+
         await fetch("/api/send-contract", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -772,7 +812,11 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
     }
   };
 
-  const handleSuccessClose = () => { setShowSuccess(false); onClose(); };
+  const handleSuccessClose = () => { 
+    setSavedPdfData(null); // Limpa o PDF salvo
+    setShowSuccess(false); 
+    onClose(); 
+  };
 
   const handleDateChange = (raw: string) => {
     const masked = maskDate(raw);
