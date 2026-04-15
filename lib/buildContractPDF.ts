@@ -78,7 +78,7 @@ export async function generateContractPDFBase64(contract: ContractData): Promise
     );
     await Promise.all(imagePromises);
 
-    // Renderiza para JPEG
+    // Renderiza para JPEG com escala 2x para alta qualidade
     const scale = 2;
     const dataUrl = await domtoimage.toJpeg(contractDiv, {
       quality: 0.95,
@@ -103,28 +103,40 @@ export async function generateContractPDFBase64(contract: ContractData): Promise
       img.src = dataUrl;
     });
 
-    // Calcula paginação A4
-    const pageWidthMm = 210;
-    const pageHeightMm = 297;
+    // Calcula dimensões de página baseado na largura do contrato (670px = 188mm a ~96dpi)
+    // 670px / 2 (scale) = 335px de largura visual
+    // Convertendo para mm: 335px / 37.8px/mm ≈ 188mm
+    // Vamos usar essa como largura útil do PDF
+    
+    const visualWidthPx = 670; // Largura visual do contrato em pixels
+    const dpiToMm = 25.4 / 96; // Conversão de pixels em 96dpi para mm
+    const visualWidthMm = visualWidthPx * dpiToMm; // ~178mm
+    
+    // Usa a largura visual + padding para criar o tamanho do PDF
+    const pageWidthMm = visualWidthMm + 20; // ~198mm
     const marginMm = 10;
     const usableWidthMm = pageWidthMm - marginMm * 2;
+    
+    // Altura é A4 padrão
+    const pageHeightMm = 297;
     const usableHeightMm = pageHeightMm - marginMm * 2;
 
-    const pxPerMm = capturedImg.width / usableWidthMm;
+    // Calcula pixels por mm baseado na imagem capturada
+    const pxPerMm = (capturedImg.width * scale) / usableWidthMm;
     const pageHeightPx = usableHeightMm * pxPerMm;
 
     const totalPages = Math.ceil(capturedImg.height / pageHeightPx);
 
-    // Cria PDF com múltiplas páginas
+    // Cria PDF com dimensões customizadas
     const pdf = new jsPDF({
       unit: "mm",
-      format: "a4",
+      format: [pageWidthMm, pageHeightMm],
       orientation: "portrait",
       compress: true,
     });
 
     for (let pageIndex = 0; pageIndex < totalPages; pageIndex++) {
-      if (pageIndex > 0) pdf.addPage();
+      if (pageIndex > 0) pdf.addPage([pageWidthMm, pageHeightMm]);
 
       const srcY = Math.round(pageIndex * pageHeightPx);
       const srcH = Math.min(pageHeightPx, capturedImg.height - srcY);
