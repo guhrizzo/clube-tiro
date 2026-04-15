@@ -181,22 +181,37 @@ export async function generateContractPDFMobile(contract: ContractData): Promise
   const domtoimage = (await import("dom-to-image-more")).default;
   const jsPDFModule = (await import("jspdf")).default;
   
-  // Cria um container com largura fixa de desktop (670px)
+  // Cria um container com largura fixa de desktop (670px) - sem bordas nem padding
   const container = document.createElement("div");
   container.style.cssText = `
     position: fixed;
     top: -99999px;
     left: 0;
-    width: 750px;
+    width: 670px;
     background: white;
-    padding: 48px 40px;
+    padding: 0;
+    margin: 0;
+    border: none;
     box-sizing: border-box;
     z-index: -9999;
+    overflow: visible;
   `;
   
-  // Usa o mesmo HTML do contrato
-  container.innerHTML = getContractHTML(contract);
+  // Usa o mesmo HTML do contrato mas remove bordas externas
+  const contractHTML = getContractHTML(contract);
+  // Remove a borda do container principal do contrato
+  container.innerHTML = contractHTML.replace('border: 1px solid #e5e7eb;', 'border: none;');
   document.body.appendChild(container);
+  
+  // Remove bordas de todos os elementos filhos que tenham bordas de container
+  const allElements = container.querySelectorAll('*');
+  allElements.forEach((el) => {
+    const htmlEl = el as HTMLElement;
+    // Remove bordas de containers principais, mantém apenas divisórias de seção
+    if (htmlEl.style.border && htmlEl.style.border.includes('gray-200')) {
+      htmlEl.style.border = 'none';
+    }
+  });
   
   // Aguarda as imagens carregarem
   const imgs = container.querySelectorAll("img");
