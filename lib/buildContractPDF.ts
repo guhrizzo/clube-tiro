@@ -18,6 +18,416 @@ export interface ContractData {
   createdAt?: any;
 }
 
+/**
+ * Gera PDF renderizando a página /contrato-pdf em um iframe
+ */
+export async function generateContractPDFFromServerPage(
+  contractData: ContractData
+): Promise<string> {
+  try {
+    const domtoimage = (await import("dom-to-image-more")).default;
+    const jsPDFModule = (await import("jspdf")).default;
+
+    // Constrói URL com query params
+    const queryParams = new URLSearchParams({
+      nome: contractData.nome || "",
+      email: contractData.email || "",
+      cpf: contractData.cpf || "",
+      rg: contractData.rg || "",
+      profissao: contractData.profissao || "",
+      naturalidade: contractData.naturalidade || "",
+      nascimento: contractData.nascimento || "",
+      plano: contractData.plano?.includes("5") ? "5" : "3",
+    });
+
+    const url = `/contrato-pdf?${queryParams.toString()}`;
+
+    // Cria um iframe para carregar a página
+    const iframe = document.createElement("iframe");
+    iframe.style.cssText =
+      "position: fixed; top: -99999px; left: 0; width: 170mm; height: auto; border: none; background: white; z-index: -9999;";
+    iframe.src = url;
+    document.body.appendChild(iframe);
+
+    // Aguarda o iframe carregar
+    await new Promise<void>((resolve) => {
+      const checkLoad = setInterval(() => {
+        try {
+          if (
+            iframe.contentDocument &&
+            iframe.contentDocument.readyState === "complete"
+          ) {
+            clearInterval(checkLoad);
+            resolve();
+          }
+        } catch (e) {
+          // Pode gerar erro de CORS, mas vamos tentar mesmo assim
+        }
+      }, 100);
+
+      // Timeout após 5 segundos
+      setTimeout(() => {
+        clearInterval(checkLoad);
+        resolve();
+      }, 5000);
+    });
+
+    // Aguarda um pouco para as imagens carregarem
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
+    // Obtém o conteúdo renderizado do iframe
+    let htmlContent: HTMLElement | null = null;
+    try {
+      htmlContent = iframe.contentDocument?.body;
+    } catch (e) {
+      console.warn("Não foi possível acessar iframe.contentDocument, usando fetch direto");
+    }
+
+    // Se não conseguir via iframe (CORS), tenta fetch direto
+    if (!htmlContent) {
+      const response = await fetch(url);
+      const html = await response.text();
+
+      // Cria um container temporário com o HTML
+      const container = document.createElement("div");
+      container.innerHTML = html;
+      container.style.cssText =
+        "position: fixed; top: -99999px; left: 0; width: 170mm; background: white; z-index: -9999;";
+
+      // Injeta Tailwind via CDN para estilos
+      const style = document.createElement("style");
+      style.textContent = `
+        @import url('https://cdn.tailwindcss.com');
+        @import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap');
+        body { font-family: 'Libre Baskerville', Georgia, serif; background: #fff; }
+        * { box-sizing: border-box; }
+      `;
+      container.appendChild(style);
+      document.body.appendChild(container);
+      htmlContent = container;
+    }
+
+    if (!htmlContent) {
+      throw new Error("Não foi possível renderizar o contrato");
+    }
+
+    // Aguarda imagens carregarem
+    const imgs = htmlContent.querySelectorAll("img");
+    await Promise.all(
+      Array.from(imgs).map(
+        (img) =>
+          new Promise<void>((resolve) => {
+            if (img.complete) resolve();
+            else {
+              img.onload = () => resolve();
+              img.onerror = () => resolve();
+            }
+          })
+      )
+    );
+
+    // Captura como imagem com escala 2×
+    const scale = 2;
+    const dataUrl = await domtoimage.toJpeg(htmlContent, {
+      quality: 0.95,
+      bgcolor: "#ffffff",
+      width: htmlContent.offsetWidth * scale,
+      height: htmlContent.offsetHeight * scale,
+      style: {
+        transform: `scale(${scale})`,
+        transformOrigin: "top left",
+        width: htmlContent.offsetWidth + "px",
+        height: htmlContent.offsetHeight + "px",
+      },
+    });
+
+    // Remove elementos temporários
+    if (iframe.parentNode) document.body.removeChild(iframe);
+    const tempContainer = htmlContent.parentElement;
+    if (tempContainer && tempContainer !== document.body && tempContainer.parentNode) {
+      tempContainer.parentNode.removeChild(tempContainer);
+    }
+
+    // Converte para imagem
+    const capturedImg = await new Promise<HTMLImageElement>((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => resolve(img);
+      img.onerror = reject;
+      img.src = dataUrl;
+    });
+
+    // Configuração A4
+    const pageWidthMm = 210;
+    const pageHeightMm = 297;
+    const marginMm = 10;
+    const usableWidthMm = pageWidthMm - marginMm * 2;
+    const usableHeightMm = pageHeightMm - marginMm * 2;
+
+    const pxPerMm = capturedImg.width / usableWidthMm;
+    const safePageHeightPx = (usableHeightMm - 8) * pxPerMm;
+
+    const totalPages = Math.ceil(capturedImg.height / safePageHeightPx);
+
+    const pdf = new jsPDFModule({
+      unit: "mm",
+      format: "a4",
+      orientation: "portrait",
+      compress: true,
+    });
+
+    // Adiciona páginas
+    for (let pageIndex = 0; pageIndex < totalPages; pageIndex++) {
+      if (pageIndex > 0) pdf.addPage();
+
+      const srcY = Math.round(pageIndex * safePageHeightPx);
+      const srcH = Math.min(safePageHeightPx, capturedImg.height - srcY);
+
+      const slice = document.createElement("canvas");
+      slice.width = capturedImg.width;
+      slice.height = Math.round(srcH);
+      const ctx = slice.getContext("2d")!;
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, slice.width, slice.height);
+      ctx.drawImage(
+        capturedImg,
+        0,
+        srcY,
+        capturedImg.width,
+        srcH,
+        0,
+        0,
+        capturedImg.width,
+        srcH
+      );
+
+      const sliceDataUrl = slice.toDataURL("image/jpeg", 0.92);
+      const sliceHeightMm = srcH / pxPerMm;
+
+      pdf.addImage(
+        sliceDataUrl,
+        "JPEG",
+        marginMm,
+        marginMm,
+        usableWidthMm,
+        sliceHeightMm
+      );
+    }
+
+    return pdf.output("datauristring").split(",")[1];
+  } catch (err) {
+    console.error("Erro ao gerar PDF da página /contrato-pdf:", err);
+    throw err;
+  }
+}
+
+/**
+ * Abre a página /contrato-pdf em nova janela para impressão
+ */
+export async function openContractForPrinting(
+  contractData: ContractData
+): Promise<void> {
+  try {
+    const domtoimage = (await import("dom-to-image-more")).default;
+    const jsPDFModule = (await import("jspdf")).default;
+
+    // Constrói URL com query params
+    const queryParams = new URLSearchParams({
+      nome: contractData.nome || "",
+      email: contractData.email || "",
+      cpf: contractData.cpf || "",
+      rg: contractData.rg || "",
+      profissao: contractData.profissao || "",
+      naturalidade: contractData.naturalidade || "",
+      nascimento: contractData.nascimento || "",
+      plano: contractData.plano?.includes("5") ? "5" : "3",
+    });
+
+    const url = `/contrato-pdf?${queryParams.toString()}`;
+
+    // Cria um iframe para carregar a página
+    const iframe = document.createElement("iframe");
+    iframe.style.cssText =
+      "position: fixed; top: -99999px; left: 0; width: 170mm; height: auto; border: none; background: white; z-index: -9999;";
+    iframe.src = url;
+    document.body.appendChild(iframe);
+
+    // Aguarda o iframe carregar
+    await new Promise<void>((resolve) => {
+      const checkLoad = setInterval(() => {
+        try {
+          if (
+            iframe.contentDocument &&
+            iframe.contentDocument.readyState === "complete"
+          ) {
+            clearInterval(checkLoad);
+            resolve();
+          }
+        } catch (e) {
+          // Pode gerar erro de CORS
+        }
+      }, 100);
+
+      // Timeout após 5 segundos
+      setTimeout(() => {
+        clearInterval(checkLoad);
+        resolve();
+      }, 5000);
+    });
+
+    // Aguarda um pouco para as imagens carregarem
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
+    // Obtém o conteúdo renderizado do iframe
+    let htmlContent: HTMLElement | null = null;
+    try {
+      htmlContent = iframe.contentDocument?.body;
+    } catch (e) {
+      console.warn("Não foi possível acessar iframe.contentDocument, usando fetch direto");
+    }
+
+    // Se não conseguir via iframe (CORS), tenta fetch direto
+    if (!htmlContent) {
+      const response = await fetch(url);
+      const html = await response.text();
+
+      // Cria um container temporário com o HTML
+      const container = document.createElement("div");
+      container.innerHTML = html;
+      container.style.cssText =
+        "position: fixed; top: -99999px; left: 0; width: 170mm; background: white; z-index: -9999;";
+
+      // Injeta Tailwind via CDN para estilos
+      const style = document.createElement("style");
+      style.textContent = `
+        @import url('https://cdn.tailwindcss.com');
+        @import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap');
+        body { font-family: 'Libre Baskerville', Georgia, serif; background: #fff; }
+        * { box-sizing: border-box; }
+      `;
+      container.appendChild(style);
+      document.body.appendChild(container);
+      htmlContent = container;
+    }
+
+    if (!htmlContent) {
+      throw new Error("Não foi possível renderizar o contrato");
+    }
+
+    // Aguarda imagens carregarem
+    const imgs = htmlContent.querySelectorAll("img");
+    await Promise.all(
+      Array.from(imgs).map(
+        (img) =>
+          new Promise<void>((resolve) => {
+            if (img.complete) resolve();
+            else {
+              img.onload = () => resolve();
+              img.onerror = () => resolve();
+            }
+          })
+      )
+    );
+
+    // Captura como imagem com escala 2×
+    const scale = 2;
+    const dataUrl = await domtoimage.toJpeg(htmlContent, {
+      quality: 0.95,
+      bgcolor: "#ffffff",
+      width: htmlContent.offsetWidth * scale,
+      height: htmlContent.offsetHeight * scale,
+      style: {
+        transform: `scale(${scale})`,
+        transformOrigin: "top left",
+        width: htmlContent.offsetWidth + "px",
+        height: htmlContent.offsetHeight + "px",
+      },
+    });
+
+    // Remove elementos temporários
+    if (iframe.parentNode) document.body.removeChild(iframe);
+    const tempContainer = htmlContent.parentElement;
+    if (tempContainer && tempContainer !== document.body && tempContainer.parentNode) {
+      tempContainer.parentNode.removeChild(tempContainer);
+    }
+
+    // Converte para imagem
+    const capturedImg = await new Promise<HTMLImageElement>((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => resolve(img);
+      img.onerror = reject;
+      img.src = dataUrl;
+    });
+
+    // Configuração A4
+    const pageWidthMm = 210;
+    const pageHeightMm = 297;
+    const marginMm = 10;
+    const usableWidthMm = pageWidthMm - marginMm * 2;
+    const usableHeightMm = pageHeightMm - marginMm * 2;
+
+    const pxPerMm = capturedImg.width / usableWidthMm;
+    const safePageHeightPx = (usableHeightMm - 8) * pxPerMm;
+
+    const totalPages = Math.ceil(capturedImg.height / safePageHeightPx);
+
+    const pdf = new jsPDFModule({
+      unit: "mm",
+      format: "a4",
+      orientation: "portrait",
+      compress: true,
+    });
+
+    // Adiciona páginas
+    for (let pageIndex = 0; pageIndex < totalPages; pageIndex++) {
+      if (pageIndex > 0) pdf.addPage();
+
+      const srcY = Math.round(pageIndex * safePageHeightPx);
+      const srcH = Math.min(safePageHeightPx, capturedImg.height - srcY);
+
+      const slice = document.createElement("canvas");
+      slice.width = capturedImg.width;
+      slice.height = Math.round(srcH);
+      const ctx = slice.getContext("2d")!;
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, slice.width, slice.height);
+      ctx.drawImage(
+        capturedImg,
+        0,
+        srcY,
+        capturedImg.width,
+        srcH,
+        0,
+        0,
+        capturedImg.width,
+        srcH
+      );
+
+      const sliceDataUrl = slice.toDataURL("image/jpeg", 0.92);
+      const sliceHeightMm = srcH / pxPerMm;
+
+      pdf.addImage(
+        sliceDataUrl,
+        "JPEG",
+        marginMm,
+        marginMm,
+        usableWidthMm,
+        sliceHeightMm
+      );
+    }
+
+    // Abre o PDF em nova janela para impressão
+    const blobUrl = pdf.output("bloburi");
+    const win = window.open(blobUrl, "_blank");
+    if (!win) {
+      console.error("Não foi possível abrir nova janela");
+      throw new Error("Abrir nova janela bloqueado pelo navegador");
+    }
+  } catch (err) {
+    console.error("Erro ao abrir contrato para impressão:", err);
+    throw err;
+  }
+}
+
 const loadImageAsBase64 = (src: string): Promise<string> =>
   new Promise((resolve, reject) => {
     const img = new Image();
