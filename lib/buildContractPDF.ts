@@ -30,17 +30,23 @@ export async function generateContractPDFFromServerPage(
 
     // Armazena dados sensíveis em sessionStorage (não expõe na URL)
     const sessionId = `contract_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
-    if (typeof window !== "undefined" && window.sessionStorage) {
-      sessionStorage.setItem(sessionId, JSON.stringify({
-        nome: contractData.nome || "",
-        email: contractData.email || "",
-        cpf: contractData.cpf || "",
-        rg: contractData.rg || "",
-        profissao: contractData.profissao || "",
-        naturalidade: contractData.naturalidade || "",
-        nascimento: contractData.nascimento || "",
-        plano: contractData.plano?.includes("5") ? "5" : "3",
-      }));
+    if (typeof window !== "undefined") {
+      try {
+        if (window.sessionStorage) {
+          sessionStorage.setItem(sessionId, JSON.stringify({
+            nome: contractData.nome || "",
+            email: contractData.email || "",
+            cpf: contractData.cpf || "",
+            rg: contractData.rg || "",
+            profissao: contractData.profissao || "",
+            naturalidade: contractData.naturalidade || "",
+            nascimento: contractData.nascimento || "",
+            plano: contractData.plano?.includes("5") ? "5" : "3",
+          }));
+        }
+      } catch (e) {
+        console.warn("sessionStorage não disponível, dados serão passados via URL fallback");
+      }
     }
 
     const url = `/contrato-pdf?sid=${sessionId}`;
@@ -235,17 +241,23 @@ export async function openContractForPrinting(
 
     // Armazena dados sensíveis em sessionStorage (não expõe na URL)
     const sessionId = `contract_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
-    if (typeof window !== "undefined" && window.sessionStorage) {
-      sessionStorage.setItem(sessionId, JSON.stringify({
-        nome: contractData.nome || "",
-        email: contractData.email || "",
-        cpf: contractData.cpf || "",
-        rg: contractData.rg || "",
-        profissao: contractData.profissao || "",
-        naturalidade: contractData.naturalidade || "",
-        nascimento: contractData.nascimento || "",
-        plano: contractData.plano?.includes("5") ? "5" : "3",
-      }));
+    if (typeof window !== "undefined") {
+      try {
+        if (window.sessionStorage) {
+          sessionStorage.setItem(sessionId, JSON.stringify({
+            nome: contractData.nome || "",
+            email: contractData.email || "",
+            cpf: contractData.cpf || "",
+            rg: contractData.rg || "",
+            profissao: contractData.profissao || "",
+            naturalidade: contractData.naturalidade || "",
+            nascimento: contractData.nascimento || "",
+            plano: contractData.plano?.includes("5") ? "5" : "3",
+          }));
+        }
+      } catch (e) {
+        console.warn("sessionStorage não disponível, dados serão passados via URL fallback");
+      }
     }
 
     const url = `/contrato-pdf?sid=${sessionId}`;

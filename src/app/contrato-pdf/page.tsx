@@ -458,14 +458,30 @@ export default async function ContratoPdfPage({ searchParams }: PageProps) {
           dangerouslySetInnerHTML={{
             __html: `
               (function() {
-                const sessionId = document.getElementById('contract-container')?.getAttribute('data-session-id');
+                const container = document.getElementById('contract-container');
+                const sessionId = container?.getAttribute('data-session-id');
                 if (!sessionId) return;
                 
                 try {
-                  const dataStr = sessionStorage.getItem(sessionId);
-                  if (!dataStr) return;
+                  let data = null;
                   
-                  const data = JSON.parse(dataStr);
+                  // Tentar obter dados do sessionStorage primeiro
+                  if (typeof sessionStorage !== 'undefined') {
+                    try {
+                      const dataStr = sessionStorage.getItem(sessionId);
+                      if (dataStr) {
+                        data = JSON.parse(dataStr);
+                      }
+                    } catch (e) {
+                      console.warn('Erro ao acessar sessionStorage:', e);
+                    }
+                  }
+                  
+                  // Se não encontrou no sessionStorage, não há dados para injetar
+                  if (!data) {
+                    console.warn('Nenhum dado encontrado para injetar no contrato');
+                    return;
+                  }
                   
                   const PLANOS = {
                     "3": {
@@ -520,11 +536,11 @@ export default async function ContratoPdfPage({ searchParams }: PageProps) {
                   // Atualizar assinatura - encontrar os elementos dentro do grid
                   const sigElements = document.querySelectorAll('#contract-container .grid.grid-cols-2');
                   if (sigElements.length > 0) {
-                    const secondGrid = sigElements[0]; // Primeira grid com as assinaturas
-                    const cells = secondGrid.querySelectorAll('div > div');
-                    if (cells.length >= 2) {
-                      const secondCell = cells[1]; // Segunda célula (lado direito)
-                      const lines = secondCell.querySelectorAll('p');
+                    const firstGrid = sigElements[0]; // Primeira grid com as assinaturas
+                    const divs = firstGrid.querySelectorAll('> div');
+                    if (divs.length >= 2) {
+                      const secondDiv = divs[1]; // Segunda célula (lado direito)
+                      const lines = secondDiv.querySelectorAll('p');
                       if (lines.length >= 2) {
                         lines[0].textContent = data.nome || 'SÓCIO USUÁRIO (COLABORADOR)';
                         lines[1].textContent = 'CPF: ' + (data.cpf || '___________________________');
@@ -533,7 +549,13 @@ export default async function ContratoPdfPage({ searchParams }: PageProps) {
                   }
                   
                   // Limpar sessionStorage após uso
-                  sessionStorage.removeItem(sessionId);
+                  if (typeof sessionStorage !== 'undefined') {
+                    try {
+                      sessionStorage.removeItem(sessionId);
+                    } catch (e) {
+                      console.warn('Erro ao limpar sessionStorage:', e);
+                    }
+                  }
                 } catch (e) {
                   console.error('Erro ao injetar dados do contrato:', e);
                 }
