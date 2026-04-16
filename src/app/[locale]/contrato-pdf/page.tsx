@@ -39,11 +39,13 @@ function SigBlock({
   imgAlt,
   label,
   lines,
+  borderColor = "border-gray-400",
 }: {
   imgSrc?: string;
   imgAlt?: string;
   label?: string;
   lines: string[];
+  borderColor?: string;
 }) {
   return (
     <div>
@@ -53,11 +55,12 @@ function SigBlock({
           <img
             src={imgSrc}
             alt={imgAlt}
+            crossOrigin="anonymous"
             className="max-h-20 max-w-full object-contain object-left"
           />
         )}
       </div>
-      <div className="pt-2">
+      <div className={`border-t ${borderColor} pt-2`}>
         {label && <p className="text-gray-500">{label}</p>}
         {lines.map((line, i) => (
           <p
@@ -101,41 +104,36 @@ function ContratoPdfContent() {
   }, [sessionId]);
 
   const p = PLANOS[plano];
+  const formData = contractData || {};
 
-  const blank = (label: string) => (
-    <span className="inline-block px-1 text-gray-300 min-w-[180px]">
-      {label}
-    </span>
-  );
-
-  const displayValue = (value: string | undefined, label: string) =>
+  const blank = (label: string, value: string, width = "min-w-[180px]") =>
     value ? (
-      <span className="inline-block px-1 font-semibold min-w-[180px]">
+      <span className={`inline-block border-b border-gray-700 px-1 font-semibold ${width}`}>
         {value}
       </span>
     ) : (
-      blank(label)
+      <span className={`inline-block border-b border-gray-400 px-1 text-gray-300 ${width}`}>
+        {label}
+      </span>
     );
 
   return (
-    <div className="max-w-[170mm] mx-auto bg-white px-10 py-12 text-[13px] text-gray-800 leading-relaxed font-serif">
-      {/* Cabeçalho */}
-      <div className="text-center mb-8 pb-6">
+    <div className="max-w-170 mx-auto bg-white border border-gray-200 px-6 md:px-10 py-12 text-[13px] text-gray-800 leading-relaxed font-serif shadow-sm">
+      <div className="text-center mb-8 pb-6 border-b border-gray-200">
         <p className="text-[11px] uppercase tracking-[0.25em] text-gray-500 mb-3">
           Documento Legal
         </p>
-        <h1 className="font-bold text-base uppercase leading-snug">
+        <h1 className="font-bold text-base uppercase leading-snug" id="contract-title">
           Contrato de Adesão de Sócio Usuário (Colaborador)
         </h1>
         <p className="text-xs text-gray-500 mt-2">
           Protect Clube Mineiro de Tiro — CNPJ 01.244.200/0001-52
         </p>
-        <div className="mt-4 inline-flex items-center gap-2 px-3 py-1 text-[11px] uppercase tracking-widest text-gray-600">
+        <div className="mt-4 inline-flex items-center gap-2 border border-gray-300 px-3 py-1 text-[11px] uppercase tracking-widest text-gray-600">
           Cota {p.nomeContrato} — {p.vigencia}
         </div>
       </div>
 
-      {/* Preâmbulo com dados dinamicamente injetados */}
       <p className="mb-4 text-justify">
         Pelo presente instrumento particular de{" "}
         <strong>CONTRATO DE ADESÃO DE SÓCIO USUÁRIO (COLABORADOR)</strong>, de um lado,{" "}
@@ -144,12 +142,12 @@ function ContratoPdfContent() {
         Andrade Neves, 622, Bairro Gutierrez, Belo Horizonte/MG, e posteriormente na Rua dos
         Radialistas, 38, Bairro Balneário Água Limpa, Nova Lima/MG, neste ato representada por
         quem de direito, doravante simplesmente denominada <strong>PROTECT</strong>; e, de outro
-        lado, o(a) Sr.(a) {displayValue(contractData?.nome, "Nome completo")}, profissão{" "}
-        {displayValue(contractData?.profissao, "Profissão")}, inscrito(a) no RG nº{" "}
-        {displayValue(contractData?.rg, "RG")}, portador(a) do CPF nº{" "}
-        {displayValue(contractData?.cpf, "CPF")}, natural de{" "}
-        {displayValue(contractData?.naturalidade, "Naturalidade")}, nascido(a) em{" "}
-        {displayValue(contractData?.nascimento, "dd/mm/aaaa")}, doravante simplesmente
+        lado, o(a) Sr.(a) {blank("Nome completo", formData.nome || "", "min-w-[220px]")}, profissão{" "}
+        {blank("Profissão", formData.profissao || "", "min-w-[140px]")}, inscrito(a) no RG nº{" "}
+        {blank("RG", formData.rg || "", "min-w-[120px]")}, portador(a) do CPF nº{" "}
+        {blank("CPF", formData.cpf || "", "min-w-[130px]")}, natural de{" "}
+        {blank("Naturalidade", formData.naturalidade || "", "min-w-[120px]")}, nascido(a) em{" "}
+        {blank("dd/mm/aaaa", formData.nascimento || "", "min-w-[90px]")}, doravante simplesmente
         denominado(a) <strong>SÓCIO USUÁRIO (COLABORADOR)</strong>, têm entre si justo e
         contratado o direito de sócio usuário (colaborador) da PROTECT, tudo de acordo com as
         condições especificadas nesta contratação/adesão e na legislação vigente.
@@ -160,7 +158,6 @@ function ContratoPdfContent() {
         relativas ao presente instrumento.
       </p>
 
-      {/* 1. Preço */}
       <h2 className="font-bold text-sm uppercase mb-3 mt-6">
         1. Do Preço e da Forma de Pagamento
       </h2>
@@ -212,7 +209,6 @@ function ContratoPdfContent() {
         +20% de honorários.
       </p>
 
-      {/* 2. Obrigações da Protect */}
       <h2 className="font-bold text-sm uppercase mb-3 mt-6">
         2. Das Obrigações da Contratada Protect
       </h2>
@@ -244,7 +240,6 @@ function ContratoPdfContent() {
         atividades.
       </p>
 
-      {/* 3. Direitos do Sócio */}
       <h2 className="font-bold text-sm uppercase mb-3 mt-6">
         3. Dos Direitos do Sócio Usuário (Colaborador)
       </h2>
@@ -271,7 +266,7 @@ function ContratoPdfContent() {
       <p className="mb-3">
         <strong>CLÁUSULA NONA:</strong> Fazer requerimento para obtenção de CR de Colecionador,
         Atirador ou Caçador, observados os requisitos elencados pelo Estatuto do Desarmamento e
-        portarias vigentes da Polícia Federal e ao Exército, sendo necessário ter 25 anos.
+        portarias vigentes da Polícia Federal e do Exército, sendo necessário ter 25 anos.
         Antes disso, o interessado poderá obter autorização judicial.
       </p>
       <p className="mb-3">
@@ -302,7 +297,6 @@ function ContratoPdfContent() {
         aprovado para obtenção ou renovação de CR.
       </p>
 
-      {/* 4. Disposições Gerais */}
       <h2 className="font-bold text-sm uppercase mb-3 mt-6">
         4. Disposições Gerais e Condições Específicas
       </h2>
@@ -328,7 +322,6 @@ function ContratoPdfContent() {
         sem equipamentos de proteção auricular e visual.
       </p>
 
-      {/* 5. Rescisão */}
       <h2 className="font-bold text-sm uppercase mb-3 mt-6">
         5. Da Rescisão do Contrato
       </h2>
@@ -358,7 +351,6 @@ function ContratoPdfContent() {
         promessas ou acordos que não façam parte deste contrato.
       </p>
 
-      {/* 6. Termo de Responsabilidade */}
       <h2 className="font-bold text-sm uppercase mb-3 mt-6">
         6. Termo de Responsabilidade para Uso dos Espaços de Tiro
       </h2>
@@ -389,8 +381,7 @@ function ContratoPdfContent() {
         Brasileiro e demais normas aplicáveis.
       </p>
 
-      {/* Assinaturas */}
-      <div className="pt-8 mt-8 space-y-8 text-xs">
+      <div className="border-t border-gray-200 pt-8 mt-8 space-y-8 text-xs">
         <p className="text-center">
           E, por estarem justas e contratadas, firmam o presente em 02 (duas) vias, na presença
           das testemunhas.
@@ -407,8 +398,8 @@ function ContratoPdfContent() {
           />
           <SigBlock
             lines={[
-              contractData?.nome || "SÓCIO USUÁRIO (COLABORADOR)",
-              `CPF: ${contractData?.cpf || "___________________________"}`,
+              formData.nome || "SÓCIO USUÁRIO (COLABORADOR)",
+              `CPF: ${formData.cpf || "___________________________"}`,
             ]}
           />
         </div>
@@ -426,18 +417,6 @@ function ContratoPdfContent() {
             lines={["NEWTON C. BAPTISTON", "CPF: 584.978.896-49"]}
           />
         </div>
-        <p className="text-center text-gray-500">
-          Belo Horizonte/MG, {new Date().toLocaleDateString("pt-BR", {
-            day: "numeric",
-            month: "long",
-            year: "numeric",
-          })}
-        </p>
-        <p className="text-center text-gray-400">
-          Rua General Andrade Neves, 622, Grajaú, CEP 30431-128 — Belo Horizonte/MG
-          <br />
-          clube@grupoprotect.com.br · grupoprotect.com.br · (31) 3371-8500
-        </p>
       </div>
     </div>
   );
