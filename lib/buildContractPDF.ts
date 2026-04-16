@@ -49,7 +49,10 @@ export async function generateContractPDFFromServerPage(
       }
     }
 
-    const url = `/contrato-pdf?sid=${sessionId}`;
+    // Detecta o locale atual do pathname
+    const currentPathname = typeof window !== "undefined" ? window.location.pathname : "/pt";
+    const locale = currentPathname.split("/")[1] || "pt";
+    const url = `/${locale}/contrato-pdf?sid=${sessionId}`;
 
     // Cria um iframe para carregar a página
     const iframe = document.createElement("iframe");
@@ -260,7 +263,10 @@ export async function openContractForPrinting(
       }
     }
 
-    const url = `/contrato-pdf?sid=${sessionId}`;
+    // Detecta o locale atual do pathname
+    const currentPathname = typeof window !== "undefined" ? window.location.pathname : "/pt";
+    const locale = currentPathname.split("/")[1] || "pt";
+    const url = `/${locale}/contrato-pdf?sid=${sessionId}`;
 
     // Cria um iframe para carregar a página
     const iframe = document.createElement("iframe");
