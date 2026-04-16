@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -74,9 +74,9 @@ function SigBlock({
   );
 }
 
-// ─── Página ──────────────────────────────────────────────────────────────────
+// ─── Componente de conteúdo que usa useSearchParams ──────────────────────────
 
-export default function ContratoPdfPage() {
+function ContratoPdfContent() {
   const searchParams = useSearchParams();
   const sessionId = searchParams.get('sid') || '';
   const [contractData, setContractData] = useState<any>(null);
@@ -440,5 +440,15 @@ export default function ContratoPdfPage() {
         </p>
       </div>
     </div>
+  );
+}
+
+// ─── Página com Suspense ─────────────────────────────────────────────────────
+
+export default function ContratoPdfPage() {
+  return (
+    <Suspense fallback={<div>Carregando...</div>}>
+      <ContratoPdfContent />
+    </Suspense>
   );
 }
