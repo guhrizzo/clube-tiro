@@ -1,7 +1,7 @@
 
 export const dynamic = "force-dynamic";
 
-// ─── Helpers (copiados do ContractModal) ────────────────────────────────────
+// ─── Helpers ────────────────────────────────────────────────────────────────
 
 const PLANOS = {
   "3": {
@@ -30,13 +30,6 @@ const PLANOS = {
 
 type PlanoKey = keyof typeof PLANOS;
 
-function isoToBR(iso: string): string {
-  // Aceita "yyyy-mm-dd" → "dd/mm/yyyy"
-  if (!iso || iso.length < 10) return iso ?? "";
-  const [yyyy, mm, dd] = iso.split("-");
-  return `${dd}/${mm}/${yyyy}`;
-}
-
 // ─── Sub-componentes ─────────────────────────────────────────────────────────
 
 function SigBlock({
@@ -44,13 +37,11 @@ function SigBlock({
   imgAlt,
   label,
   lines,
-  borderColor = "border-gray-400",
 }: {
   imgSrc?: string;
   imgAlt?: string;
   label?: string;
   lines: string[];
-  borderColor?: string;
 }) {
   return (
     <div>
@@ -89,61 +80,24 @@ interface PageProps {
 
 export default async function ContratoPdfPage({ searchParams }: PageProps) {
   const params = await searchParams;
+  const sessionId = params.sid || "";
 
-  const formData = {
-    nome: params.nome ?? "",
-    email: params.email ?? "",
-    cpf: params.cpf ?? "",
-    rg: params.rg ?? "",
-    profissao: params.profissao ?? "",
-    naturalidade: params.naturalidade ?? "",
-    // Aceita tanto ISO (yyyy-mm-dd) quanto BR (dd/mm/yyyy)
-    nascimento: params.nascimento?.includes("-")
-      ? isoToBR(params.nascimento)
-      : (params.nascimento ?? ""),
-  };
+  // Renderiza estrutura HTML base vazia
+  // Os dados do sessionStorage serão injetados via script no cliente
+  const p = PLANOS["3"]; // Padrão 3 anos
 
-  const plano: PlanoKey =
-    params.plano === "5" || params.plano === "5 anos" ? "5" : "3";
-  const p = PLANOS[plano];
-
-  // Helpers inline para o JSX do contrato
-  const blank = (label: string, value: string, width = "min-w-[180px]") =>
-    value ? (
-      <span
-        className={`inline-block px-1 font-semibold ${width}`}
-      >
-        {value}
-      </span>
-    ) : (
-      <span
-        className={`inline-block px-1 text-gray-300 ${width}`}
-      >
-        {label}
-      </span>
-    );
-
-  const nascimentoDisplay =
-    formData.nascimento.length === 10 ? formData.nascimento : "";
-
-  const dataAssinatura = new Date().toLocaleDateString("pt-BR", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  });
+  const blank = (label: string) => (
+    <span className="inline-block px-1 text-gray-300 min-w-[180px]">
+      {label}
+    </span>
+  );
 
   return (
-    // Fundo branco puro, sem padding de viewport — Puppeteer captura a página inteira
+    // Fundo branco puro, sem padding de viewport
     <html lang="pt-BR">
       <head>
         <meta charSet="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        {/*
-          Carrega Tailwind via CDN para garantir que os estilos estejam presentes
-          quando o Puppeteer renderizar (o build do Next.js pode não incluir
-          todas as classes nessa rota isolada).
-          Em produção, se preferir, substitua pelo CSS gerado pelo build.
-        */}
         <script src="https://cdn.tailwindcss.com" />
         <style>{`
           @import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap');
@@ -172,8 +126,11 @@ export default async function ContratoPdfPage({ searchParams }: PageProps) {
         `}</style>
       </head>
       <body className="bg-white">
-        <div className="max-w-[170mm] mx-auto bg-white px-10 py-12 text-[13px] text-gray-800 leading-relaxed font-serif">
-
+        <div 
+          className="max-w-[170mm] mx-auto bg-white px-10 py-12 text-[13px] text-gray-800 leading-relaxed font-serif"
+          id="contract-container"
+          data-session-id={sessionId}
+        >
           {/* Cabeçalho */}
           <div className="text-center mb-8 pb-6">
             <p className="text-[11px] uppercase tracking-[0.25em] text-gray-500 mb-3">
@@ -186,11 +143,11 @@ export default async function ContratoPdfPage({ searchParams }: PageProps) {
               Protect Clube Mineiro de Tiro — CNPJ 01.244.200/0001-52
             </p>
             <div className="mt-4 inline-flex items-center gap-2 px-3 py-1 text-[11px] uppercase tracking-widest text-gray-600">
-              Cota {p.nomeContrato} — {p.vigencia}
+              <span id="plano-display">Cota trienal — 3 anos</span>
             </div>
           </div>
 
-          {/* Preâmbulo */}
+          {/* Preâmbulo com dados dinamicamente injetados */}
           <p className="mb-4 text-justify">
             Pelo presente instrumento particular de{" "}
             <strong>CONTRATO DE ADESÃO DE SÓCIO USUÁRIO (COLABORADOR)</strong>, de um lado,{" "}
@@ -199,12 +156,12 @@ export default async function ContratoPdfPage({ searchParams }: PageProps) {
             Andrade Neves, 622, Bairro Gutierrez, Belo Horizonte/MG, e posteriormente na Rua dos
             Radialistas, 38, Bairro Balneário Água Limpa, Nova Lima/MG, neste ato representada por
             quem de direito, doravante simplesmente denominada <strong>PROTECT</strong>; e, de outro
-            lado, o(a) Sr.(a) {blank("Nome completo", formData.nome, "min-w-[220px]")}, profissão{" "}
-            {blank("Profissão", formData.profissao, "min-w-[140px]")}, inscrito(a) no RG nº{" "}
-            {blank("RG", formData.rg, "min-w-[120px]")}, portador(a) do CPF nº{" "}
-            {blank("CPF", formData.cpf, "min-w-[130px]")}, natural de{" "}
-            {blank("Naturalidade", formData.naturalidade, "min-w-[120px]")}, nascido(a) em{" "}
-            {blank("dd/mm/aaaa", nascimentoDisplay, "min-w-[90px]")}, doravante simplesmente
+            lado, o(a) Sr.(a) <span id="display-nome">{blank("Nome completo")}</span>, profissão{" "}
+            <span id="display-profissao">{blank("Profissão")}</span>, inscrito(a) no RG nº{" "}
+            <span id="display-rg">{blank("RG")}</span>, portador(a) do CPF nº{" "}
+            <span id="display-cpf">{blank("CPF")}</span>, natural de{" "}
+            <span id="display-naturalidade">{blank("Naturalidade")}</span>, nascido(a) em{" "}
+            <span id="display-nascimento">{blank("dd/mm/aaaa")}</span>, doravante simplesmente
             denominado(a) <strong>SÓCIO USUÁRIO (COLABORADOR)</strong>, têm entre si justo e
             contratado o direito de sócio usuário (colaborador) da PROTECT, tudo de acordo com as
             condições especificadas nesta contratação/adesão e na legislação vigente.
@@ -221,7 +178,7 @@ export default async function ContratoPdfPage({ searchParams }: PageProps) {
           </h2>
           <p className="mb-3">
             <strong>CLÁUSULA PRIMEIRA:</strong> O valor total do contrato, correspondente à cota{" "}
-            {p.nomeContrato} (vigente por {p.nomePrazo} anos), é de <strong>{p.total}</strong>,
+            <span id="plan-tipo">{p.nomeContrato}</span> (vigente por <span id="plan-prazo">{p.nomePrazo}</span> anos), é de <strong><span id="plan-total">{p.total}</span></strong>,
             ficando isento o pagamento de taxa de contribuição social mensal.
           </p>
           <p className="mb-3">
@@ -231,7 +188,7 @@ export default async function ContratoPdfPage({ searchParams }: PageProps) {
           </p>
           <p className="mb-3">
             <strong>PARÁGRAFO SEGUNDO:</strong> O pagamento deverá ser efetuado no ato da
-            assinatura deste contrato, no valor de {p.parcela} (anuidade), correspondente à
+            assinatura deste contrato, no valor de <span id="plan-parcela">{p.parcela}</span> (anuidade), correspondente à
             primeira parcela, salvo eventual desconto ou condição diferenciada. Em caso de
             parcelamento, o valor remanescente será reajustado ao final de cada ano pelo IGP-M ou
             índice substituto. Independentemente da data de ingresso, o pagamento será anual e
@@ -241,9 +198,9 @@ export default async function ContratoPdfPage({ searchParams }: PageProps) {
           </p>
           <p className="mb-3">
             <strong>PARÁGRAFO TERCEIRO:</strong> Caso a contratação seja realizada em mês diverso
-            de janeiro, o contrato permanecerá vigente até o mesmo mês de janeiro, {p.nomePrazo}{" "}
+            de janeiro, o contrato permanecerá vigente até o mesmo mês de janeiro, <span id="plan-prazo-2">{p.nomePrazo}</span>{" "}
             anos após o ingresso, sendo que as parcelas remanescentes também vencerão até o dia 10
-            daquele mês, em cada um dos {p.nomePrazo} anos subsequentes.
+            daquele mês, em cada um dos <span id="plan-prazo-3">{p.nomePrazo}</span> anos subsequentes.
           </p>
           <p className="mb-3">
             <strong>PARÁGRAFO QUARTO:</strong> Será considerado inadimplente o sócio usuário
@@ -262,7 +219,7 @@ export default async function ContratoPdfPage({ searchParams }: PageProps) {
             sócio será notificado e terá 10 (dez) dias para liquidação. Persistindo a pendência, a
             PROTECT poderá encaminhar o nome ao SPC. O cancelamento ou rescisão implicará o
             vencimento antecipado das parcelas remanescentes, acrescidas de{" "}
-            <strong>multa de 30%</strong> sobre o valor total da cota {p.nomeContrato}, além de
+            <strong>multa de 30%</strong> sobre o valor total da cota <span id="plan-tipo-2">{p.nomeContrato}</span>, além de
             correção monetária. Cobrança administrativa: +10% de honorários; cobrança judicial:
             +20% de honorários.
           </p>
@@ -326,7 +283,7 @@ export default async function ContratoPdfPage({ searchParams }: PageProps) {
           <p className="mb-3">
             <strong>CLÁUSULA NONA:</strong> Fazer requerimento para obtenção de CR de Colecionador,
             Atirador ou Caçador, observados os requisitos elencados pelo Estatuto do Desarmamento e
-            portarias vigentes da Polícia Federal e do Exército, sendo necessário ter 25 anos.
+            portarias vigentes da Polícia Federal e ao Exército, sendo necessário ter 25 anos.
             Antes disso, o interessado poderá obter autorização judicial.
           </p>
           <p className="mb-3">
@@ -337,7 +294,7 @@ export default async function ContratoPdfPage({ searchParams }: PageProps) {
           </p>
           <p className="mb-3">
             <strong>CLÁUSULA ONZE:</strong> Pagar pontualmente as parcelas para quitação do título{" "}
-            {p.nomeContrato} de sócio usuário (colaborador), quando parcelado.
+            <span id="plan-tipo-3">{p.nomeContrato}</span> de sócio usuário (colaborador), quando parcelado.
           </p>
           <p className="mb-3">
             <strong>CLÁUSULA DOZE:</strong> Obedecer às normas disciplinares e aos horários de
@@ -399,7 +356,7 @@ export default async function ContratoPdfPage({ searchParams }: PageProps) {
           <p className="mb-3">
             <strong>PARÁGRAFO SEGUNDO:</strong> Em caso de rescisão ou cancelamento deste contrato,
             a parte que der ensejo à rescisão deverá pagar à outra parte{" "}
-            <strong>30% (trinta por cento)</strong> do valor da cota {p.nomeContrato} de sócio
+            <strong>30% (trinta por cento)</strong> do valor da cota <span id="plan-tipo-4">{p.nomeContrato}</span> de sócio
             usuário (colaborador), independentemente da entrada e/ou das parcelas pagas, quantia
             que será liquidada no ato da rescisão ou do cancelamento.
           </p>
@@ -462,8 +419,8 @@ export default async function ContratoPdfPage({ searchParams }: PageProps) {
               />
               <SigBlock
                 lines={[
-                  formData.nome || "SÓCIO USUÁRIO (COLABORADOR)",
-                  `CPF: ${formData.cpf || "___________________________"}`,
+                  "SÓCIO USUÁRIO (COLABORADOR)",
+                  "CPF: ___________________________",
                 ]}
               />
             </div>
@@ -482,7 +439,11 @@ export default async function ContratoPdfPage({ searchParams }: PageProps) {
               />
             </div>
             <p className="text-center text-gray-500">
-              Belo Horizonte/MG, {dataAssinatura}
+              Belo Horizonte/MG, <span id="date-display">{new Date().toLocaleDateString("pt-BR", {
+                day: "numeric",
+                month: "long",
+                year: "numeric",
+              })}</span>
             </p>
             <p className="text-center text-gray-400">
               Rua General Andrade Neves, 622, Grajaú, CEP 30431-128 — Belo Horizonte/MG
@@ -491,6 +452,95 @@ export default async function ContratoPdfPage({ searchParams }: PageProps) {
             </p>
           </div>
         </div>
+
+        {/* Script para injetar dados do sessionStorage no cliente */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                const sessionId = document.getElementById('contract-container')?.getAttribute('data-session-id');
+                if (!sessionId) return;
+                
+                try {
+                  const dataStr = sessionStorage.getItem(sessionId);
+                  if (!dataStr) return;
+                  
+                  const data = JSON.parse(dataStr);
+                  
+                  const PLANOS = {
+                    "3": {
+                      nomeContrato: "trienal",
+                      nomePrazo: "três",
+                      total: "R$ 3.600,00",
+                      parcela: "R$ 1.200,00",
+                      vigencia: "3 anos",
+                    },
+                    "5": {
+                      nomeContrato: "quinquenal",
+                      nomePrazo: "cinco",
+                      total: "R$ 6.000,00",
+                      parcela: "R$ 1.200,00",
+                      vigencia: "5 anos",
+                    },
+                  };
+                  
+                  const plano = data.plano === "5" ? "5" : "3";
+                  const p = PLANOS[plano];
+                  
+                  const updateElement = (id, content) => {
+                    const el = document.getElementById(id);
+                    if (el) el.textContent = content;
+                  };
+                  
+                  const updateElementHTML = (id, content) => {
+                    const el = document.getElementById(id);
+                    if (el) el.innerHTML = content;
+                  };
+                  
+                  // Atualizar dados pessoais
+                  updateElementHTML('display-nome', '<span class="inline-block px-1 font-semibold min-w-[180px]">' + (data.nome || '') + '</span>');
+                  updateElementHTML('display-profissao', '<span class="inline-block px-1 font-semibold min-w-[140px]">' + (data.profissao || '') + '</span>');
+                  updateElementHTML('display-rg', '<span class="inline-block px-1 font-semibold min-w-[120px]">' + (data.rg || '') + '</span>');
+                  updateElementHTML('display-cpf', '<span class="inline-block px-1 font-semibold min-w-[130px]">' + (data.cpf || '') + '</span>');
+                  updateElementHTML('display-naturalidade', '<span class="inline-block px-1 font-semibold min-w-[120px]">' + (data.naturalidade || '') + '</span>');
+                  updateElementHTML('display-nascimento', '<span class="inline-block px-1 font-semibold min-w-[90px]">' + (data.nascimento || '') + '</span>');
+                  
+                  // Atualizar plano
+                  updateElement('plano-display', 'Cota ' + p.nomeContrato + ' — ' + p.vigencia);
+                  updateElement('plan-tipo', p.nomeContrato);
+                  updateElement('plan-tipo-2', p.nomeContrato);
+                  updateElement('plan-tipo-3', p.nomeContrato);
+                  updateElement('plan-tipo-4', p.nomeContrato);
+                  updateElement('plan-prazo', p.nomePrazo);
+                  updateElement('plan-prazo-2', p.nomePrazo);
+                  updateElement('plan-prazo-3', p.nomePrazo);
+                  updateElement('plan-total', p.total);
+                  updateElement('plan-parcela', p.parcela);
+                  
+                  // Atualizar assinatura - encontrar os elementos dentro do grid
+                  const sigElements = document.querySelectorAll('#contract-container .grid.grid-cols-2');
+                  if (sigElements.length > 0) {
+                    const secondGrid = sigElements[0]; // Primeira grid com as assinaturas
+                    const cells = secondGrid.querySelectorAll('div > div');
+                    if (cells.length >= 2) {
+                      const secondCell = cells[1]; // Segunda célula (lado direito)
+                      const lines = secondCell.querySelectorAll('p');
+                      if (lines.length >= 2) {
+                        lines[0].textContent = data.nome || 'SÓCIO USUÁRIO (COLABORADOR)';
+                        lines[1].textContent = 'CPF: ' + (data.cpf || '___________________________');
+                      }
+                    }
+                  }
+                  
+                  // Limpar sessionStorage após uso
+                  sessionStorage.removeItem(sessionId);
+                } catch (e) {
+                  console.error('Erro ao injetar dados do contrato:', e);
+                }
+              })();
+            `,
+          }}
+        />
       </body>
     </html>
   );

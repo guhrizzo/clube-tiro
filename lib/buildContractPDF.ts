@@ -28,19 +28,22 @@ export async function generateContractPDFFromServerPage(
     const domtoimage = (await import("dom-to-image-more")).default;
     const jsPDFModule = (await import("jspdf")).default;
 
-    // Constrói URL com query params
-    const queryParams = new URLSearchParams({
-      nome: contractData.nome || "",
-      email: contractData.email || "",
-      cpf: contractData.cpf || "",
-      rg: contractData.rg || "",
-      profissao: contractData.profissao || "",
-      naturalidade: contractData.naturalidade || "",
-      nascimento: contractData.nascimento || "",
-      plano: contractData.plano?.includes("5") ? "5" : "3",
-    });
+    // Armazena dados sensíveis em sessionStorage (não expõe na URL)
+    const sessionId = `contract_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
+    if (typeof window !== "undefined" && window.sessionStorage) {
+      sessionStorage.setItem(sessionId, JSON.stringify({
+        nome: contractData.nome || "",
+        email: contractData.email || "",
+        cpf: contractData.cpf || "",
+        rg: contractData.rg || "",
+        profissao: contractData.profissao || "",
+        naturalidade: contractData.naturalidade || "",
+        nascimento: contractData.nascimento || "",
+        plano: contractData.plano?.includes("5") ? "5" : "3",
+      }));
+    }
 
-    const url = `/contrato-pdf?${queryParams.toString()}`;
+    const url = `/contrato-pdf?sid=${sessionId}`;
 
     // Cria um iframe para carregar a página
     const iframe = document.createElement("iframe");
@@ -230,19 +233,22 @@ export async function openContractForPrinting(
     const domtoimage = (await import("dom-to-image-more")).default;
     const jsPDFModule = (await import("jspdf")).default;
 
-    // Constrói URL com query params
-    const queryParams = new URLSearchParams({
-      nome: contractData.nome || "",
-      email: contractData.email || "",
-      cpf: contractData.cpf || "",
-      rg: contractData.rg || "",
-      profissao: contractData.profissao || "",
-      naturalidade: contractData.naturalidade || "",
-      nascimento: contractData.nascimento || "",
-      plano: contractData.plano?.includes("5") ? "5" : "3",
-    });
+    // Armazena dados sensíveis em sessionStorage (não expõe na URL)
+    const sessionId = `contract_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
+    if (typeof window !== "undefined" && window.sessionStorage) {
+      sessionStorage.setItem(sessionId, JSON.stringify({
+        nome: contractData.nome || "",
+        email: contractData.email || "",
+        cpf: contractData.cpf || "",
+        rg: contractData.rg || "",
+        profissao: contractData.profissao || "",
+        naturalidade: contractData.naturalidade || "",
+        nascimento: contractData.nascimento || "",
+        plano: contractData.plano?.includes("5") ? "5" : "3",
+      }));
+    }
 
-    const url = `/contrato-pdf?${queryParams.toString()}`;
+    const url = `/contrato-pdf?sid=${sessionId}`;
 
     // Cria um iframe para carregar a página
     const iframe = document.createElement("iframe");
