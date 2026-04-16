@@ -118,8 +118,8 @@ function ContratoPdfContent() {
     );
 
   return (
-    <div className="max-w-170 mx-auto bg-white border border-gray-200 px-6 md:px-10 py-12 text-[13px] text-gray-800 leading-relaxed font-serif shadow-sm">
-      <div className="text-center mb-8 pb-6 border-b border-gray-200">
+    <div className="max-w-170 mx-auto bg-white px-6 md:px-10 py-12 text-[13px] text-gray-800 leading-relaxed font-serif">
+      <div className="text-center mb-8 pb-6">
         <p className="text-[11px] uppercase tracking-[0.25em] text-gray-500 mb-3">
           Documento Legal
         </p>
@@ -129,7 +129,7 @@ function ContratoPdfContent() {
         <p className="text-xs text-gray-500 mt-2">
           Protect Clube Mineiro de Tiro — CNPJ 01.244.200/0001-52
         </p>
-        <div className="mt-4 inline-flex items-center gap-2 border border-gray-300 px-3 py-1 text-[11px] uppercase tracking-widest text-gray-600">
+        <div className="mt-4 inline-flex items-center gap-2 px-3 py-1 text-[11px] uppercase tracking-widest text-gray-600">
           Cota {p.nomeContrato} — {p.vigencia}
         </div>
       </div>
@@ -381,7 +381,7 @@ function ContratoPdfContent() {
         Brasileiro e demais normas aplicáveis.
       </p>
 
-      <div className="border-t border-gray-200 pt-8 mt-8 space-y-8 text-xs">
+      <div className="pt-8 mt-8 space-y-8 text-xs">
         <p className="text-center">
           E, por estarem justas e contratadas, firmam o presente em 02 (duas) vias, na presença
           das testemunhas.

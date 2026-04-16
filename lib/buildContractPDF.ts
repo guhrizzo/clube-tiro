@@ -955,6 +955,7 @@ function getContractHTML(contract: ContractData): string {
         Cota ${nomeContrato} — ${vigencia}
       </div>
     </div>
+    </div>
 
     <p style="text-align: justify; margin-bottom: 16px;">
       Pelo presente instrumento particular de <strong>CONTRATO DE ADESÃO DE SÓCIO USUÁRIO (COLABORADOR)</strong>, de um lado, <strong>Protect Clube Mineiro de Tiro</strong>, pessoa jurídica de direito privado, inscrita no CNPJ sob o nº <strong>01.244.200/0001-52</strong>, com sede na Rua General Andrade Neves, 622, Bairro Gutierrez, Belo Horizonte/MG, e posteriormente na Rua dos Radialistas, 38, Bairro Balneário Água Limpa, Nova Lima/MG, neste ato representada por quem de direito, doravante simplesmente denominada <strong>PROTECT</strong>; e, de outro lado, o(a) Sr.(a) <strong>${nome}</strong>, profissão <strong>${profissao}</strong>, inscrito(a) no RG nº <strong>${rg}</strong>, portador(a) do CPF nº <strong>${cpf}</strong>, natural de <strong>${natural}</strong>, nascido(a) em <strong>${nasc}</strong>, doravante simplesmente denominado(a) SÓCIO USUÁRIO (COLABORADOR), têm entre si justo e contratado o direito de sócio usuário (colaborador) da PROTECT, tudo de acordo com as condições especificadas nesta contratação/adesão e na legislação vigente.
@@ -1071,7 +1072,7 @@ function getContractHTML(contract: ContractData): string {
         </div>
       </div>
 
-      <div style="margin-top: 32px; text-align: center; border-top: 1px solid #e5e7eb; padding-top: 16px;">
+      <div style="margin-top: 32px; text-align: center; padding-top: 16px;">
         <p style="margin: 0 0 8px; font-size: 12px; color: #4b5563;">
           Belo Horizonte/MG, ${dataAtual}
         </p>
