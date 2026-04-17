@@ -1,14 +1,11 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import jsPDF from "jspdf";
 import {
   X,
   CheckCircle,
   FileText,
   Lock,
-  Printer,
-  Download,
   Mail,
   Building2,
   PenLine,
@@ -17,7 +14,6 @@ import {
 import { saveContractSignature } from "../lib/firebase";
 import {
   generateContractPDFFromServerPage,
-  openContractForPrinting,
 } from "../lib/buildContractPDF";
 
 import { collection, addDoc, Timestamp } from "firebase/firestore";
@@ -145,13 +141,9 @@ function SigBlock({
 function SuccessModal({
   email,
   onClose,
-  onPrint,
-  onSave,
 }: {
   email: string;
   onClose: () => void;
-  onPrint: () => void;
-  onSave: () => void;
 }) {
   return (
     <div className="fixed inset-0 z-10000 flex items-center justify-center bg-black/70 p-4">
@@ -194,20 +186,6 @@ function SuccessModal({
               </p>
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-2 pt-1">
-            <button
-              onClick={onPrint}
-              className="flex items-center justify-center gap-1.5 py-2.5 border border-gray-200 text-gray-700 text-xs font-medium hover:bg-gray-50 transition-colors rounded-sm cursor-pointer"
-            >
-              <Printer size={13} /> Imprimir
-            </button>
-            <button
-              onClick={onSave}
-              className="flex items-center justify-center gap-1.5 py-2.5 border border-gray-200 text-gray-700 text-xs font-medium hover:bg-gray-50 transition-colors rounded-sm cursor-pointer"
-            >
-              <Download size={13} /> Salvar PDF
-            </button>
-          </div>
           <button
             onClick={onClose}
             className="w-full py-3 bg-gray-900 text-white text-xs font-medium tracking-widest uppercase hover:bg-gray-700 transition-all rounded-sm cursor-pointer mt-1"
@@ -222,13 +200,11 @@ function SuccessModal({
 
 export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
   const [loading, setLoading] = useState(false);
-  const [savingPdf, setSavingPdf] = useState(false);
   const [accepted, setAccepted] = useState(false);
   const [plano, setPlano] = useState<PlanoKey>("3");
   const [showSuccess, setShowSuccess] = useState(false);
   const [mobileTab, setMobileTab] = useState<"contrato" | "dados">("dados");
   const [dateError, setDateError] = useState<string | null>(null);
-  const [savedPdfData, setSavedPdfData] = useState<{ pdfBase64: string; filename: string } | null>(null);
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const modalRef = useRef<HTMLDivElement>(null);
@@ -302,88 +278,6 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
 
   const p = PLANOS[plano];
 
-  const handlePrint = async () => {
-    setSavingPdf(true);
-    try {
-      // Abre a página /contrato-pdf em nova janela para impressão
-      await openContractForPrinting({
-        ...formData,
-        nascimento: dateToISO(formData.nascimento),
-        plano: `${plano} anos`,
-      });
-      setSavingPdf(false);
-    } catch (err) {
-      console.error("Erro ao abrir contrato para impressão:", err);
-      alert("Erro ao preparar para impressão. Tente novamente.");
-      setSavingPdf(false);
-    }
-  };
-
-  const handleSave = async () => {
-    // Se já temos o PDF salvo (quando vem do modal de sucesso), usa ele diretamente
-    if (savedPdfData) {
-      try {
-        const byteCharacters = atob(savedPdfData.pdfBase64);
-        const byteNumbers = new Array(byteCharacters.length);
-        for (let i = 0; i < byteCharacters.length; i++) {
-          byteNumbers[i] = byteCharacters.charCodeAt(i);
-        }
-        const byteArray = new Uint8Array(byteNumbers);
-        const blob = new Blob([byteArray], { type: "application/pdf" });
-        
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.href = url;
-        link.download = savedPdfData.filename;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
-        return;
-      } catch (err) {
-        console.error("Erro ao salvar PDF do cache:", err);
-        // Continua e tenta gerar novamente
-      }
-    }
-
-    setSavingPdf(true);
-    try {
-      const pdfBase64 = await generateContractPDFFromServerPage({
-        ...formData,
-        nascimento: dateToISO(formData.nascimento),
-        plano: `${plano} anos`,
-      });
-
-      const filename = `Contrato_PROTECT_${(formData.nome || "socio")
-        .replace(/\s+/g, "_")
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")}.pdf`;
-
-      const byteCharacters = atob(pdfBase64);
-      const byteNumbers = new Array(byteCharacters.length);
-      for (let i = 0; i < byteCharacters.length; i++) {
-        byteNumbers[i] = byteCharacters.charCodeAt(i);
-      }
-      const byteArray = new Uint8Array(byteNumbers);
-      const blob = new Blob([byteArray], { type: "application/pdf" });
-
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = filename;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
-
-      setSavingPdf(false);
-    } catch (err) {
-      console.error("Erro ao gerar PDF:", err);
-      alert("Erro ao gerar PDF. Tente novamente.");
-      setSavingPdf(false);
-    }
-  };
-
   const handleConfirm = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!accepted) { alert("Você precisa aceitar os termos."); return; }
@@ -429,16 +323,13 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
            .normalize("NFD")
            .replace(/[\u0300-\u036f]/g, "")}.pdf`;
          
-         // Usa a página /contrato-pdf para gerar o PDF
-         pdfBase64 = await generateContractPDFFromServerPage({
-           ...savedData,
-           plano: `${plano} anos`,
-         });
+          // Usa a página /contrato-pdf para gerar o PDF
+          pdfBase64 = await generateContractPDFFromServerPage({
+            ...savedData,
+            plano: `${plano} anos`,
+          });
 
-         // Salva o PDF para uso posterior no modal de sucesso
-         setSavedPdfData({ pdfBase64, filename });
-
-         await fetch("/api/send-contract", {
+          await fetch("/api/send-contract", {
            method: "POST",
            headers: { "Content-Type": "application/json" },
            body: JSON.stringify({
@@ -462,7 +353,6 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
   };
 
   const handleSuccessClose = () => { 
-    setSavedPdfData(null); // Limpa o PDF salvo
     setShowSuccess(false); 
     onClose(); 
   };
@@ -820,29 +710,6 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
           </span>
         </div>
         <div className="flex items-center gap-1">
-          <button
-            type="button"
-            onClick={handlePrint}
-            title="Imprimir contrato"
-            className="flex items-center gap-1.5 px-2.5 py-1.5 text-[11px] text-gray-500 hover:text-gray-800 hover:bg-gray-100 transition rounded-sm cursor-pointer"
-          >
-            <Printer size={13} />
-            <span className="hidden sm:inline">Imprimir</span>
-          </button>
-          <button
-            type="button"
-            onClick={handleSave}
-            disabled={savingPdf}
-            title="Salvar contrato como PDF"
-            className="flex items-center gap-1.5 px-2.5 py-1.5 text-[11px] text-gray-500 hover:text-gray-800 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition rounded-sm cursor-pointer"
-          >
-            {savingPdf ? (
-              <div className="w-3 h-3 border border-gray-500 border-t-transparent rounded-full animate-spin" />
-            ) : (
-              <Download size={13} />
-            )}
-            <span className="hidden sm:inline">{savingPdf ? "Salvando..." : "Salvar PDF"}</span>
-          </button>
           <div className="w-px h-4 bg-gray-200 mx-1 hidden md:block" />
           <button
             onClick={onClose}
@@ -1171,8 +1038,6 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
         <SuccessModal
           email={formData.email}
           onClose={handleSuccessClose}
-          onPrint={handlePrint}
-          onSave={handleSave}
         />
       )}
 
