@@ -15,6 +15,7 @@ import { saveContractSignature } from "../lib/firebase";
 import {
   generateContractPDFFromServerPage,
   generateContractPDFFromVisualElement,
+  openContractForPrinting,
 } from "../lib/buildContractPDF";
 
 import { collection, addDoc, Timestamp } from "firebase/firestore";
@@ -142,9 +143,13 @@ function SigBlock({
 function SuccessModal({
   email,
   onClose,
+  onPrint,
+  printing,
 }: {
   email: string;
   onClose: () => void;
+  onPrint: () => void;
+  printing: boolean;
 }) {
   return (
     <div 
@@ -192,30 +197,31 @@ function SuccessModal({
               </p>
             </div>
            </div>
-          <div className="grid grid-cols-2 gap-2 pt-1">
-            <button
-              type="button"
-              disabled
-              title="Função desabilitada"
-              className="flex items-center justify-center gap-1.5 py-2.5 border border-gray-100 text-gray-300 text-xs font-medium bg-gray-50 opacity-50 cursor-not-allowed transition-colors rounded-sm"
-            >
-              <svg className="w-[13px] h-[13px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4H9a2 2 0 00-2 2v2a2 2 0 002 2h6a2 2 0 002-2v-2a2 2 0 00-2-2z" />
-              </svg>
-              Imprimir
-            </button>
-            <button
-              type="button"
-              disabled
-              title="Função desabilitada"
-              className="flex items-center justify-center gap-1.5 py-2.5 border border-gray-100 text-gray-300 text-xs font-medium bg-gray-50 opacity-50 cursor-not-allowed transition-colors rounded-sm"
-            >
-              <svg className="w-[13px] h-[13px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-              </svg>
-              Salvar PDF
-            </button>
-          </div>
+           <div className="grid grid-cols-2 gap-2 pt-1">
+             <button
+               type="button"
+               onClick={onPrint}
+               disabled={printing}
+               title={printing ? "Preparando impressão..." : "Imprimir contrato"}
+               className={`flex items-center justify-center gap-1.5 py-2.5 border text-xs font-medium transition-all rounded-sm ${printing ? "opacity-50 cursor-not-allowed border-gray-100 text-gray-300 bg-gray-50" : "border-gray-300 text-gray-700 bg-white hover:bg-gray-50 hover:border-gray-400 cursor-pointer"}`}
+             >
+               <svg className="w-[13px] h-[13px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4H9a2 2 0 00-2 2v2a2 2 0 002 2h6a2 2 0 002-2v-2a2 2 0 00-2-2z" />
+               </svg>
+               {printing ? "..." : "Imprimir"}
+             </button>
+             <button
+               type="button"
+               disabled
+               title="Função desabilitada"
+               className="flex items-center justify-center gap-1.5 py-2.5 border border-gray-100 text-gray-300 text-xs font-medium bg-gray-50 opacity-50 cursor-not-allowed transition-colors rounded-sm"
+             >
+               <svg className="w-[13px] h-[13px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+               </svg>
+               Salvar PDF
+             </button>
+           </div>
           <button
             onClick={onClose}
             className="w-full py-3 bg-gray-900 text-white text-xs font-medium tracking-widest uppercase hover:bg-gray-700 transition-all rounded-sm cursor-pointer mt-1"
@@ -230,6 +236,7 @@ function SuccessModal({
 
 export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
   const [loading, setLoading] = useState(false);
+  const [printing, setPrinting] = useState(false);
   const [accepted, setAccepted] = useState(false);
   const [plano, setPlano] = useState<PlanoKey>("3");
   const [showSuccess, setShowSuccess] = useState(false);
@@ -393,6 +400,28 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
   const handleSuccessClose = () => { 
     setShowSuccess(false); 
     onClose(); 
+  };
+
+  const handlePrint = async () => {
+    setPrinting(true);
+    try {
+      await openContractForPrinting({
+        nome: formData.nome,
+        email: formData.email,
+        cpf: formData.cpf,
+        rg: formData.rg,
+        profissao: formData.profissao,
+        naturalidade: formData.naturalidade,
+        nascimento: dateToISO(formData.nascimento),
+        plano: `${plano} anos`,
+        dataAssinatura: new Date(),
+      });
+    } catch (err) {
+      console.error("Erro ao abrir para impressão:", err);
+      alert("Erro ao preparar contrato para impressão. Tente novamente.");
+    } finally {
+      setPrinting(false);
+    }
   };
 
   const handleDateChange = (raw: string) => {
@@ -750,14 +779,15 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
         <div className="flex items-center gap-1">
           <button
             type="button"
-            disabled
-            title="Função desabilitada"
-            className="flex items-center gap-1.5 px-2.5 py-1.5 text-[11px] text-gray-900 bg-gray-200 opacity-50 cursor-not-allowed transition rounded-sm"
+            onClick={handlePrint}
+            disabled={printing}
+            title={printing ? "Preparando impressão..." : "Imprimir contrato"}
+            className={`flex items-center gap-1.5 px-2.5 py-1.5 text-[11px] transition rounded-sm ${printing ? "text-gray-300 bg-gray-100 opacity-50 cursor-not-allowed" : "text-gray-900 bg-gray-100 hover:bg-gray-200 cursor-pointer"}`}
           >
             <svg className="w-[13px] h-[13px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4H9a2 2 0 00-2 2v2a2 2 0 002 2h6a2 2 0 002-2v-2a2 2 0 00-2-2z" />
             </svg>
-            <span className="hidden sm:inline">Imprimir</span>
+            <span className="hidden sm:inline">{printing ? "..." : "Imprimir"}</span>
           </button>
           <button
             type="button"
@@ -1098,6 +1128,8 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
         <SuccessModal
           email={formData.email}
           onClose={handleSuccessClose}
+          onPrint={handlePrint}
+          printing={printing}
         />
       )}
 
