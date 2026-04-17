@@ -185,6 +185,30 @@ function SuccessModal({
                 clube@grupoprotect.com.br
               </p>
             </div>
+           </div>
+          <div className="grid grid-cols-2 gap-2 pt-1">
+            <button
+              type="button"
+              disabled
+              title="Função desabilitada"
+              className="flex items-center justify-center gap-1.5 py-2.5 border border-gray-100 text-gray-300 text-xs font-medium bg-gray-50 opacity-50 cursor-not-allowed transition-colors rounded-sm"
+            >
+              <svg className="w-[13px] h-[13px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4H9a2 2 0 00-2 2v2a2 2 0 002 2h6a2 2 0 002-2v-2a2 2 0 00-2-2z" />
+              </svg>
+              Imprimir
+            </button>
+            <button
+              type="button"
+              disabled
+              title="Função desabilitada"
+              className="flex items-center justify-center gap-1.5 py-2.5 border border-gray-100 text-gray-300 text-xs font-medium bg-gray-50 opacity-50 cursor-not-allowed transition-colors rounded-sm"
+            >
+              <svg className="w-[13px] h-[13px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              </svg>
+              Salvar PDF
+            </button>
           </div>
           <button
             onClick={onClose}
@@ -710,6 +734,28 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
           </span>
         </div>
         <div className="flex items-center gap-1">
+          <button
+            type="button"
+            disabled
+            title="Função desabilitada"
+            className="flex items-center gap-1.5 px-2.5 py-1.5 text-[11px] text-gray-300 bg-gray-50 opacity-50 cursor-not-allowed transition rounded-sm"
+          >
+            <svg className="w-[13px] h-[13px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4H9a2 2 0 00-2 2v2a2 2 0 002 2h6a2 2 0 002-2v-2a2 2 0 00-2-2z" />
+            </svg>
+            <span className="hidden sm:inline">Imprimir</span>
+          </button>
+          <button
+            type="button"
+            disabled
+            title="Função desabilitada"
+            className="flex items-center gap-1.5 px-2.5 py-1.5 text-[11px] text-gray-300 bg-gray-50 opacity-50 cursor-not-allowed transition rounded-sm"
+          >
+            <svg className="w-[13px] h-[13px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+            </svg>
+            <span className="hidden sm:inline">Salvar PDF</span>
+          </button>
           <div className="w-px h-4 bg-gray-200 mx-1 hidden md:block" />
           <button
             onClick={onClose}
