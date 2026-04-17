@@ -451,7 +451,7 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
     );
 
   const contractContent = (
-    <div className="max-w-170 mx-auto bg-white border border-gray-200 px-6 md:px-10 py-12 text-[13px] text-gray-800 leading-relaxed font-serif shadow-sm">
+    <div className="max-w-2xl mx-auto bg-white border border-gray-200 px-6 md:px-10 py-12 text-[13px] text-gray-800 leading-relaxed font-serif shadow-sm">
       <div className="text-center mb-8 pb-6 border-b border-gray-200">
         <p className="text-[11px] uppercase tracking-[0.25em] text-gray-500 mb-3">
           Documento Legal
