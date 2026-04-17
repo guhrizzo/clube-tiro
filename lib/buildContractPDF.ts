@@ -1478,7 +1478,7 @@ export async function openContractVisualElementForPrinting(
   const usableHeightMm = pageHeightMm - marginMm * 2;
 
   const pxPerMm = capturedImg.width / usableWidthMm;
-  // ✅ margem generosa para nunca cortar linha de texto
+  // margem para não cortar linha de texto
   const safePageHeightPx = (usableHeightMm - 15.3) * pxPerMm;
 
   const totalPages = Math.ceil(capturedImg.height / safePageHeightPx);
