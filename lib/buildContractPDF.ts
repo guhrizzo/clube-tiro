@@ -1436,68 +1436,82 @@ export async function generateContractPDFFromVisualElement(
 export async function openContractVisualElementForPrinting(
   contractElement: HTMLElement
 ): Promise<void> {
-  try {
-    const domtoimage = (await import("dom-to-image-more")).default;
+  const domtoimage = (await import("dom-to-image-more")).default;
+  const jsPDFModule = (await import("jspdf")).default;
 
-    // Aguarda as imagens carregarem
-    const imgs = contractElement.querySelectorAll("img");
-    await Promise.all(
-      Array.from(imgs).map(
-        (img) =>
-          new Promise<void>((resolve) => {
-            if ((img as HTMLImageElement).complete) resolve();
-            else {
-              img.onload = () => resolve();
-              img.onerror = () => resolve();
-            }
-          })
-      )
-    );
+  const imgs = contractElement.querySelectorAll("img");
+  await Promise.all(
+    Array.from(imgs).map(
+      (img) =>
+        new Promise<void>((resolve) => {
+          if ((img as HTMLImageElement).complete) resolve();
+          else { img.onload = () => resolve(); img.onerror = () => resolve(); }
+        })
+    )
+  );
 
-    // Captura a imagem com escala 2× para qualidade
-    const scale = 2;
-    const dataUrl = await domtoimage.toJpeg(contractElement, {
-      quality: 0.95,
-      bgcolor: "#ffffff",
-      width: contractElement.offsetWidth * scale,
-      height: contractElement.offsetHeight * scale,
-      style: {
-        transform: `scale(${scale})`,
-        transformOrigin: "top left",
-        width: contractElement.offsetWidth + "px",
-        height: contractElement.offsetHeight + "px",
-      },
-    });
+  const scale = 2;
+  const dataUrl = await domtoimage.toJpeg(contractElement, {
+    quality: 0.95,
+    bgcolor: "#ffffff",
+    width: contractElement.offsetWidth * scale,
+    height: contractElement.offsetHeight * scale,
+    style: {
+      transform: `scale(${scale})`,
+      transformOrigin: "top left",
+      width: contractElement.offsetWidth + "px",
+      height: contractElement.offsetHeight + "px",
+    },
+  });
 
-    // Abre em nova janela para impressão
-    const win = window.open();
-    if (!win) {
-      throw new Error("Pop-up bloqueado pelo navegador");
-    }
+  const capturedImg = await new Promise<HTMLImageElement>((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = reject;
+    img.src = dataUrl;
+  });
 
-    win.document.write(`
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <title>Contrato de Adesão - PROTECT</title>
-        <style>
-          body { margin: 0; padding: 0; }
-          img { max-width: 100%; height: auto; display: block; }
-        </style>
-      </head>
-      <body>
-        <img src="${dataUrl}" />
-        <script>
-          window.addEventListener('load', function() {
-            setTimeout(function() { window.print(); }, 500);
-          });
-        </script>
-      </body>
-      </html>
-    `);
-    win.document.close();
-  } catch (err) {
-    console.error("Erro ao abrir contrato para impressão:", err);
-    throw err;
+  const pageWidthMm = 210;
+  const pageHeightMm = 297;
+  const marginMm = 10;
+  const usableWidthMm = pageWidthMm - marginMm * 2;
+  const usableHeightMm = pageHeightMm - marginMm * 2;
+
+  const pxPerMm = capturedImg.width / usableWidthMm;
+  // ✅ margem generosa para nunca cortar linha de texto
+  const safePageHeightPx = (usableHeightMm - 15.3) * pxPerMm;
+
+  const totalPages = Math.ceil(capturedImg.height / safePageHeightPx);
+
+  const pdf = new jsPDFModule({
+    unit: "mm",
+    format: "a4",
+    orientation: "portrait",
+    compress: true,
+  });
+
+  for (let pageIndex = 0; pageIndex < totalPages; pageIndex++) {
+    if (pageIndex > 0) pdf.addPage();
+
+    const srcY = Math.round(pageIndex * safePageHeightPx);
+    const srcH = Math.min(safePageHeightPx, capturedImg.height - srcY);
+
+    const slice = document.createElement("canvas");
+    slice.width = capturedImg.width;
+    slice.height = Math.round(srcH);
+    const ctx = slice.getContext("2d")!;
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, slice.width, slice.height);
+    ctx.drawImage(capturedImg, 0, srcY, capturedImg.width, srcH, 0, 0, capturedImg.width, srcH);
+
+    const sliceDataUrl = slice.toDataURL("image/jpeg", 0.92);
+    const sliceHeightMm = srcH / pxPerMm;
+
+    pdf.addImage(sliceDataUrl, "JPEG", marginMm, marginMm, usableWidthMm, sliceHeightMm);
   }
+
+  // ✅ abre PDF em blob — o browser imprime por página A4, sem corte arbitrário
+  const blobUrl = pdf.output("bloburi");
+  const win = window.open(blobUrl, "_blank");
+  if (!win) throw new Error("Pop-up bloqueado pelo navegador");
 }

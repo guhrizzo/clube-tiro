@@ -15,7 +15,7 @@ import { saveContractSignature } from "../lib/firebase";
 import {
   generateContractPDFFromServerPage,
   generateContractPDFFromVisualElement,
-  openContractForPrinting,
+  openContractVisualElementForPrinting,
 } from "../lib/buildContractPDF";
 
 import { collection, addDoc, Timestamp } from "firebase/firestore";
@@ -152,7 +152,7 @@ function SuccessModal({
   printing: boolean;
 }) {
   return (
-    <div 
+    <div
       className="fixed inset-0 z-10000 flex items-center justify-center bg-black/70 p-4 pointer-events-none"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
@@ -196,32 +196,32 @@ function SuccessModal({
                 clube@grupoprotect.com.br
               </p>
             </div>
-           </div>
-           <div className="grid grid-cols-2 gap-2 pt-1">
-             <button
-               type="button"
-               onClick={onPrint}
-               disabled={printing}
-               title={printing ? "Preparando impressão..." : "Imprimir contrato"}
-               className={`flex items-center justify-center gap-1.5 py-2.5 border text-xs font-medium transition-all rounded-sm ${printing ? "opacity-50 cursor-not-allowed border-gray-100 text-gray-300 bg-gray-50" : "border-gray-300 text-gray-700 bg-white hover:bg-gray-50 hover:border-gray-400 cursor-pointer"}`}
-             >
-               <svg className="w-[13px] h-[13px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4H9a2 2 0 00-2 2v2a2 2 0 002 2h6a2 2 0 002-2v-2a2 2 0 00-2-2z" />
-               </svg>
-               {printing ? "..." : "Imprimir"}
-             </button>
-             <button
-               type="button"
-               disabled
-               title="Função desabilitada"
-               className="flex items-center justify-center gap-1.5 py-2.5 border border-gray-100 text-gray-300 text-xs font-medium bg-gray-50 opacity-50 cursor-not-allowed transition-colors rounded-sm"
-             >
-               <svg className="w-[13px] h-[13px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-               </svg>
-               Salvar PDF
-             </button>
-           </div>
+          </div>
+          <div className="grid grid-cols-2 gap-2 pt-1">
+            <button
+              type="button"
+              onClick={onPrint}
+              disabled={printing}
+              title={printing ? "Preparando impressão..." : "Imprimir contrato"}
+              className={`flex items-center justify-center gap-1.5 py-2.5 border text-xs font-medium transition-all rounded-sm ${printing ? "opacity-50 cursor-not-allowed border-gray-100 text-gray-300 bg-gray-50" : "border-gray-300 text-gray-700 bg-white hover:bg-gray-50 hover:border-gray-400 cursor-pointer"}`}
+            >
+              <svg className="w-[13px] h-[13px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4H9a2 2 0 00-2 2v2a2 2 0 002 2h6a2 2 0 002-2v-2a2 2 0 00-2-2z" />
+              </svg>
+              {printing ? "..." : "Imprimir"}
+            </button>
+            <button
+              type="button"
+              disabled
+              title="Função desabilitada"
+              className="flex items-center justify-center gap-1.5 py-2.5 border border-gray-100 text-gray-300 text-xs font-medium bg-gray-50 opacity-50 cursor-not-allowed transition-colors rounded-sm"
+            >
+              <svg className="w-[13px] h-[13px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              </svg>
+              Salvar PDF
+            </button>
+          </div>
           <button
             onClick={onClose}
             className="w-full py-3 bg-gray-900 text-white text-xs font-medium tracking-widest uppercase hover:bg-gray-700 transition-all rounded-sm cursor-pointer mt-1"
@@ -353,41 +353,41 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
         updatedAt: Timestamp.now(),
       });
 
-        try {
-          let pdfBase64: string;
-          let filename = `Contrato_PROTECT_${(formData.nome || "socio")
-            .replace(/\s+/g, "_")
-            .normalize("NFD")
-            .replace(/[\u0300-\u036f]/g, "")}.pdf`;
-          
-          // Captura o elemento visual do contrato e gera o PDF com exatamente o mesmo layout
-          const contractElement = getActiveContractRef().current;
-          if (!contractElement) {
-            throw new Error("Elemento do contrato não encontrado");
-          }
-          
-          pdfBase64 = await generateContractPDFFromVisualElement(
-            contractElement,
-            {
-              ...savedData,
-              plano: `${plano} anos`,
-            }
-          );
+      try {
+        let pdfBase64: string;
+        let filename = `Contrato_PROTECT_${(formData.nome || "socio")
+          .replace(/\s+/g, "_")
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")}.pdf`;
 
-          await fetch("/api/send-contract", {
-           method: "POST",
-           headers: { "Content-Type": "application/json" },
-           body: JSON.stringify({
-             nome: formData.nome,
-             email: formData.email,
-             cpf: formData.cpf,
-             pdfBase64,
-             cc: "clube@grupoprotect.com.br",
-           }),
-         });
-       } catch (emailErr) {
-         console.error("Erro ao enviar email (não crítico):", emailErr);
-       }
+        // Captura o elemento visual do contrato e gera o PDF com exatamente o mesmo layout
+        const contractElement = getActiveContractRef().current;
+        if (!contractElement) {
+          throw new Error("Elemento do contrato não encontrado");
+        }
+
+        pdfBase64 = await generateContractPDFFromVisualElement(
+          contractElement,
+          {
+            ...savedData,
+            plano: `${plano} anos`,
+          }
+        );
+
+        await fetch("/api/send-contract", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            nome: formData.nome,
+            email: formData.email,
+            cpf: formData.cpf,
+            pdfBase64,
+            cc: "clube@grupoprotect.com.br",
+          }),
+        });
+      } catch (emailErr) {
+        console.error("Erro ao enviar email (não crítico):", emailErr);
+      }
 
       setShowSuccess(true);
     } catch {
@@ -397,25 +397,52 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
     }
   };
 
-  const handleSuccessClose = () => { 
-    setShowSuccess(false); 
-    onClose(); 
+  const handleSuccessClose = () => {
+    setShowSuccess(false);
+    onClose();
   };
 
   const handlePrint = async () => {
     setPrinting(true);
     try {
-      await openContractForPrinting({
-        nome: formData.nome,
-        email: formData.email,
-        cpf: formData.cpf,
-        rg: formData.rg,
-        profissao: formData.profissao,
-        naturalidade: formData.naturalidade,
-        nascimento: dateToISO(formData.nascimento),
-        plano: `${plano} anos`,
-        dataAssinatura: new Date(),
-      });
+      const contractElement = getActiveContractRef().current;
+      if (!contractElement) throw new Error("Elemento do contrato não encontrado");
+
+      // Clona e remove todas as bordas antes de capturar
+      const clone = contractElement.cloneNode(true) as HTMLElement;
+      clone.style.cssText = `
+      position: fixed;
+      top: -99999px;
+      left: 0;
+      width: ${contractElement.offsetWidth}px;
+      background: white;
+      z-index: -9999;
+    `;
+
+      // Remove bordas de todos os elementos, exceto border-t das assinaturas
+      const removeBorders = (el: HTMLElement) => {
+        const hasBorderT = el.classList.contains("border-t");
+        const style = el.style;
+
+        style.border = "none";
+        style.boxShadow = "none";
+        style.outline = "none";
+
+        if (hasBorderT) {
+          style.borderTop = "1px solid #9ca3af";
+        }
+
+        Array.from(el.children).forEach((child) => {
+          if (child instanceof HTMLElement) removeBorders(child);
+        });
+      };
+
+      removeBorders(clone);
+      document.body.appendChild(clone);
+
+      await openContractVisualElementForPrinting(clone);
+
+      document.body.removeChild(clone);
     } catch (err) {
       console.error("Erro ao abrir para impressão:", err);
       alert("Erro ao preparar contrato para impressão. Tente novamente.");
@@ -423,7 +450,6 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
       setPrinting(false);
     }
   };
-
   const handleDateChange = (raw: string) => {
     const masked = maskDate(raw);
     setFormData((prev) => ({ ...prev, nascimento: masked }));
@@ -441,11 +467,11 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
 
   const blank = (label: string, value: string, width = "min-w-[180px]") =>
     value ? (
-      <span className={`inline-block border-b border-gray-700 px-1 font-semibold ${width}`}>
+      <span className={`inline-block border-b border-gray-300 px-1 font-semibold ${width}`}>
         {value}
       </span>
     ) : (
-      <span className={`inline-block border-b border-gray-400 px-1 text-gray-300 ${width}`}>
+      <span className={`inline-block border-b border-gray-200 px-1 text-gray-300 ${width}`}>
         {label}
       </span>
     );
