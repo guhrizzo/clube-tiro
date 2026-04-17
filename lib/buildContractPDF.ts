@@ -1315,3 +1315,116 @@ export function buildPDFContent(
     pdf.text(`${i} / ${totalPages}`, W - MR - 2, H - 8, { align: "right" });
   }
 }
+
+/**
+ * Gera PDF capturando o elemento visual do contrato exatamente como aparece
+ */
+export async function generateContractPDFFromVisualElement(
+  contractElement: HTMLElement,
+  contractData: ContractData
+): Promise<string> {
+  try {
+    const domtoimage = (await import("dom-to-image-more")).default;
+    const jsPDFModule = (await import("jspdf")).default;
+
+    // Aguarda as imagens carregarem
+    const imgs = contractElement.querySelectorAll("img");
+    await Promise.all(
+      Array.from(imgs).map(
+        (img) =>
+          new Promise<void>((resolve) => {
+            if ((img as HTMLImageElement).complete) resolve();
+            else {
+              img.onload = () => resolve();
+              img.onerror = () => resolve();
+            }
+          })
+      )
+    );
+
+    // Captura a imagem com escala 2× para qualidade
+    const scale = 2;
+    const dataUrl = await domtoimage.toJpeg(contractElement, {
+      quality: 0.95,
+      bgcolor: "#ffffff",
+      width: contractElement.offsetWidth * scale,
+      height: contractElement.offsetHeight * scale,
+      style: {
+        transform: `scale(${scale})`,
+        transformOrigin: "top left",
+        width: contractElement.offsetWidth + "px",
+        height: contractElement.offsetHeight + "px",
+      },
+    });
+
+    // Converte para imagem
+    const capturedImg = await new Promise<HTMLImageElement>((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => resolve(img);
+      img.onerror = reject;
+      img.src = dataUrl;
+    });
+
+    // Configuração A4 com margens
+    const pageWidthMm = 210;
+    const pageHeightMm = 297;
+    const marginMm = 10;
+    const usableWidthMm = pageWidthMm - marginMm * 2;
+    const usableHeightMm = pageHeightMm - marginMm * 2;
+
+    const pxPerMm = capturedImg.width / usableWidthMm;
+    const safePageHeightPx = (usableHeightMm - 10) * pxPerMm;
+
+    const totalPages = Math.ceil(capturedImg.height / safePageHeightPx);
+
+    const pdf = new jsPDFModule({
+      unit: "mm",
+      format: "a4",
+      orientation: "portrait",
+      compress: true,
+    });
+
+    // Adiciona páginas
+    for (let pageIndex = 0; pageIndex < totalPages; pageIndex++) {
+      if (pageIndex > 0) pdf.addPage();
+
+      const srcY = Math.round(pageIndex * safePageHeightPx);
+      const srcH = Math.min(safePageHeightPx, capturedImg.height - srcY);
+
+      const slice = document.createElement("canvas");
+      slice.width = capturedImg.width;
+      slice.height = Math.round(srcH);
+      const ctx = slice.getContext("2d")!;
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, slice.width, slice.height);
+      ctx.drawImage(
+        capturedImg,
+        0,
+        srcY,
+        capturedImg.width,
+        srcH,
+        0,
+        0,
+        capturedImg.width,
+        srcH
+      );
+
+      const sliceDataUrl = slice.toDataURL("image/jpeg", 0.92);
+      const sliceHeightMm = srcH / pxPerMm;
+
+      pdf.addImage(
+        sliceDataUrl,
+        "JPEG",
+        marginMm,
+        marginMm,
+        usableWidthMm,
+        sliceHeightMm
+      );
+    }
+
+    return pdf.output("datauristring").split(",")[1];
+  } catch (err) {
+    console.error("Erro ao gerar PDF do elemento visual:", err);
+    throw err;
+  }
+}

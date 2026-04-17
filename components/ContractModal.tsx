@@ -14,6 +14,7 @@ import {
 import { saveContractSignature } from "../lib/firebase";
 import {
   generateContractPDFFromServerPage,
+  generateContractPDFFromVisualElement,
 } from "../lib/buildContractPDF";
 
 import { collection, addDoc, Timestamp } from "firebase/firestore";
@@ -340,18 +341,26 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
         updatedAt: Timestamp.now(),
       });
 
-       try {
-         let pdfBase64: string;
-         let filename = `Contrato_PROTECT_${(formData.nome || "socio")
-           .replace(/\s+/g, "_")
-           .normalize("NFD")
-           .replace(/[\u0300-\u036f]/g, "")}.pdf`;
-         
-          // Usa a página /contrato-pdf para gerar o PDF
-          pdfBase64 = await generateContractPDFFromServerPage({
-            ...savedData,
-            plano: `${plano} anos`,
-          });
+        try {
+          let pdfBase64: string;
+          let filename = `Contrato_PROTECT_${(formData.nome || "socio")
+            .replace(/\s+/g, "_")
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")}.pdf`;
+          
+          // Captura o elemento visual do contrato e gera o PDF com exatamente o mesmo layout
+          const contractElement = getActiveContractRef().current;
+          if (!contractElement) {
+            throw new Error("Elemento do contrato não encontrado");
+          }
+          
+          pdfBase64 = await generateContractPDFFromVisualElement(
+            contractElement,
+            {
+              ...savedData,
+              plano: `${plano} anos`,
+            }
+          );
 
           await fetch("/api/send-contract", {
            method: "POST",
