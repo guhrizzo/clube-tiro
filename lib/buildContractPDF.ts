@@ -1428,3 +1428,76 @@ export async function generateContractPDFFromVisualElement(
     throw err;
   }
 }
+
+/**
+ * Abre o elemento visual do contrato em nova janela para impressão
+ * Sem depender da página /contrato-pdf
+ */
+export async function openContractVisualElementForPrinting(
+  contractElement: HTMLElement
+): Promise<void> {
+  try {
+    const domtoimage = (await import("dom-to-image-more")).default;
+
+    // Aguarda as imagens carregarem
+    const imgs = contractElement.querySelectorAll("img");
+    await Promise.all(
+      Array.from(imgs).map(
+        (img) =>
+          new Promise<void>((resolve) => {
+            if ((img as HTMLImageElement).complete) resolve();
+            else {
+              img.onload = () => resolve();
+              img.onerror = () => resolve();
+            }
+          })
+      )
+    );
+
+    // Captura a imagem com escala 2× para qualidade
+    const scale = 2;
+    const dataUrl = await domtoimage.toJpeg(contractElement, {
+      quality: 0.95,
+      bgcolor: "#ffffff",
+      width: contractElement.offsetWidth * scale,
+      height: contractElement.offsetHeight * scale,
+      style: {
+        transform: `scale(${scale})`,
+        transformOrigin: "top left",
+        width: contractElement.offsetWidth + "px",
+        height: contractElement.offsetHeight + "px",
+      },
+    });
+
+    // Abre em nova janela para impressão
+    const win = window.open();
+    if (!win) {
+      throw new Error("Pop-up bloqueado pelo navegador");
+    }
+
+    win.document.write(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Contrato de Adesão - PROTECT</title>
+        <style>
+          body { margin: 0; padding: 0; }
+          img { max-width: 100%; height: auto; display: block; }
+        </style>
+      </head>
+      <body>
+        <img src="${dataUrl}" />
+        <script>
+          window.addEventListener('load', function() {
+            setTimeout(function() { window.print(); }, 500);
+          });
+        </script>
+      </body>
+      </html>
+    `);
+    win.document.close();
+  } catch (err) {
+    console.error("Erro ao abrir contrato para impressão:", err);
+    throw err;
+  }
+}
