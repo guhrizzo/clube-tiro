@@ -18,249 +18,76 @@ export interface ContractData {
   createdAt?: any;
 }
 
-/**
- * Gera PDF renderizando a página /contrato-pdf em um iframe
- */
-export async function generateContractPDFFromServerPage(
-  contractData: ContractData
-): Promise<string> {
-  try {
-    const domtoimage = (await import("dom-to-image-more")).default;
-    const jsPDFModule = (await import("jspdf")).default;
+// ─────────────────────────────────────────────────────────────────────────────
+// Utilitário interno: clona um elemento e remove bordas desnecessárias,
+// preservando apenas border-top nos blocos de assinatura (classe "border-t").
+// Usado por generateContractPDFFromVisualElement, openContractVisualElementForPrinting
+// e downloadContractPDF — garante resultado idêntico em todos os fluxos.
+// ─────────────────────────────────────────────────────────────────────────────
+function cloneAndClean(contractElement: HTMLElement): HTMLElement {
+  const clone = contractElement.cloneNode(true) as HTMLElement;
+  clone.style.cssText = `
+    position: fixed;
+    top: -99999px;
+    left: 0;
+    width: ${contractElement.offsetWidth}px;
+    background: white;
+    z-index: -9999;
+  `;
 
-    // Armazena dados sensíveis em sessionStorage (não expõe na URL)
-    const sessionId = `contract_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
-    if (typeof window !== "undefined") {
-      try {
-        if (window.sessionStorage) {
-          sessionStorage.setItem(sessionId, JSON.stringify({
-            nome: contractData.nome || "",
-            email: contractData.email || "",
-            cpf: contractData.cpf || "",
-            rg: contractData.rg || "",
-            profissao: contractData.profissao || "",
-            naturalidade: contractData.naturalidade || "",
-            nascimento: contractData.nascimento || "",
-            plano: contractData.plano?.includes("5") ? "5" : "3",
-          }));
-        }
-      } catch (e) {
-        console.warn("sessionStorage não disponível, dados serão passados via URL fallback");
-      }
-    }
-
-    // Detecta o locale atual do pathname
-    const currentPathname = typeof window !== "undefined" ? window.location.pathname : "/pt";
-    const locale = currentPathname.split("/")[1] || "pt";
-    const url = `/${locale}/contrato-pdf?sid=${sessionId}`;
-
-    // Cria um iframe para carregar a página
-    const iframe = document.createElement("iframe");
-    iframe.style.cssText =
-      "position: fixed; top: -99999px; left: 0; width: 170mm; height: auto; border: none; background: white; z-index: -9999;";
-    iframe.src = url;
-    document.body.appendChild(iframe);
-
-    // Aguarda o iframe carregar
-    await new Promise<void>((resolve) => {
-      const checkLoad = setInterval(() => {
-        try {
-          if (
-            iframe.contentDocument &&
-            iframe.contentDocument.readyState === "complete"
-          ) {
-            clearInterval(checkLoad);
-            resolve();
-          }
-        } catch (e) {
-          // Pode gerar erro de CORS, mas vamos tentar mesmo assim
-        }
-      }, 100);
-
-      // Timeout após 5 segundos
-      setTimeout(() => {
-        clearInterval(checkLoad);
-        resolve();
-      }, 5000);
+  const removeBorders = (el: HTMLElement) => {
+    const hasBorderT = el.classList.contains("border-t");
+    el.style.border = "none";
+    el.style.boxShadow = "none";
+    el.style.outline = "none";
+    if (hasBorderT) el.style.borderTop = "1px solid #9ca3af";
+    Array.from(el.children).forEach((child) => {
+      if (child instanceof HTMLElement) removeBorders(child);
     });
+  };
 
-    // Aguarda um pouco para as imagens carregarem
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    // Obtém o conteúdo renderizado do iframe
-    let htmlContent: HTMLElement | null = null;
-    try {
-      htmlContent = iframe.contentDocument?.body;
-    } catch (e) {
-      console.warn("Não foi possível acessar iframe.contentDocument, usando fetch direto");
-    }
-
-    // Se não conseguir via iframe (CORS), tenta fetch direto
-    if (!htmlContent) {
-      const response = await fetch(url);
-      const html = await response.text();
-
-      // Cria um container temporário com o HTML
-      const container = document.createElement("div");
-      container.innerHTML = html;
-      container.style.cssText =
-        "position: fixed; top: -99999px; left: 0; width: 170mm; background: white; z-index: -9999;";
-
-      // Injeta Tailwind via CDN para estilos
-      const style = document.createElement("style");
-      style.textContent = `
-        @import url('https://cdn.tailwindcss.com');
-        @import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap');
-        body { font-family: 'Libre Baskerville', Georgia, serif; background: #fff; }
-        * { box-sizing: border-box; }
-      `;
-      container.appendChild(style);
-      document.body.appendChild(container);
-      htmlContent = container;
-    }
-
-    if (!htmlContent) {
-      throw new Error("Não foi possível renderizar o contrato");
-    }
-
-    // Aguarda imagens carregarem
-    const imgs = htmlContent.querySelectorAll("img");
-    await Promise.all(
-      Array.from(imgs).map(
-        (img) =>
-          new Promise<void>((resolve) => {
-            if (img.complete) resolve();
-            else {
-              img.onload = () => resolve();
-              img.onerror = () => resolve();
-            }
-          })
-      )
-    );
-
-    // Captura como imagem com escala 2×
-    const scale = 2;
-    const dataUrl = await domtoimage.toJpeg(htmlContent, {
-      quality: 0.95,
-      bgcolor: "#ffffff",
-      width: htmlContent.offsetWidth * scale,
-      height: htmlContent.offsetHeight * scale,
-      style: {
-        transform: `scale(${scale})`,
-        transformOrigin: "top left",
-        width: htmlContent.offsetWidth + "px",
-        height: htmlContent.offsetHeight + "px",
-      },
-    });
-
-    // Remove elementos temporários
-    if (iframe.parentNode) document.body.removeChild(iframe);
-    const tempContainer = htmlContent.parentElement;
-    if (tempContainer && tempContainer !== document.body && tempContainer.parentNode) {
-      tempContainer.parentNode.removeChild(tempContainer);
-    }
-
-    // Converte para imagem
-    const capturedImg = await new Promise<HTMLImageElement>((resolve, reject) => {
-      const img = new Image();
-      img.onload = () => resolve(img);
-      img.onerror = reject;
-      img.src = dataUrl;
-    });
-
-    // Configuração A4
-    const pageWidthMm = 210;
-    const pageHeightMm = 297;
-    const marginMm = 10;
-    const usableWidthMm = pageWidthMm - marginMm * 2;
-    const usableHeightMm = pageHeightMm - marginMm * 2;
-
-    const pxPerMm = capturedImg.width / usableWidthMm;
-    const safePageHeightPx = (usableHeightMm - 8) * pxPerMm;
-
-    const totalPages = Math.ceil(capturedImg.height / safePageHeightPx);
-
-    const pdf = new jsPDFModule({
-      unit: "mm",
-      format: "a4",
-      orientation: "portrait",
-      compress: true,
-    });
-
-    // Adiciona páginas
-    for (let pageIndex = 0; pageIndex < totalPages; pageIndex++) {
-      if (pageIndex > 0) pdf.addPage();
-
-      const srcY = Math.round(pageIndex * safePageHeightPx);
-      const srcH = Math.min(safePageHeightPx, capturedImg.height - srcY);
-
-      const slice = document.createElement("canvas");
-      slice.width = capturedImg.width;
-      slice.height = Math.round(srcH);
-      const ctx = slice.getContext("2d")!;
-      ctx.fillStyle = "#ffffff";
-      ctx.fillRect(0, 0, slice.width, slice.height);
-      ctx.drawImage(
-        capturedImg,
-        0,
-        srcY,
-        capturedImg.width,
-        srcH,
-        0,
-        0,
-        capturedImg.width,
-        srcH
-      );
-
-      const sliceDataUrl = slice.toDataURL("image/jpeg", 0.92);
-      const sliceHeightMm = srcH / pxPerMm;
-
-      pdf.addImage(
-        sliceDataUrl,
-        "JPEG",
-        marginMm,
-        marginMm,
-        usableWidthMm,
-        sliceHeightMm
-      );
-    }
-
-    return pdf.output("datauristring").split(",")[1];
-  } catch (err) {
-    console.error("Erro ao gerar PDF da página /contrato-pdf:", err);
-    throw err;
-  }
+  removeBorders(clone);
+  return clone;
 }
 
-export async function downloadContractPDF(
-  contractElement: HTMLElement,
-  filename: string
-): Promise<void> {
+// ─────────────────────────────────────────────────────────────────────────────
+// Pipeline compartilhado: captura o elemento como JPEG e pagina em A4.
+// Recebe o elemento já posicionado no DOM (fixo fora da tela).
+// Retorna o base64 puro (sem prefixo data:...).
+// ─────────────────────────────────────────────────────────────────────────────
+async function captureElementToPDFBase64(
+  element: HTMLElement,
+  safeMarginMm = 15.3
+): Promise<string> {
   const domtoimage = (await import("dom-to-image-more")).default;
   const jsPDFModule = (await import("jspdf")).default;
 
-  const imgs = contractElement.querySelectorAll("img");
+  // Aguarda imagens
+  const imgs = element.querySelectorAll("img");
   await Promise.all(
     Array.from(imgs).map(
       (img) =>
         new Promise<void>((resolve) => {
           if ((img as HTMLImageElement).complete) resolve();
-          else { img.onload = () => resolve(); img.onerror = () => resolve(); }
+          else {
+            img.onload = () => resolve();
+            img.onerror = () => resolve();
+          }
         })
     )
   );
 
   const scale = 2;
-  const dataUrl = await domtoimage.toJpeg(contractElement, {
+  const dataUrl = await domtoimage.toJpeg(element, {
     quality: 0.95,
     bgcolor: "#ffffff",
-    width: contractElement.offsetWidth * scale,
-    height: contractElement.offsetHeight * scale,
+    width: element.offsetWidth * scale,
+    height: element.offsetHeight * scale,
     style: {
       transform: `scale(${scale})`,
       transformOrigin: "top left",
-      width: contractElement.offsetWidth + "px",
-      height: contractElement.offsetHeight + "px",
+      width: element.offsetWidth + "px",
+      height: element.offsetHeight + "px",
     },
   });
 
@@ -278,8 +105,7 @@ export async function downloadContractPDF(
   const usableHeightMm = pageHeightMm - marginMm * 2;
 
   const pxPerMm = capturedImg.width / usableWidthMm;
-  const safePageHeightPx = (usableHeightMm - 15.3) * pxPerMm; // mesma margem do print
-
+  const safePageHeightPx = (usableHeightMm - safeMarginMm) * pxPerMm;
   const totalPages = Math.ceil(capturedImg.height / safePageHeightPx);
 
   const pdf = new jsPDFModule({
@@ -301,68 +127,147 @@ export async function downloadContractPDF(
     const ctx = slice.getContext("2d")!;
     ctx.fillStyle = "#ffffff";
     ctx.fillRect(0, 0, slice.width, slice.height);
-    ctx.drawImage(capturedImg, 0, srcY, capturedImg.width, srcH, 0, 0, capturedImg.width, srcH);
+    ctx.drawImage(
+      capturedImg,
+      0,
+      srcY,
+      capturedImg.width,
+      srcH,
+      0,
+      0,
+      capturedImg.width,
+      srcH
+    );
 
     const sliceDataUrl = slice.toDataURL("image/jpeg", 0.92);
     const sliceHeightMm = srcH / pxPerMm;
 
-    pdf.addImage(sliceDataUrl, "JPEG", marginMm, marginMm, usableWidthMm, sliceHeightMm);
+    pdf.addImage(
+      sliceDataUrl,
+      "JPEG",
+      marginMm,
+      marginMm,
+      usableWidthMm,
+      sliceHeightMm
+    );
   }
 
-  // Download direto — sem abrir nova aba
-  const blob = pdf.output("blob");
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = filename;
-  a.click();
-  URL.revokeObjectURL(url);
+  return pdf.output("datauristring").split(",")[1];
 }
 
-/**
- * Abre a página /contrato-pdf em nova janela para impressão
- */
-export async function openContractForPrinting(
+// ─────────────────────────────────────────────────────────────────────────────
+// Gera PDF base64 a partir do elemento visual — clona e limpa bordas
+// antes de capturar, garantindo resultado idêntico ao print/download.
+// ─────────────────────────────────────────────────────────────────────────────
+export async function generateContractPDFFromVisualElement(
+  contractElement: HTMLElement,
   contractData: ContractData
+): Promise<string> {
+  const clone = cloneAndClean(contractElement);
+  document.body.appendChild(clone);
+  try {
+    return await captureElementToPDFBase64(clone, 15.3);
+  } finally {
+    document.body.removeChild(clone);
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Abre o contrato em nova aba para impressão.
+// ─────────────────────────────────────────────────────────────────────────────
+export async function openContractVisualElementForPrinting(
+  contractElement: HTMLElement
 ): Promise<void> {
+  const clone = cloneAndClean(contractElement);
+  document.body.appendChild(clone);
+  try {
+    const base64 = await captureElementToPDFBase64(clone, 15.3);
+    const binary = atob(base64);
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+    const blob = new Blob([bytes], { type: "application/pdf" });
+    const blobUrl = URL.createObjectURL(blob);
+    const win = window.open(blobUrl, "_blank");
+    if (!win) throw new Error("Pop-up bloqueado pelo navegador");
+  } finally {
+    document.body.removeChild(clone);
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Faz download direto do PDF sem abrir nova aba.
+// ─────────────────────────────────────────────────────────────────────────────
+export async function downloadContractPDF(
+  contractElement: HTMLElement,
+  filename: string
+): Promise<void> {
+  // O elemento já chega clonado e limpo vindo do ContractModal,
+  // mas precisamos appendá-lo ao body para o offsetWidth funcionar.
+  document.body.appendChild(contractElement);
+  try {
+    const base64 = await captureElementToPDFBase64(contractElement, 15.3);
+    const binary = atob(base64);
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+    const blob = new Blob([bytes], { type: "application/pdf" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+  } finally {
+    if (contractElement.parentNode === document.body) {
+      document.body.removeChild(contractElement);
+    }
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Funções legadas mantidas para compatibilidade
+// ─────────────────────────────────────────────────────────────────────────────
+
+export async function generateContractPDFFromServerPage(
+  contractData: ContractData
+): Promise<string> {
   try {
     const domtoimage = (await import("dom-to-image-more")).default;
     const jsPDFModule = (await import("jspdf")).default;
 
-    // Armazena dados sensíveis em sessionStorage (não expõe na URL)
     const sessionId = `contract_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
     if (typeof window !== "undefined") {
       try {
         if (window.sessionStorage) {
-          sessionStorage.setItem(sessionId, JSON.stringify({
-            nome: contractData.nome || "",
-            email: contractData.email || "",
-            cpf: contractData.cpf || "",
-            rg: contractData.rg || "",
-            profissao: contractData.profissao || "",
-            naturalidade: contractData.naturalidade || "",
-            nascimento: contractData.nascimento || "",
-            plano: contractData.plano?.includes("5") ? "5" : "3",
-          }));
+          sessionStorage.setItem(
+            sessionId,
+            JSON.stringify({
+              nome: contractData.nome || "",
+              email: contractData.email || "",
+              cpf: contractData.cpf || "",
+              rg: contractData.rg || "",
+              profissao: contractData.profissao || "",
+              naturalidade: contractData.naturalidade || "",
+              nascimento: contractData.nascimento || "",
+              plano: contractData.plano?.includes("5") ? "5" : "3",
+            })
+          );
         }
       } catch (e) {
-        console.warn("sessionStorage não disponível, dados serão passados via URL fallback");
+        console.warn("sessionStorage não disponível");
       }
     }
 
-    // Detecta o locale atual do pathname
-    const currentPathname = typeof window !== "undefined" ? window.location.pathname : "/pt";
+    const currentPathname =
+      typeof window !== "undefined" ? window.location.pathname : "/pt";
     const locale = currentPathname.split("/")[1] || "pt";
     const url = `/${locale}/contrato-pdf?sid=${sessionId}`;
 
-    // Cria um iframe para carregar a página
     const iframe = document.createElement("iframe");
     iframe.style.cssText =
       "position: fixed; top: -99999px; left: 0; width: 170mm; height: auto; border: none; background: white; z-index: -9999;";
     iframe.src = url;
     document.body.appendChild(iframe);
 
-    // Aguarda o iframe carregar
     await new Promise<void>((resolve) => {
       const checkLoad = setInterval(() => {
         try {
@@ -373,58 +278,34 @@ export async function openContractForPrinting(
             clearInterval(checkLoad);
             resolve();
           }
-        } catch (e) {
-          // Pode gerar erro de CORS
-        }
+        } catch (e) {}
       }, 100);
-
-      // Timeout após 5 segundos
       setTimeout(() => {
         clearInterval(checkLoad);
         resolve();
       }, 5000);
     });
 
-    // Aguarda um pouco para as imagens carregarem
     await new Promise((resolve) => setTimeout(resolve, 1000));
 
-    // Obtém o conteúdo renderizado do iframe
     let htmlContent: HTMLElement | null = null;
     try {
-      htmlContent = iframe.contentDocument?.body;
-    } catch (e) {
-      console.warn("Não foi possível acessar iframe.contentDocument, usando fetch direto");
-    }
+      htmlContent = iframe.contentDocument?.body ?? null;
+    } catch (e) {}
 
-    // Se não conseguir via iframe (CORS), tenta fetch direto
     if (!htmlContent) {
       const response = await fetch(url);
       const html = await response.text();
-
-      // Cria um container temporário com o HTML
       const container = document.createElement("div");
       container.innerHTML = html;
       container.style.cssText =
         "position: fixed; top: -99999px; left: 0; width: 170mm; background: white; z-index: -9999;";
-
-      // Injeta Tailwind via CDN para estilos
-      const style = document.createElement("style");
-      style.textContent = `
-        @import url('https://cdn.tailwindcss.com');
-        @import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap');
-        body { font-family: 'Libre Baskerville', Georgia, serif; background: #fff; }
-        * { box-sizing: border-box; }
-      `;
-      container.appendChild(style);
       document.body.appendChild(container);
       htmlContent = container;
     }
 
-    if (!htmlContent) {
-      throw new Error("Não foi possível renderizar o contrato");
-    }
+    if (!htmlContent) throw new Error("Não foi possível renderizar o contrato");
 
-    // Aguarda imagens carregarem
     const imgs = htmlContent.querySelectorAll("img");
     await Promise.all(
       Array.from(imgs).map(
@@ -439,7 +320,6 @@ export async function openContractForPrinting(
       )
     );
 
-    // Captura como imagem com escala 2×
     const scale = 2;
     const dataUrl = await domtoimage.toJpeg(htmlContent, {
       quality: 0.95,
@@ -454,14 +334,16 @@ export async function openContractForPrinting(
       },
     });
 
-    // Remove elementos temporários
     if (iframe.parentNode) document.body.removeChild(iframe);
     const tempContainer = htmlContent.parentElement;
-    if (tempContainer && tempContainer !== document.body && tempContainer.parentNode) {
+    if (
+      tempContainer &&
+      tempContainer !== document.body &&
+      tempContainer.parentNode
+    ) {
       tempContainer.parentNode.removeChild(tempContainer);
     }
 
-    // Converte para imagem
     const capturedImg = await new Promise<HTMLImageElement>((resolve, reject) => {
       const img = new Image();
       img.onload = () => resolve(img);
@@ -469,16 +351,13 @@ export async function openContractForPrinting(
       img.src = dataUrl;
     });
 
-    // Configuração A4
     const pageWidthMm = 210;
     const pageHeightMm = 297;
     const marginMm = 10;
     const usableWidthMm = pageWidthMm - marginMm * 2;
     const usableHeightMm = pageHeightMm - marginMm * 2;
-
     const pxPerMm = capturedImg.width / usableWidthMm;
     const safePageHeightPx = (usableHeightMm - 8) * pxPerMm;
-
     const totalPages = Math.ceil(capturedImg.height / safePageHeightPx);
 
     const pdf = new jsPDFModule({
@@ -488,53 +367,25 @@ export async function openContractForPrinting(
       compress: true,
     });
 
-    // Adiciona páginas
     for (let pageIndex = 0; pageIndex < totalPages; pageIndex++) {
       if (pageIndex > 0) pdf.addPage();
-
       const srcY = Math.round(pageIndex * safePageHeightPx);
       const srcH = Math.min(safePageHeightPx, capturedImg.height - srcY);
-
       const slice = document.createElement("canvas");
       slice.width = capturedImg.width;
       slice.height = Math.round(srcH);
       const ctx = slice.getContext("2d")!;
       ctx.fillStyle = "#ffffff";
       ctx.fillRect(0, 0, slice.width, slice.height);
-      ctx.drawImage(
-        capturedImg,
-        0,
-        srcY,
-        capturedImg.width,
-        srcH,
-        0,
-        0,
-        capturedImg.width,
-        srcH
-      );
-
+      ctx.drawImage(capturedImg, 0, srcY, capturedImg.width, srcH, 0, 0, capturedImg.width, srcH);
       const sliceDataUrl = slice.toDataURL("image/jpeg", 0.92);
       const sliceHeightMm = srcH / pxPerMm;
-
-      pdf.addImage(
-        sliceDataUrl,
-        "JPEG",
-        marginMm,
-        marginMm,
-        usableWidthMm,
-        sliceHeightMm
-      );
+      pdf.addImage(sliceDataUrl, "JPEG", marginMm, marginMm, usableWidthMm, sliceHeightMm);
     }
 
-    // Abre o PDF em nova janela para impressão
-    const blobUrl = pdf.output("bloburi");
-    const win = window.open(blobUrl, "_blank");
-    if (!win) {
-      console.error("Não foi possível abrir nova janela");
-      throw new Error("Abrir nova janela bloqueado pelo navegador");
-    }
+    return pdf.output("datauristring").split(",")[1];
   } catch (err) {
-    console.error("Erro ao abrir contrato para impressão:", err);
+    console.error("Erro ao gerar PDF da página /contrato-pdf:", err);
     throw err;
   }
 }
@@ -554,14 +405,19 @@ const loadImageAsBase64 = (src: string): Promise<string> =>
     img.src = src;
   });
 
-export async function generateContractPDFBase64(contract: ContractData): Promise<string> {
+export async function generateContractPDFBase64(
+  contract: ContractData
+): Promise<string> {
   try {
     const domtoimage = (await import("dom-to-image-more")).default;
 
     const contractDiv = document.createElement("div");
     contractDiv.style.cssText = `
+      position: fixed;
+      top: -99999px;
+      left: 0;
+      z-index: -9999;
       max-width: 670px;
-      margin: 0 auto;
       background: white;
       border: none;
       padding: 48px 40px;
@@ -575,11 +431,6 @@ export async function generateContractPDFBase64(contract: ContractData): Promise
     `;
 
     contractDiv.innerHTML = getContractHTML(contract);
-
-    contractDiv.style.position = "fixed";
-    contractDiv.style.top = "-99999px";
-    contractDiv.style.left = "0";
-    contractDiv.style.zIndex = "-9999";
     document.body.appendChild(contractDiv);
 
     const imgs = contractDiv.querySelectorAll("img");
@@ -627,11 +478,8 @@ export async function generateContractPDFBase64(contract: ContractData): Promise
     const usableWidthMm = pageWidthMm - marginMm * 2;
     const pageHeightMm = 297;
     const usableHeightMm = pageHeightMm - marginMm * 2;
-
     const pxPerMm = capturedImg.width / usableWidthMm;
-    // Margem de segurança de 8mm para evitar cortes
     const safePageHeightPx = (usableHeightMm - 8) * pxPerMm;
-
     const totalPages = Math.ceil(capturedImg.height / safePageHeightPx);
 
     const pdf = new jsPDF({
@@ -643,10 +491,8 @@ export async function generateContractPDFBase64(contract: ContractData): Promise
 
     for (let pageIndex = 0; pageIndex < totalPages; pageIndex++) {
       if (pageIndex > 0) pdf.addPage([pageWidthMm, pageHeightMm]);
-
       const srcY = Math.round(pageIndex * safePageHeightPx);
       const srcH = Math.min(safePageHeightPx, capturedImg.height - srcY);
-
       const slice = document.createElement("canvas");
       slice.width = capturedImg.width;
       slice.height = Math.round(srcH);
@@ -654,10 +500,8 @@ export async function generateContractPDFBase64(contract: ContractData): Promise
       ctx.fillStyle = "#ffffff";
       ctx.fillRect(0, 0, slice.width, slice.height);
       ctx.drawImage(capturedImg, 0, srcY, capturedImg.width, srcH, 0, 0, capturedImg.width, srcH);
-
       const sliceDataUrl = slice.toDataURL("image/jpeg", 0.92);
       const sliceHeightMm = srcH / pxPerMm;
-
       pdf.addImage(sliceDataUrl, "JPEG", marginMm, marginMm, usableWidthMm, sliceHeightMm);
     }
 
@@ -675,18 +519,12 @@ export async function generateContractPDFBase64(contract: ContractData): Promise
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// FIX 1: remoção de bordas — processa o DOM após inserir o HTML, zerando todas
-//         as bordas e restaurando apenas border-top das linhas de assinatura
-//         (identificadas pela presença simultânea de padding-top no mesmo elemento).
-// FIX 2: corte de texto — margem de segurança aumentada de 3 mm → 8 mm,
-//         igualando o comportamento do desktop.
-// ─────────────────────────────────────────────────────────────────────────────
-export async function generateContractPDFMobile(contract: ContractData): Promise<string> {
+export async function generateContractPDFMobile(
+  contract: ContractData
+): Promise<string> {
   const domtoimage = (await import("dom-to-image-more")).default;
   const jsPDFModule = (await import("jspdf")).default;
 
-  // Container sem NENHUMA borda ou sombra
   const container = document.createElement("div");
   container.style.cssText = `
     position: fixed;
@@ -708,20 +546,13 @@ export async function generateContractPDFMobile(contract: ContractData): Promise
     line-height: 1.625;
   `;
 
-  // Insere o HTML e só então remove bordas via DOM (mais confiável que regex)
   container.innerHTML = getContractHTML(contract);
   document.body.appendChild(container);
 
-  // FIX 1 — remove bordas por DOM traversal
-  // Preserva border-top APENAS quando há padding-top no mesmo elemento
-  // (padrão exclusivo das linhas de assinatura no getContractHTML)
   const cleanBorders = (el: Element): void => {
     if (!(el instanceof HTMLElement)) return;
-
     const inlineBorderTop = el.style.borderTop;
     const inlinePaddingTop = el.style.paddingTop;
-
-    // Zera tudo
     el.style.border = "none";
     el.style.borderTop = "none";
     el.style.borderBottom = "none";
@@ -730,20 +561,15 @@ export async function generateContractPDFMobile(contract: ContractData): Promise
     el.style.borderRadius = "0";
     el.style.boxShadow = "none";
     el.style.outline = "none";
-
-    // Restaura border-top apenas nas linhas de assinatura
-    // (têm border-top E padding-top definidos inline)
     if (inlineBorderTop && inlineBorderTop !== "none" && inlinePaddingTop) {
       el.style.borderTop = inlineBorderTop;
       el.style.paddingTop = inlinePaddingTop;
     }
-
     Array.from(el.children).forEach(cleanBorders);
   };
 
   cleanBorders(container);
 
-  // Aguarda as imagens carregarem
   const imgs = container.querySelectorAll("img");
   await Promise.all(
     Array.from(imgs).map(
@@ -758,7 +584,6 @@ export async function generateContractPDFMobile(contract: ContractData): Promise
     )
   );
 
-  // Captura a imagem com escala 2×
   const scale = 2;
   const dataUrl = await domtoimage.toJpeg(container, {
     quality: 0.95,
@@ -782,18 +607,13 @@ export async function generateContractPDFMobile(contract: ContractData): Promise
     img.src = dataUrl;
   });
 
-  // Paginação A4
   const pageWidthMm = 210;
   const pageHeightMm = 297;
   const marginMm = 10;
   const usableWidthMm = pageWidthMm - marginMm * 2;
   const usableHeightMm = pageHeightMm - marginMm * 2;
-
   const pxPerMm = capturedImg.width / usableWidthMm;
-
-  // FIX 2 — margem de segurança de 8 mm (era 3 mm) para evitar corte de texto
   const safePageHeightPx = (usableHeightMm - 8) * pxPerMm;
-
   const totalPages = Math.ceil(capturedImg.height / safePageHeightPx);
 
   const pdf = new jsPDFModule({
@@ -805,10 +625,8 @@ export async function generateContractPDFMobile(contract: ContractData): Promise
 
   for (let pageIndex = 0; pageIndex < totalPages; pageIndex++) {
     if (pageIndex > 0) pdf.addPage();
-
     const srcY = Math.round(pageIndex * safePageHeightPx);
     const srcH = Math.min(safePageHeightPx, capturedImg.height - srcY);
-
     const slice = document.createElement("canvas");
     slice.width = capturedImg.width;
     slice.height = Math.round(srcH);
@@ -816,17 +634,17 @@ export async function generateContractPDFMobile(contract: ContractData): Promise
     ctx.fillStyle = "#ffffff";
     ctx.fillRect(0, 0, slice.width, slice.height);
     ctx.drawImage(capturedImg, 0, srcY, capturedImg.width, srcH, 0, 0, capturedImg.width, srcH);
-
     const sliceDataUrl = slice.toDataURL("image/jpeg", 0.92);
     const sliceHeightMm = srcH / pxPerMm;
-
     pdf.addImage(sliceDataUrl, "JPEG", marginMm, marginMm, usableWidthMm, sliceHeightMm);
   }
 
   return pdf.output("datauristring").split(",")[1];
 }
 
-export async function generateContractPDFBase64FromElement(element: HTMLElement): Promise<string> {
+export async function generateContractPDFBase64FromElement(
+  element: HTMLElement
+): Promise<string> {
   const domtoimage = (await import("dom-to-image-more")).default;
   const jsPDFModule = (await import("jspdf")).default;
 
@@ -901,26 +719,30 @@ export async function generateContractPDFBase64FromElement(element: HTMLElement)
   const origImgs = Array.from(element.querySelectorAll("img"));
   const cloneImgs = Array.from(clone.querySelectorAll("img"));
   await Promise.all(
-    origImgs.map((img, i) =>
-      new Promise<void>((resolve) => {
-        const c = document.createElement("canvas");
-        c.width = img.naturalWidth || 200;
-        c.height = img.naturalHeight || 80;
-        const ctx = c.getContext("2d");
-        if (!ctx) { resolve(); return; }
-        const tmp = new Image();
-        tmp.crossOrigin = "anonymous";
-        tmp.onload = () => {
-          ctx.drawImage(tmp, 0, 0);
-          if (cloneImgs[i]) cloneImgs[i].src = c.toDataURL("image/png");
-          resolve();
-        };
-        tmp.onerror = () => {
-          if (cloneImgs[i]) cloneImgs[i].style.display = "none";
-          resolve();
-        };
-        tmp.src = img.src;
-      })
+    origImgs.map(
+      (img, i) =>
+        new Promise<void>((resolve) => {
+          const c = document.createElement("canvas");
+          c.width = img.naturalWidth || 200;
+          c.height = img.naturalHeight || 80;
+          const ctx = c.getContext("2d");
+          if (!ctx) {
+            resolve();
+            return;
+          }
+          const tmp = new Image();
+          tmp.crossOrigin = "anonymous";
+          tmp.onload = () => {
+            ctx.drawImage(tmp, 0, 0);
+            if (cloneImgs[i]) cloneImgs[i].src = c.toDataURL("image/png");
+            resolve();
+          };
+          tmp.onerror = () => {
+            if (cloneImgs[i]) cloneImgs[i].style.display = "none";
+            resolve();
+          };
+          tmp.src = img.src;
+        })
     )
   );
 
@@ -961,10 +783,8 @@ export async function generateContractPDFBase64FromElement(element: HTMLElement)
   const marginMm = 10;
   const usableWidthMm = pageWidthMm - marginMm * 2;
   const usableHeightMm = pageHeightMm - marginMm * 2;
-
   const pxPerMm = capturedImg.width / usableWidthMm;
   const safePageHeightPx = (usableHeightMm - 8) * pxPerMm;
-
   const totalPages = Math.ceil(capturedImg.height / safePageHeightPx);
 
   const pdf = new jsPDFModule({
@@ -976,10 +796,8 @@ export async function generateContractPDFBase64FromElement(element: HTMLElement)
 
   for (let pageIndex = 0; pageIndex < totalPages; pageIndex++) {
     if (pageIndex > 0) pdf.addPage();
-
     const srcY = Math.round(pageIndex * safePageHeightPx);
     const srcH = Math.min(safePageHeightPx, capturedImg.height - srcY);
-
     const slice = document.createElement("canvas");
     slice.width = capturedImg.width;
     slice.height = Math.round(srcH);
@@ -987,10 +805,8 @@ export async function generateContractPDFBase64FromElement(element: HTMLElement)
     ctx.fillStyle = "#ffffff";
     ctx.fillRect(0, 0, slice.width, slice.height);
     ctx.drawImage(capturedImg, 0, srcY, capturedImg.width, srcH, 0, 0, capturedImg.width, srcH);
-
     const sliceDataUrl = slice.toDataURL("image/jpeg", 0.92);
     const sliceHeightMm = srcH / pxPerMm;
-
     pdf.addImage(sliceDataUrl, "JPEG", marginMm, marginMm, usableWidthMm, sliceHeightMm);
   }
 
@@ -1024,7 +840,6 @@ function getContractHTML(contract: ContractData): string {
     year: "numeric",
   });
 
-  // Estilo de seção sem borda lateral — apenas border-top fino para separação visual
   const sectionStyle = `margin-top: 16px; margin-bottom: 16px; padding-top: 16px; border-top: 1px solid #e5e7eb;`;
 
   return `
@@ -1041,7 +856,6 @@ function getContractHTML(contract: ContractData): string {
       <div style="margin-top: 16px; display: inline-block; padding: 8px 12px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: #4b5563;">
         Cota ${nomeContrato} — ${vigencia}
       </div>
-    </div>
     </div>
 
     <p style="text-align: justify; margin-bottom: 16px;">
@@ -1181,7 +995,8 @@ export function buildPDFContent(
 ) {
   const W = pdf.internal.pageSize.getWidth();
   const H = pdf.internal.pageSize.getHeight();
-  const ML = 15, MR = 15;
+  const ML = 15,
+    MR = 15;
   const TW = W - ML - MR;
   const BOTTOM = H - 18;
   let y = 20;
@@ -1226,17 +1041,35 @@ export function buildPDFContent(
   };
 
   const text = (str: string, xPos: number, yPos: number, opts: any = {}) => {
-    const { size = 9, bold = false, italic = false, align = "left", color = [20, 20, 20] } = opts;
+    const {
+      size = 9,
+      bold = false,
+      italic = false,
+      align = "left",
+      color = [20, 20, 20],
+    } = opts;
     pdf.setFontSize(size);
-    pdf.setFont("times", bold && italic ? "bolditalic" : bold ? "bold" : italic ? "italic" : "normal");
+    pdf.setFont(
+      "times",
+      bold && italic ? "bolditalic" : bold ? "bold" : italic ? "italic" : "normal"
+    );
     pdf.setTextColor(color[0], color[1], color[2]);
     pdf.text(str, xPos, yPos, { align });
   };
 
   const para = (str: string, opts: any = {}) => {
-    const { size = 9, bold = false, italic = false, color = [20, 20, 20], gap = 3 } = opts;
+    const {
+      size = 9,
+      bold = false,
+      italic = false,
+      color = [20, 20, 20],
+      gap = 3,
+    } = opts;
     pdf.setFontSize(size);
-    pdf.setFont("times", bold && italic ? "bolditalic" : bold ? "bold" : italic ? "italic" : "normal");
+    pdf.setFont(
+      "times",
+      bold && italic ? "bolditalic" : bold ? "bold" : italic ? "italic" : "normal"
+    );
     pdf.setTextColor(color[0], color[1], color[2]);
     const lines = pdf.splitTextToSize(str, TW) as string[];
     const lh = ptToMm(size);
@@ -1269,7 +1102,8 @@ export function buildPDFContent(
         pdf.setFont("times", "bold");
         pdf.setTextColor(20, 20, 20);
         pdf.text(title + " ", ML, y);
-        const titleW = pdf.getStringUnitWidth(title + " ") * (size / pdf.internal.scaleFactor);
+        const titleW =
+          pdf.getStringUnitWidth(title + " ") * (size / pdf.internal.scaleFactor);
         pdf.setFont("times", "normal");
         const bodyStart = line.substring(title.length + 1);
         if (bodyStart) pdf.text(bodyStart, ML + titleW, y);
@@ -1283,20 +1117,39 @@ export function buildPDFContent(
     y += gap;
   };
 
-  text("CONTRATO DE ADESÃO DE SÓCIO USUÁRIO (COLABORADOR)", W / 2, y, { size: 11, bold: true, align: "center" });
+  text("CONTRATO DE ADESÃO DE SÓCIO USUÁRIO (COLABORADOR)", W / 2, y, {
+    size: 11,
+    bold: true,
+    align: "center",
+  });
   y += 5;
-  text("Protect Clube Mineiro de Tiro — CNPJ 01.244.200/0001-52", W / 2, y, { size: 8, align: "center", color: [80, 80, 80] });
+  text("Protect Clube Mineiro de Tiro — CNPJ 01.244.200/0001-52", W / 2, y, {
+    size: 8,
+    align: "center",
+    color: [80, 80, 80],
+  });
   y += 3;
   pdf.setDrawColor(180, 180, 180);
   pdf.setLineWidth(0.4);
   pdf.line(ML, y, ML + TW, y);
   y += 7;
 
-  text(`Cota ${nomeContrato} — vigência ${vigencia} — Total: ${total}`, W / 2, y, { size: 8, align: "center", color: [60, 60, 60], italic: true });
+  text(
+    `Cota ${nomeContrato} — vigência ${vigencia} — Total: ${total}`,
+    W / 2,
+    y,
+    { size: 8, align: "center", color: [60, 60, 60], italic: true }
+  );
   y += 6;
 
-  para(`Pelo presente instrumento particular de CONTRATO DE ADESÃO DE SÓCIO USUÁRIO (COLABORADOR), de um lado, Protect Clube Mineiro de Tiro, pessoa jurídica de direito privado, inscrita no CNPJ sob o nº 01.244.200/0001-52, com sede na Rua General Andrade Neves, 622, Bairro Gutierrez, Belo Horizonte/MG, e posteriormente na Rua dos Radialistas, 38, Bairro Balneário Água Limpa, Nova Lima/MG, neste ato representada por quem de direito, doravante simplesmente denominada PROTECT; e, de outro lado, o(a) Sr.(a) ${nome}, profissão ${profissao}, inscrito(a) no RG nº ${rg}, portador(a) do CPF nº ${cpf}, natural de ${natural}, nascido(a) em ${nasc}, doravante simplesmente denominado(a) SÓCIO USUÁRIO (COLABORADOR), têm entre si justo e contratado o direito de sócio usuário (colaborador) da PROTECT, tudo de acordo com as condições especificadas nesta contratação/adesão e na legislação vigente.`, { size: 8.5 });
-  para("O proponente declara aceitar as cláusulas deste contrato sem restrições, bem como a eleição do foro da Comarca de Belo Horizonte/MG para dirimir quaisquer pendências relativas ao presente instrumento.", { italic: true, color: [60, 60, 60], size: 8.5 });
+  para(
+    `Pelo presente instrumento particular de CONTRATO DE ADESÃO DE SÓCIO USUÁRIO (COLABORADOR), de um lado, Protect Clube Mineiro de Tiro, pessoa jurídica de direito privado, inscrita no CNPJ sob o nº 01.244.200/0001-52, com sede na Rua General Andrade Neves, 622, Bairro Gutierrez, Belo Horizonte/MG, e posteriormente na Rua dos Radialistas, 38, Bairro Balneário Água Limpa, Nova Lima/MG, neste ato representada por quem de direito, doravante simplesmente denominada PROTECT; e, de outro lado, o(a) Sr.(a) ${nome}, profissão ${profissao}, inscrito(a) no RG nº ${rg}, portador(a) do CPF nº ${cpf}, natural de ${natural}, nascido(a) em ${nasc}, doravante simplesmente denominado(a) SÓCIO USUÁRIO (COLABORADOR), têm entre si justo e contratado o direito de sócio usuário (colaborador) da PROTECT, tudo de acordo com as condições especificadas nesta contratação/adesão e na legislação vigente.`,
+    { size: 8.5 }
+  );
+  para(
+    "O proponente declara aceitar as cláusulas deste contrato sem restrições, bem como a eleição do foro da Comarca de Belo Horizonte/MG para dirimir quaisquer pendências relativas ao presente instrumento.",
+    { italic: true, color: [60, 60, 60], size: 8.5 }
+  );
   y += 2;
 
   sectionTitle("1. DO PREÇO E DA FORMA DE PAGAMENTO");
@@ -1353,7 +1206,7 @@ export function buildPDFContent(
   const sigH = 14;
   const sigW = 35;
 
-  try { pdf.addImage(sigs.s2, "PNG", ML, y, sigW, sigH, undefined, "FAST"); } catch (_) { }
+  try { pdf.addImage(sigs.s2, "PNG", ML, y, sigW, sigH, undefined, "FAST"); } catch (_) {}
   y += sigH;
 
   pdf.setDrawColor(80, 80, 80);
@@ -1370,8 +1223,8 @@ export function buildPDFContent(
   text("ANTONIO C. COSTA JUNIOR", ML, y, { size: 7, color: [100, 100, 100] });
   y += 14;
 
-  try { pdf.addImage(sigs.s1, "PNG", ML, y, sigW, sigH, undefined, "FAST"); } catch (_) { }
-  try { pdf.addImage(sigs.s3, "PNG", ML + col + 6, y, sigW, sigH, undefined, "FAST"); } catch (_) { }
+  try { pdf.addImage(sigs.s1, "PNG", ML, y, sigW, sigH, undefined, "FAST"); } catch (_) {}
+  try { pdf.addImage(sigs.s3, "PNG", ML + col + 6, y, sigW, sigH, undefined, "FAST"); } catch (_) {}
   y += sigH;
 
   pdf.line(ML, y, ML + col, y);
@@ -1387,11 +1240,25 @@ export function buildPDFContent(
   text("CPF: 584.978.896-49", ML + col + 6, y, { size: 7, color: [100, 100, 100] });
   y += 12;
 
-  text(`Belo Horizonte/MG, ${dataAtual}`, W / 2, y, { size: 8, align: "center", color: [80, 80, 80] });
+  text(`Belo Horizonte/MG, ${dataAtual}`, W / 2, y, {
+    size: 8,
+    align: "center",
+    color: [80, 80, 80],
+  });
   y += 5;
-  text("Rua General Andrade Neves, 622, Grajaú, CEP 30431-128 — Belo Horizonte/MG", W / 2, y, { size: 7, align: "center", color: [120, 120, 120] });
+  text(
+    "Rua General Andrade Neves, 622, Grajaú, CEP 30431-128 — Belo Horizonte/MG",
+    W / 2,
+    y,
+    { size: 7, align: "center", color: [120, 120, 120] }
+  );
   y += 4;
-  text("clube@grupoprotect.com.br  ·  grupoprotect.com.br  ·  (31) 3371-8500", W / 2, y, { size: 7, align: "center", color: [120, 120, 120] });
+  text(
+    "clube@grupoprotect.com.br  ·  grupoprotect.com.br  ·  (31) 3371-8500",
+    W / 2,
+    y,
+    { size: 7, align: "center", color: [120, 120, 120] }
+  );
 
   const totalPages = (pdf.internal as any).getNumberOfPages();
   for (let i = 1; i <= totalPages; i++) {
@@ -1401,206 +1268,4 @@ export function buildPDFContent(
     pdf.setTextColor(160, 160, 160);
     pdf.text(`${i} / ${totalPages}`, W - MR - 2, H - 8, { align: "right" });
   }
-}
-
-/**
- * Gera PDF capturando o elemento visual do contrato exatamente como aparece
- */
-export async function generateContractPDFFromVisualElement(
-  contractElement: HTMLElement,
-  contractData: ContractData
-): Promise<string> {
-  try {
-    const domtoimage = (await import("dom-to-image-more")).default;
-    const jsPDFModule = (await import("jspdf")).default;
-
-    // Aguarda as imagens carregarem
-    const imgs = contractElement.querySelectorAll("img");
-    await Promise.all(
-      Array.from(imgs).map(
-        (img) =>
-          new Promise<void>((resolve) => {
-            if ((img as HTMLImageElement).complete) resolve();
-            else {
-              img.onload = () => resolve();
-              img.onerror = () => resolve();
-            }
-          })
-      )
-    );
-
-    // Captura a imagem com escala 2× para qualidade
-    const scale = 2;
-    const dataUrl = await domtoimage.toJpeg(contractElement, {
-      quality: 0.95,
-      bgcolor: "#ffffff",
-      width: contractElement.offsetWidth * scale,
-      height: contractElement.offsetHeight * scale,
-      style: {
-        transform: `scale(${scale})`,
-        transformOrigin: "top left",
-        width: contractElement.offsetWidth + "px",
-        height: contractElement.offsetHeight + "px",
-      },
-    });
-
-    // Converte para imagem
-    const capturedImg = await new Promise<HTMLImageElement>((resolve, reject) => {
-      const img = new Image();
-      img.onload = () => resolve(img);
-      img.onerror = reject;
-      img.src = dataUrl;
-    });
-
-    // Configuração A4 com margens
-    const pageWidthMm = 210;
-    const pageHeightMm = 297;
-    const marginMm = 10;
-    const usableWidthMm = pageWidthMm - marginMm * 2;
-    const usableHeightMm = pageHeightMm - marginMm * 2;
-
-    const pxPerMm = capturedImg.width / usableWidthMm;
-    const safePageHeightPx = (usableHeightMm - 10) * pxPerMm;
-
-    const totalPages = Math.ceil(capturedImg.height / safePageHeightPx);
-
-    const pdf = new jsPDFModule({
-      unit: "mm",
-      format: "a4",
-      orientation: "portrait",
-      compress: true,
-    });
-
-    // Adiciona páginas
-    for (let pageIndex = 0; pageIndex < totalPages; pageIndex++) {
-      if (pageIndex > 0) pdf.addPage();
-
-      const srcY = Math.round(pageIndex * safePageHeightPx);
-      const srcH = Math.min(safePageHeightPx, capturedImg.height - srcY);
-
-      const slice = document.createElement("canvas");
-      slice.width = capturedImg.width;
-      slice.height = Math.round(srcH);
-      const ctx = slice.getContext("2d")!;
-      ctx.fillStyle = "#ffffff";
-      ctx.fillRect(0, 0, slice.width, slice.height);
-      ctx.drawImage(
-        capturedImg,
-        0,
-        srcY,
-        capturedImg.width,
-        srcH,
-        0,
-        0,
-        capturedImg.width,
-        srcH
-      );
-
-      const sliceDataUrl = slice.toDataURL("image/jpeg", 0.92);
-      const sliceHeightMm = srcH / pxPerMm;
-
-      pdf.addImage(
-        sliceDataUrl,
-        "JPEG",
-        marginMm,
-        marginMm,
-        usableWidthMm,
-        sliceHeightMm
-      );
-    }
-
-    return pdf.output("datauristring").split(",")[1];
-  } catch (err) {
-    console.error("Erro ao gerar PDF do elemento visual:", err);
-    throw err;
-  }
-}
-
-/**
- * Abre o elemento visual do contrato em nova janela para impressão
- * Sem depender da página /contrato-pdf
- */
-export async function openContractVisualElementForPrinting(
-  contractElement: HTMLElement
-): Promise<void> {
-  const domtoimage = (await import("dom-to-image-more")).default;
-  const jsPDFModule = (await import("jspdf")).default;
-
-  const imgs = contractElement.querySelectorAll("img");
-  await Promise.all(
-    Array.from(imgs).map(
-      (img) =>
-        new Promise<void>((resolve) => {
-          if ((img as HTMLImageElement).complete) resolve();
-          else { img.onload = () => resolve(); img.onerror = () => resolve(); }
-        })
-    )
-  );
-
-
-
-  const scale = 2;
-  const dataUrl = await domtoimage.toJpeg(contractElement, {
-    quality: 0.95,
-    bgcolor: "#ffffff",
-    width: contractElement.offsetWidth * scale,
-    height: contractElement.offsetHeight * scale,
-    style: {
-      transform: `scale(${scale})`,
-      transformOrigin: "top left",
-      width: contractElement.offsetWidth + "px",
-      height: contractElement.offsetHeight + "px",
-    },
-  });
-
-  const capturedImg = await new Promise<HTMLImageElement>((resolve, reject) => {
-    const img = new Image();
-    img.onload = () => resolve(img);
-    img.onerror = reject;
-    img.src = dataUrl;
-  });
-
-  const pageWidthMm = 210;
-  const pageHeightMm = 297;
-  const marginMm = 10;
-  const usableWidthMm = pageWidthMm - marginMm * 2;
-  const usableHeightMm = pageHeightMm - marginMm * 2;
-
-  const pxPerMm = capturedImg.width / usableWidthMm;
-  // margem para não cortar linha de texto
-  const safePageHeightPx = (usableHeightMm - 15.3) * pxPerMm;
-
-  const totalPages = Math.ceil(capturedImg.height / safePageHeightPx);
-
-  const pdf = new jsPDFModule({
-    unit: "mm",
-    format: "a4",
-    orientation: "portrait",
-    compress: true,
-  });
-
-  for (let pageIndex = 0; pageIndex < totalPages; pageIndex++) {
-    if (pageIndex > 0) pdf.addPage();
-
-    const srcY = Math.round(pageIndex * safePageHeightPx);
-    const srcH = Math.min(safePageHeightPx, capturedImg.height - srcY);
-
-    const slice = document.createElement("canvas");
-    slice.width = capturedImg.width;
-    slice.height = Math.round(srcH);
-    const ctx = slice.getContext("2d")!;
-    ctx.fillStyle = "#ffffff";
-    ctx.fillRect(0, 0, slice.width, slice.height);
-    ctx.drawImage(capturedImg, 0, srcY, capturedImg.width, srcH, 0, 0, capturedImg.width, srcH);
-
-    const sliceDataUrl = slice.toDataURL("image/jpeg", 0.92);
-    const sliceHeightMm = srcH / pxPerMm;
-
-    pdf.addImage(sliceDataUrl, "JPEG", marginMm, marginMm, usableWidthMm, sliceHeightMm);
-  }
-
-  // ✅ abre PDF em blob — o browser imprime por página A4, sem corte arbitrário
-  const blobUrl = pdf.output("bloburi");
-  const win = window.open(blobUrl, "_blank");
-  if (!win) throw new Error("Pop-up bloqueado pelo navegador");
 }
