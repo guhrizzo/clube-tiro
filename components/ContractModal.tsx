@@ -13,9 +13,9 @@ import {
 } from "lucide-react";
 import { saveContractSignature } from "../lib/firebase";
 import {
-  generateContractPDFFromServerPage,
   generateContractPDFFromVisualElement,
   openContractVisualElementForPrinting,
+  downloadContractPDF,
 } from "../lib/buildContractPDF";
 
 import { collection, addDoc, Timestamp } from "firebase/firestore";
@@ -144,12 +144,16 @@ function SuccessModal({
   email,
   onClose,
   onPrint,
+  onSave,
   printing,
+  saving,
 }: {
   email: string;
   onClose: () => void;
   onPrint: () => void;
+  onSave: () => void;
   printing: boolean;
+  saving: boolean;
 }) {
   return (
     <div
@@ -203,23 +207,52 @@ function SuccessModal({
               onClick={onPrint}
               disabled={printing}
               title={printing ? "Preparando impressão..." : "Imprimir contrato"}
-              className={`flex items-center justify-center gap-1.5 py-2.5 border text-xs font-medium transition-all rounded-sm ${printing ? "opacity-50 cursor-not-allowed border-gray-100 text-gray-300 bg-gray-50" : "border-gray-300 text-gray-700 bg-white hover:bg-gray-50 hover:border-gray-400 cursor-pointer"}`}
+              className={`flex items-center justify-center gap-1.5 py-2.5 border text-xs font-medium transition-all rounded-sm ${
+                printing
+                  ? "opacity-50 cursor-not-allowed border-gray-100 text-gray-300 bg-gray-50"
+                  : "border-gray-300 text-gray-700 bg-white hover:bg-gray-50 hover:border-gray-400 cursor-pointer"
+              }`}
             >
-              <svg className="w-[13px] h-[13px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4H9a2 2 0 00-2 2v2a2 2 0 002 2h6a2 2 0 002-2v-2a2 2 0 00-2-2z" />
+              <svg
+                className="w-[13px] h-[13px]"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4H9a2 2 0 00-2 2v2a2 2 0 002 2h6a2 2 0 002-2v-2a2 2 0 00-2-2z"
+                />
               </svg>
               {printing ? "..." : "Imprimir"}
             </button>
             <button
               type="button"
-              disabled
-              title="Função desabilitada"
-              className="flex items-center justify-center gap-1.5 py-2.5 border border-gray-100 text-gray-300 text-xs font-medium bg-gray-50 opacity-50 cursor-not-allowed transition-colors rounded-sm"
+              onClick={onSave}
+              disabled={saving}
+              title={saving ? "Gerando PDF..." : "Salvar PDF"}
+              className={`flex items-center justify-center gap-1.5 py-2.5 border text-xs font-medium transition-all rounded-sm ${
+                saving
+                  ? "opacity-50 cursor-not-allowed border-gray-100 text-gray-300 bg-gray-50"
+                  : "border-gray-300 text-gray-700 bg-white hover:bg-gray-50 hover:border-gray-400 cursor-pointer"
+              }`}
             >
-              <svg className="w-[13px] h-[13px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              <svg
+                className="w-[13px] h-[13px]"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                />
               </svg>
-              Salvar PDF
+              {saving ? "..." : "Salvar PDF"}
             </button>
           </div>
           <button
@@ -237,6 +270,7 @@ function SuccessModal({
 export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
   const [loading, setLoading] = useState(false);
   const [printing, setPrinting] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [accepted, setAccepted] = useState(false);
   const [plano, setPlano] = useState<PlanoKey>("3");
   const [showSuccess, setShowSuccess] = useState(false);
@@ -315,9 +349,37 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
 
   const p = PLANOS[plano];
 
+  // Utilitário compartilhado: clona o elemento e remove bordas desnecessárias
+  const cloneAndClean = (contractElement: HTMLElement): HTMLElement => {
+    const clone = contractElement.cloneNode(true) as HTMLElement;
+    clone.style.cssText = `
+      position: fixed;
+      top: -99999px;
+      left: 0;
+      width: ${contractElement.offsetWidth}px;
+      background: white;
+      z-index: -9999;
+    `;
+    const removeBorders = (el: HTMLElement) => {
+      const hasBorderT = el.classList.contains("border-t");
+      el.style.border = "none";
+      el.style.boxShadow = "none";
+      el.style.outline = "none";
+      if (hasBorderT) el.style.borderTop = "1px solid #9ca3af";
+      Array.from(el.children).forEach((child) => {
+        if (child instanceof HTMLElement) removeBorders(child);
+      });
+    };
+    removeBorders(clone);
+    return clone;
+  };
+
   const handleConfirm = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!accepted) { alert("Você precisa aceitar os termos."); return; }
+    if (!accepted) {
+      alert("Você precisa aceitar os termos.");
+      return;
+    }
     const dateErr = validateDateInput(formData.nascimento);
     if (dateErr || formData.nascimento.length < 10) {
       setDateError(dateErr || "Data incompleta");
@@ -339,7 +401,6 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
 
       await saveContractSignature(savedData);
 
-      // ✅ Cria registro na coleção "assinaturas"
       await addDoc(collection(db, "assinaturas"), {
         nomeCliente: formData.nome,
         email: formData.email,
@@ -354,24 +415,12 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
       });
 
       try {
-        let pdfBase64: string;
-        let filename = `Contrato_PROTECT_${(formData.nome || "socio")
-          .replace(/\s+/g, "_")
-          .normalize("NFD")
-          .replace(/[\u0300-\u036f]/g, "")}.pdf`;
-
-        // Captura o elemento visual do contrato e gera o PDF com exatamente o mesmo layout
         const contractElement = getActiveContractRef().current;
-        if (!contractElement) {
-          throw new Error("Elemento do contrato não encontrado");
-        }
+        if (!contractElement) throw new Error("Elemento do contrato não encontrado");
 
-        pdfBase64 = await generateContractPDFFromVisualElement(
+        const pdfBase64 = await generateContractPDFFromVisualElement(
           contractElement,
-          {
-            ...savedData,
-            plano: `${plano} anos`,
-          }
+          { ...savedData, plano: `${plano} anos` }
         );
 
         await fetch("/api/send-contract", {
@@ -397,51 +446,15 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
     }
   };
 
-  const handleSuccessClose = () => {
-    setShowSuccess(false);
-    onClose();
-  };
-
   const handlePrint = async () => {
     setPrinting(true);
     try {
       const contractElement = getActiveContractRef().current;
       if (!contractElement) throw new Error("Elemento do contrato não encontrado");
 
-      // Clona e remove todas as bordas antes de capturar
-      const clone = contractElement.cloneNode(true) as HTMLElement;
-      clone.style.cssText = `
-      position: fixed;
-      top: -99999px;
-      left: 0;
-      width: ${contractElement.offsetWidth}px;
-      background: white;
-      z-index: -9999;
-    `;
-
-      // Remove bordas de todos os elementos, exceto border-t das assinaturas
-      const removeBorders = (el: HTMLElement) => {
-        const hasBorderT = el.classList.contains("border-t");
-        const style = el.style;
-
-        style.border = "none";
-        style.boxShadow = "none";
-        style.outline = "none";
-
-        if (hasBorderT) {
-          style.borderTop = "1px solid #9ca3af";
-        }
-
-        Array.from(el.children).forEach((child) => {
-          if (child instanceof HTMLElement) removeBorders(child);
-        });
-      };
-
-      removeBorders(clone);
+      const clone = cloneAndClean(contractElement);
       document.body.appendChild(clone);
-
       await openContractVisualElementForPrinting(clone);
-
       document.body.removeChild(clone);
     } catch (err) {
       console.error("Erro ao abrir para impressão:", err);
@@ -450,6 +463,36 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
       setPrinting(false);
     }
   };
+
+  const handleSavePDF = async () => {
+    setSaving(true);
+    try {
+      const contractElement = getActiveContractRef().current;
+      if (!contractElement) throw new Error("Elemento não encontrado");
+
+      const clone = cloneAndClean(contractElement);
+      document.body.appendChild(clone);
+
+      const filename = `Contrato_PROTECT_${(formData.nome || "socio")
+        .replace(/\s+/g, "_")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")}.pdf`;
+
+      await downloadContractPDF(clone, filename);
+      document.body.removeChild(clone);
+    } catch (err) {
+      console.error("Erro ao salvar PDF:", err);
+      alert("Erro ao gerar PDF. Tente novamente.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleSuccessClose = () => {
+    setShowSuccess(false);
+    onClose();
+  };
+
   const handleDateChange = (raw: string) => {
     const masked = maskDate(raw);
     setFormData((prev) => ({ ...prev, nascimento: masked }));
@@ -467,11 +510,15 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
 
   const blank = (label: string, value: string, width = "min-w-[180px]") =>
     value ? (
-      <span className={`inline-block border-b border-gray-300 px-1 font-semibold ${width}`}>
+      <span
+        className={`inline-block border-b border-gray-300 px-1 font-semibold ${width}`}
+      >
         {value}
       </span>
     ) : (
-      <span className={`inline-block border-b border-gray-200 px-1 text-gray-300 ${width}`}>
+      <span
+        className={`inline-block border-b border-gray-200 px-1 text-gray-300 ${width}`}
+      >
         {label}
       </span>
     );
@@ -482,7 +529,10 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
         <p className="text-[11px] uppercase tracking-[0.25em] text-gray-500 mb-3">
           Documento Legal
         </p>
-        <h1 className="font-bold text-base uppercase leading-snug" id="contract-title">
+        <h1
+          className="font-bold text-base uppercase leading-snug"
+          id="contract-title"
+        >
           Contrato de Adesão de Sócio Usuário (Colaborador)
         </h1>
         <p className="text-xs text-gray-500 mt-2">
@@ -495,255 +545,286 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
 
       <p className="mb-4 text-justify">
         Pelo presente instrumento particular de{" "}
-        <strong>CONTRATO DE ADESÃO DE SÓCIO USUÁRIO (COLABORADOR)</strong>, de um lado,{" "}
-        <strong>Protect Clube Mineiro de Tiro</strong>, pessoa jurídica de direito privado,
-        inscrita no CNPJ sob o nº <strong>01.244.200/0001-52</strong>, com sede na Rua General
-        Andrade Neves, 622, Bairro Gutierrez, Belo Horizonte/MG, e posteriormente na Rua dos
-        Radialistas, 38, Bairro Balneário Água Limpa, Nova Lima/MG, neste ato representada por
-        quem de direito, doravante simplesmente denominada <strong>PROTECT</strong>; e, de outro
-        lado, o(a) Sr.(a) {blank("Nome completo", formData.nome, "min-w-[220px]")}, profissão{" "}
-        {blank("Profissão", formData.profissao, "min-w-[140px]")}, inscrito(a) no RG nº{" "}
-        {blank("RG", formData.rg, "min-w-[120px]")}, portador(a) do CPF nº{" "}
-        {blank("CPF", formData.cpf, "min-w-[130px]")}, natural de{" "}
-        {blank("Naturalidade", formData.naturalidade, "min-w-[120px]")}, nascido(a) em{" "}
-        {blank("dd/mm/aaaa", nascimentoDisplay, "min-w-[90px]")}, doravante simplesmente
-        denominado(a) <strong>SÓCIO USUÁRIO (COLABORADOR)</strong>, têm entre si justo e
-        contratado o direito de sócio usuário (colaborador) da PROTECT, tudo de acordo com as
-        condições especificadas nesta contratação/adesão e na legislação vigente.
+        <strong>CONTRATO DE ADESÃO DE SÓCIO USUÁRIO (COLABORADOR)</strong>, de
+        um lado, <strong>Protect Clube Mineiro de Tiro</strong>, pessoa jurídica
+        de direito privado, inscrita no CNPJ sob o nº{" "}
+        <strong>01.244.200/0001-52</strong>, com sede na Rua General Andrade
+        Neves, 622, Bairro Gutierrez, Belo Horizonte/MG, e posteriormente na Rua
+        dos Radialistas, 38, Bairro Balneário Água Limpa, Nova Lima/MG, neste
+        ato representada por quem de direito, doravante simplesmente denominada{" "}
+        <strong>PROTECT</strong>; e, de outro lado, o(a) Sr.(a){" "}
+        {blank("Nome completo", formData.nome, "min-w-[220px]")}, profissão{" "}
+        {blank("Profissão", formData.profissao, "min-w-[140px]")}, inscrito(a)
+        no RG nº {blank("RG", formData.rg, "min-w-[120px]")}, portador(a) do
+        CPF nº {blank("CPF", formData.cpf, "min-w-[130px]")}, natural de{" "}
+        {blank("Naturalidade", formData.naturalidade, "min-w-[120px]")},
+        nascido(a) em{" "}
+        {blank("dd/mm/aaaa", nascimentoDisplay, "min-w-[90px]")}, doravante
+        simplesmente denominado(a){" "}
+        <strong>SÓCIO USUÁRIO (COLABORADOR)</strong>, têm entre si justo e
+        contratado o direito de sócio usuário (colaborador) da PROTECT, tudo de
+        acordo com as condições especificadas nesta contratação/adesão e na
+        legislação vigente.
       </p>
       <p className="mb-6 text-justify">
-        O proponente declara aceitar as cláusulas deste contrato sem restrições, bem como a
-        eleição do foro da Comarca de Belo Horizonte/MG para dirimir quaisquer pendências
-        relativas ao presente instrumento.
+        O proponente declara aceitar as cláusulas deste contrato sem restrições,
+        bem como a eleição do foro da Comarca de Belo Horizonte/MG para dirimir
+        quaisquer pendências relativas ao presente instrumento.
       </p>
 
       <h2 className="font-bold text-sm uppercase mb-3 mt-6">
         1. Do Preço e da Forma de Pagamento
       </h2>
       <p className="mb-3">
-        <strong>CLÁUSULA PRIMEIRA:</strong> O valor total do contrato, correspondente à cota{" "}
-        {p.nomeContrato} (vigente por {p.nomePrazo} anos), é de <strong>{p.total}</strong>,
-        ficando isento o pagamento de taxa de contribuição social mensal.
+        <strong>CLÁUSULA PRIMEIRA:</strong> O valor total do contrato,
+        correspondente à cota {p.nomeContrato} (vigente por {p.nomePrazo} anos),
+        é de <strong>{p.total}</strong>, ficando isento o pagamento de taxa de
+        contribuição social mensal.
       </p>
       <p className="mb-3">
-        <strong>PARÁGRAFO PRIMEIRO:</strong> Declara o sócio usuário (colaborador), neste ato,
-        ter ciência de que a revalidação do CR (Certificado de Registro) é feita, atualmente,
-        de três em três anos.
+        <strong>PARÁGRAFO PRIMEIRO:</strong> Declara o sócio usuário
+        (colaborador), neste ato, ter ciência de que a revalidação do CR
+        (Certificado de Registro) é feita, atualmente, de três em três anos.
       </p>
       <p className="mb-3">
-        <strong>PARÁGRAFO SEGUNDO:</strong> O pagamento deverá ser efetuado no ato da
-        assinatura deste contrato, no valor de {p.parcela} (anuidade), correspondente à
-        primeira parcela, salvo eventual desconto ou condição diferenciada. Em caso de
-        parcelamento, o valor remanescente será reajustado ao final de cada ano pelo IGP-M ou
-        índice substituto. Independentemente da data de ingresso, o pagamento será anual e
-        válido até o último dia de dezembro. Este contrato também servirá como recibo, mediante
-        comprovação de depósito via PIX CNPJ nº 01.244.200/0001-52 ou por link de cartão de
-        crédito do clube.
+        <strong>PARÁGRAFO SEGUNDO:</strong> O pagamento deverá ser efetuado no
+        ato da assinatura deste contrato, no valor de {p.parcela} (anuidade),
+        correspondente à primeira parcela, salvo eventual desconto ou condição
+        diferenciada. Em caso de parcelamento, o valor remanescente será
+        reajustado ao final de cada ano pelo IGP-M ou índice substituto.
+        Independentemente da data de ingresso, o pagamento será anual e válido
+        até o último dia de dezembro. Este contrato também servirá como recibo,
+        mediante comprovação de depósito via PIX CNPJ nº 01.244.200/0001-52 ou
+        por link de cartão de crédito do clube.
       </p>
       <p className="mb-3">
-        <strong>PARÁGRAFO TERCEIRO:</strong> Caso a contratação seja realizada em mês diverso
-        de janeiro, o contrato permanecerá vigente até o mesmo mês de janeiro, {p.nomePrazo}{" "}
-        anos após o ingresso, sendo que as parcelas remanescentes também vencerão até o dia 10
-        daquele mês, em cada um dos {p.nomePrazo} anos subsequentes.
+        <strong>PARÁGRAFO TERCEIRO:</strong> Caso a contratação seja realizada
+        em mês diverso de janeiro, o contrato permanecerá vigente até o mesmo
+        mês de janeiro, {p.nomePrazo} anos após o ingresso, sendo que as
+        parcelas remanescentes também vencerão até o dia 10 daquele mês, em cada
+        um dos {p.nomePrazo} anos subsequentes.
       </p>
       <p className="mb-3">
-        <strong>PARÁGRAFO QUARTO:</strong> Será considerado inadimplente o sócio usuário
-        (colaborador) que atrasar qualquer pagamento por período superior a{" "}
-        <strong>30 (trinta) dias</strong> do vencimento, ficando expressamente suspensos os
-        direitos previstos nas cláusulas sexta e sétima, independentemente de comunicação
-        prévia, até a quitação do débito.
+        <strong>PARÁGRAFO QUARTO:</strong> Será considerado inadimplente o sócio
+        usuário (colaborador) que atrasar qualquer pagamento por período superior
+        a <strong>30 (trinta) dias</strong> do vencimento, ficando expressamente
+        suspensos os direitos previstos nas cláusulas sexta e sétima,
+        independentemente de comunicação prévia, até a quitação do débito.
       </p>
       <p className="mb-3">
-        <strong>PARÁGRAFO QUINTO:</strong> Nos casos de parcelamento, a cobrança se dará
-        mediante emissão de boleto bancário. O não recebimento do boleto não exime o sócio de
-        realizar o pagamento na data acordada.
+        <strong>PARÁGRAFO QUINTO:</strong> Nos casos de parcelamento, a cobrança
+        se dará mediante emissão de boleto bancário. O não recebimento do boleto
+        não exime o sócio de realizar o pagamento na data acordada.
       </p>
       <p className="mb-3">
-        <strong>PARÁGRAFO SEXTO:</strong> Em caso de atraso superior a 60 (sessenta) dias, o
-        sócio será notificado e terá 10 (dez) dias para liquidação. Persistindo a pendência, a
-        PROTECT poderá encaminhar o nome ao SPC. O cancelamento ou rescisão implicará o
-        vencimento antecipado das parcelas remanescentes, acrescidas de{" "}
-        <strong>multa de 30%</strong> sobre o valor total da cota {p.nomeContrato}, além de
-        correção monetária. Cobrança administrativa: +10% de honorários; cobrança judicial:
-        +20% de honorários.
+        <strong>PARÁGRAFO SEXTO:</strong> Em caso de atraso superior a 60
+        (sessenta) dias, o sócio será notificado e terá 10 (dez) dias para
+        liquidação. Persistindo a pendência, a PROTECT poderá encaminhar o nome
+        ao SPC. O cancelamento ou rescisão implicará o vencimento antecipado das
+        parcelas remanescentes, acrescidas de <strong>multa de 30%</strong> sobre
+        o valor total da cota {p.nomeContrato}, além de correção monetária.
+        Cobrança administrativa: +10% de honorários; cobrança judicial: +20% de
+        honorários.
       </p>
 
       <h2 className="font-bold text-sm uppercase mb-3 mt-6">
         2. Das Obrigações da Contratada Protect
       </h2>
       <p className="mb-3">
-        <strong>CLÁUSULA SEGUNDA:</strong> Permitir a frequência do sócio usuário (colaborador)
-        às áreas comuns do Clube PROTECT dentro do horário de funcionamento, bem como a
-        utilização dos estandes de tiro, ressalvada a hipótese de o local estar sendo utilizado
-        por determinadas categorias profissionais ou para cursos e capacitação.
+        <strong>CLÁUSULA SEGUNDA:</strong> Permitir a frequência do sócio
+        usuário (colaborador) às áreas comuns do Clube PROTECT dentro do horário
+        de funcionamento, bem como a utilização dos estandes de tiro, ressalvada
+        a hipótese de o local estar sendo utilizado por determinadas categorias
+        profissionais ou para cursos e capacitação.
       </p>
       <p className="mb-3">
-        <strong>CLÁUSULA TERCEIRA:</strong> Oferecer condições adequadas para a realização de
-        cursos, testes de tiro e capacitação técnica, atividades sociais, culturais, recreativas
-        e desportivas, bem como manter despachantes no clube para pleitos junto à Polícia
-        Federal e ao Exército, ressalvando que os serviços documentais e de despachante serão
-        cobrados separadamente.
+        <strong>CLÁUSULA TERCEIRA:</strong> Oferecer condições adequadas para a
+        realização de cursos, testes de tiro e capacitação técnica, atividades
+        sociais, culturais, recreativas e desportivas, bem como manter
+        despachantes no clube para pleitos junto à Polícia Federal e ao Exército,
+        ressalvando que os serviços documentais e de despachante serão cobrados
+        separadamente.
       </p>
       <p className="mb-3">
-        <strong>CLÁUSULA QUARTA:</strong> Manter as instalações limpas e em permanentes
-        condições de uso; disponibilizar, a título oneroso, alvos e equipamentos obrigatórios
-        para testes e cursos; e disponibilizar, a título gratuito e em caráter de empréstimo,
-        óculos de proteção, abafadores de ouvido e armas do acervo do clube para atiradores
-        com CR válido.
+        <strong>CLÁUSULA QUARTA:</strong> Manter as instalações limpas e em
+        permanentes condições de uso; disponibilizar, a título oneroso, alvos e
+        equipamentos obrigatórios para testes e cursos; e disponibilizar, a
+        título gratuito e em caráter de empréstimo, óculos de proteção,
+        abafadores de ouvido e armas do acervo do clube para atiradores com CR
+        válido.
       </p>
       <p className="mb-3">
-        <strong>CLÁUSULA QUINTA:</strong> Ofertar ao sócio usuário (colaborador), armas de
-        fogo, munição, acessórios, equipamentos de proteção e defesa individual, armas de ar
-        comprimido, airsoft e outros itens para compra ou aquisição. Disponibilizar, sempre que
-        necessário, declaração de que o sócio é filiado à entidade e participa regularmente das
-        atividades.
+        <strong>CLÁUSULA QUINTA:</strong> Ofertar ao sócio usuário (colaborador),
+        armas de fogo, munição, acessórios, equipamentos de proteção e defesa
+        individual, armas de ar comprimido, airsoft e outros itens para compra ou
+        aquisição. Disponibilizar, sempre que necessário, declaração de que o
+        sócio é filiado à entidade e participa regularmente das atividades.
       </p>
 
       <h2 className="font-bold text-sm uppercase mb-3 mt-6">
         3. Dos Direitos do Sócio Usuário (Colaborador)
       </h2>
       <p className="mb-3">
-        <strong>CLÁUSULA SEXTA:</strong> Frequentar, utilizar e participar de todas as opções
-        recreativas, desportivas e culturais, desde que esteja em dia com o pagamento da
-        anuidade. O sócio declara ter ciência de que cursos, testes de capacitação e tiro, bem
-        como algumas opções recreativas, serão disponibilizados a título oneroso, a ser
-        calculado evento a evento.
+        <strong>CLÁUSULA SEXTA:</strong> Frequentar, utilizar e participar de
+        todas as opções recreativas, desportivas e culturais, desde que esteja em
+        dia com o pagamento da anuidade. O sócio declara ter ciência de que
+        cursos, testes de capacitação e tiro, bem como algumas opções
+        recreativas, serão disponibilizados a título oneroso, a ser calculado
+        evento a evento.
       </p>
       <p className="mb-3">
-        <strong>CLÁUSULA SÉTIMA:</strong> Ter prioridade na tramitação de pleitos junto ao
-        Exército e à Polícia Federal; na utilização de estandes; para realização de testes de
-        tiro e capacitação técnica; nas vagas para participação em opções recreativas,
-        desportivas e culturais; e para utilização de equipamentos de proteção individual e
-        armas do acervo do clube.
+        <strong>CLÁUSULA SÉTIMA:</strong> Ter prioridade na tramitação de
+        pleitos junto ao Exército e à Polícia Federal; na utilização de estandes;
+        para realização de testes de tiro e capacitação técnica; nas vagas para
+        participação em opções recreativas, desportivas e culturais; e para
+        utilização de equipamentos de proteção individual e armas do acervo do
+        clube.
       </p>
       <p className="mb-3">
-        <strong>CLÁUSULA OITAVA:</strong> Caso a legislação vigente permita, fazer-se
-        acompanhar de terceiros nas dependências do clube PROTECT, mediante preenchimento e
-        assinatura de termo de compromisso, respondendo o sócio usuário (colaborador) por
-        aqueles convidados que agirem com imperícia, imprudência ou negligência.
+        <strong>CLÁUSULA OITAVA:</strong> Caso a legislação vigente permita,
+        fazer-se acompanhar de terceiros nas dependências do clube PROTECT,
+        mediante preenchimento e assinatura de termo de compromisso, respondendo
+        o sócio usuário (colaborador) por aqueles convidados que agirem com
+        imperícia, imprudência ou negligência.
       </p>
       <p className="mb-3">
-        <strong>CLÁUSULA NONA:</strong> Fazer requerimento para obtenção de CR de Colecionador,
-        Atirador ou Caçador, observados os requisitos elencados pelo Estatuto do Desarmamento e
-        portarias vigentes da Polícia Federal e do Exército, sendo necessário ter 25 anos.
-        Antes disso, o interessado poderá obter autorização judicial.
+        <strong>CLÁUSULA NONA:</strong> Fazer requerimento para obtenção de CR
+        de Colecionador, Atirador ou Caçador, observados os requisitos elencados
+        pelo Estatuto do Desarmamento e portarias vigentes da Polícia Federal e
+        do Exército, sendo necessário ter 25 anos. Antes disso, o interessado
+        poderá obter autorização judicial.
       </p>
       <p className="mb-3">
-        <strong>CLÁUSULA DÉCIMA:</strong> Zelar pelo patrimônio do clube, responsabilizando-se
-        por si e por seus convidados, inclusive por danos ou despesas que venham a causar. É{" "}
-        <strong>expressamente proibido que menores de 18 anos</strong> manuseiem, utilizem ou
-        portem qualquer tipo de arma de fogo, à exceção daqueles com autorização judicial.
+        <strong>CLÁUSULA DÉCIMA:</strong> Zelar pelo patrimônio do clube,
+        responsabilizando-se por si e por seus convidados, inclusive por danos ou
+        despesas que venham a causar. É{" "}
+        <strong>expressamente proibido que menores de 18 anos</strong> manuseiem,
+        utilizem ou portem qualquer tipo de arma de fogo, à exceção daqueles com
+        autorização judicial.
       </p>
       <p className="mb-3">
-        <strong>CLÁUSULA ONZE:</strong> Pagar pontualmente as parcelas para quitação do título{" "}
-        {p.nomeContrato} de sócio usuário (colaborador), quando parcelado.
+        <strong>CLÁUSULA ONZE:</strong> Pagar pontualmente as parcelas para
+        quitação do título {p.nomeContrato} de sócio usuário (colaborador),
+        quando parcelado.
       </p>
       <p className="mb-3">
-        <strong>CLÁUSULA DOZE:</strong> Obedecer às normas disciplinares e aos horários de
-        frequência às dependências do clube, sendo proibida a ingestão de bebidas alcoólicas
-        e/ou drogas ilícitas nas áreas de tiro.
+        <strong>CLÁUSULA DOZE:</strong> Obedecer às normas disciplinares e aos
+        horários de frequência às dependências do clube, sendo proibida a
+        ingestão de bebidas alcoólicas e/ou drogas ilícitas nas áreas de tiro.
       </p>
       <p className="mb-3">
-        <strong>CLÁUSULA TREZE:</strong> O ingresso às áreas de tiro se fará mediante
-        identificação facial e/ou apresentação da carteira social. A condição de sócio usuário
-        (colaborador) não confere direito de propriedade sobre qualquer parcela do patrimônio
-        do clube.
+        <strong>CLÁUSULA TREZE:</strong> O ingresso às áreas de tiro se fará
+        mediante identificação facial e/ou apresentação da carteira social. A
+        condição de sócio usuário (colaborador) não confere direito de
+        propriedade sobre qualquer parcela do patrimônio do clube.
       </p>
       <p className="mb-3">
-        <strong>CLÁUSULA QUATORZE:</strong> O teste de manuseio e capacitação técnica constitui
-        espécie de curso com testes escritos e práticos, ministrados por instrutores
-        credenciados pela Polícia Federal, dos quais o interessado deverá participar e ser
-        aprovado para obtenção ou renovação de CR.
+        <strong>CLÁUSULA QUATORZE:</strong> O teste de manuseio e capacitação
+        técnica constitui espécie de curso com testes escritos e práticos,
+        ministrados por instrutores credenciados pela Polícia Federal, dos quais
+        o interessado deverá participar e ser aprovado para obtenção ou renovação
+        de CR.
       </p>
 
       <h2 className="font-bold text-sm uppercase mb-3 mt-6">
         4. Disposições Gerais e Condições Específicas
       </h2>
       <p className="mb-3">
-        <strong>CLÁUSULA DEZESSEIS:</strong> O sócio usuário (colaborador) que desejar adquirir
-        uma arma para defesa no comércio deverá obter autorização da Polícia Federal ou do
-        Exército e apresentar Prova de Aptidão e Manuseio de Armas e Teste Psicológico.
+        <strong>CLÁUSULA DEZESSEIS:</strong> O sócio usuário (colaborador) que
+        desejar adquirir uma arma para defesa no comércio deverá obter
+        autorização da Polícia Federal ou do Exército e apresentar Prova de
+        Aptidão e Manuseio de Armas e Teste Psicológico.
       </p>
       <p className="mb-3">
-        <strong>CLÁUSULA DEZESSETE:</strong> O sócio declara ter ciência de que a legislação
-        que controla os CACs é diferente daquela que rege as armas em mãos de cidadãos comuns.
-        Essas normas constam no R-105, Decreto nº 3.665/2000 e Portaria COLOG nº 051/2015.
+        <strong>CLÁUSULA DEZESSETE:</strong> O sócio declara ter ciência de que
+        a legislação que controla os CACs é diferente daquela que rege as armas
+        em mãos de cidadãos comuns. Essas normas constam no R-105, Decreto nº
+        3.665/2000 e Portaria COLOG nº 051/2015.
       </p>
       <p className="mb-3">
-        <strong>CLÁUSULA DEZOITO:</strong> O sócio declara ter ciência de que CACs{" "}
-        <strong>não possuem autorização para PORTE de arma</strong>, e sim, alguns deles, para
-        POSSE e TRANSPORTE da arma, munições e acessórios de casa até os locais de competição,
-        clubes de tiro, treinamentos e outros, autorizados pelas GUIAS DE TRÁFEGO.
+        <strong>CLÁUSULA DEZOITO:</strong> O sócio declara ter ciência de que
+        CACs <strong>não possuem autorização para PORTE de arma</strong>, e sim,
+        alguns deles, para POSSE e TRANSPORTE da arma, munições e acessórios de
+        casa até os locais de competição, clubes de tiro, treinamentos e outros,
+        autorizados pelas GUIAS DE TRÁFEGO.
       </p>
       <p className="mb-3">
-        <strong>CLÁUSULA VINTE:</strong> É expressamente proibido ao sócio usuário
-        (colaborador) utilizar armas de fogo sem registro, bem como utilizar os postos de tiro
-        sem equipamentos de proteção auricular e visual.
+        <strong>CLÁUSULA VINTE:</strong> É expressamente proibido ao sócio
+        usuário (colaborador) utilizar armas de fogo sem registro, bem como
+        utilizar os postos de tiro sem equipamentos de proteção auricular e
+        visual.
       </p>
 
       <h2 className="font-bold text-sm uppercase mb-3 mt-6">
         5. Da Rescisão do Contrato
       </h2>
       <p className="mb-3">
-        <strong>CLÁUSULA VINTE E UM:</strong> A rescisão ou cancelamento do presente contrato
-        poderá se dar, em qualquer momento, por qualquer uma das partes, mediante termo expresso.
+        <strong>CLÁUSULA VINTE E UM:</strong> A rescisão ou cancelamento do
+        presente contrato poderá se dar, em qualquer momento, por qualquer uma
+        das partes, mediante termo expresso.
       </p>
       <p className="mb-3">
-        <strong>PARÁGRAFO PRIMEIRO:</strong> Não será considerada motivação válida para
-        rescisão contratual a não aprovação do sócio usuário (colaborador) nos testes de
-        capacitação técnica e manuseio de armas de fogo e nos testes psicotécnicos pertinentes.
+        <strong>PARÁGRAFO PRIMEIRO:</strong> Não será considerada motivação
+        válida para rescisão contratual a não aprovação do sócio usuário
+        (colaborador) nos testes de capacitação técnica e manuseio de armas de
+        fogo e nos testes psicotécnicos pertinentes.
       </p>
       <p className="mb-3">
-        <strong>PARÁGRAFO SEGUNDO:</strong> Em caso de rescisão ou cancelamento deste contrato,
-        a parte que der ensejo à rescisão deverá pagar à outra parte{" "}
-        <strong>30% (trinta por cento)</strong> do valor da cota {p.nomeContrato} de sócio
-        usuário (colaborador), independentemente da entrada e/ou das parcelas pagas, quantia
-        que será liquidada no ato da rescisão ou do cancelamento.
+        <strong>PARÁGRAFO SEGUNDO:</strong> Em caso de rescisão ou cancelamento
+        deste contrato, a parte que der ensejo à rescisão deverá pagar à outra
+        parte <strong>30% (trinta por cento)</strong> do valor da cota{" "}
+        {p.nomeContrato} de sócio usuário (colaborador), independentemente da
+        entrada e/ou das parcelas pagas, quantia que será liquidada no ato da
+        rescisão ou do cancelamento.
       </p>
       <p className="mb-3">
-        <strong>PARÁGRAFO TERCEIRO:</strong> O presente contrato reveste-se e é aceito pelos
-        contratantes com força de <strong>título executivo extrajudicial</strong>, constituindo
-        dívida líquida, certa e exigível.
+        <strong>PARÁGRAFO TERCEIRO:</strong> O presente contrato reveste-se e é
+        aceito pelos contratantes com força de{" "}
+        <strong>título executivo extrajudicial</strong>, constituindo dívida
+        líquida, certa e exigível.
       </p>
       <p className="mb-6">
-        <strong>PARÁGRAFO QUARTO:</strong> A contratada PROTECT não se responsabiliza por
-        promessas ou acordos que não façam parte deste contrato.
+        <strong>PARÁGRAFO QUARTO:</strong> A contratada PROTECT não se
+        responsabiliza por promessas ou acordos que não façam parte deste
+        contrato.
       </p>
 
       <h2 className="font-bold text-sm uppercase mb-3 mt-6">
         6. Termo de Responsabilidade para Uso dos Espaços de Tiro
       </h2>
       <p className="mb-3 text-justify">
-        É expressamente proibido o ingresso e a utilização de armas sem registro no SIGMA ou no
-        SINARM. Qualquer sócio, monitor ou instrutor poderá solicitar aos sócios os documentos
-        relativos às armas trazidas ao clube. É obrigatório transportar as armas desmuniciadas
-        nas dependências do clube, sendo vedado o manejo das armas fora do estande de tiro. A
-        prática de atividades de tiro por menores de 18 anos deverá ser autorizada judicialmente
-        e acompanhada do responsável legal.
+        É expressamente proibido o ingresso e a utilização de armas sem registro
+        no SIGMA ou no SINARM. Qualquer sócio, monitor ou instrutor poderá
+        solicitar aos sócios os documentos relativos às armas trazidas ao clube.
+        É obrigatório transportar as armas desmuniciadas nas dependências do
+        clube, sendo vedado o manejo das armas fora do estande de tiro. A prática
+        de atividades de tiro por menores de 18 anos deverá ser autorizada
+        judicialmente e acompanhada do responsável legal.
       </p>
       <p className="mb-3 text-justify">
-        Quando da prática da modalidade de tiro, deverão ser observadas as normas de conduta e
-        segurança, bem como as orientações expedidas pelo Exército Brasileiro, sendo obrigatório
-        o uso de óculos e protetores auriculares.
+        Quando da prática da modalidade de tiro, deverão ser observadas as normas
+        de conduta e segurança, bem como as orientações expedidas pelo Exército
+        Brasileiro, sendo obrigatório o uso de óculos e protetores auriculares.
       </p>
       <p className="mb-6 text-justify font-semibold">
-        É EXPRESSAMENTE PROIBIDO O INGRESSO E A UTILIZAÇÃO DE ARMAS E MUNIÇÕES SEM PROCEDÊNCIA
-        LEGAL E JUSTIFICADA.
+        É EXPRESSAMENTE PROIBIDO O INGRESSO E A UTILIZAÇÃO DE ARMAS E MUNIÇÕES
+        SEM PROCEDÊNCIA LEGAL E JUSTIFICADA.
       </p>
       <p className="mb-8 text-justify">
-        Eu, que abaixo assino, declaro ter recebido instruções de segurança e ter tomado
-        conhecimento das normas legais estabelecidas em legislação pertinente, assumindo o
-        compromisso pela minha participação nas atividades e pela minha permanência nas
-        dependências da PROTECT. Declaro, ainda, que não possuo registro de antecedentes
-        criminais e que os dados constantes nesta ficha são verdadeiros. Declaro ter ciência da
-        necessidade de cumprir a Lei nº 10.826/2003, Decreto nº 5.123/2004, R-105 do Exército
-        Brasileiro e demais normas aplicáveis.
+        Eu, que abaixo assino, declaro ter recebido instruções de segurança e ter
+        tomado conhecimento das normas legais estabelecidas em legislação
+        pertinente, assumindo o compromisso pela minha participação nas atividades
+        e pela minha permanência nas dependências da PROTECT. Declaro, ainda, que
+        não possuo registro de antecedentes criminais e que os dados constantes
+        nesta ficha são verdadeiros. Declaro ter ciência da necessidade de cumprir
+        a Lei nº 10.826/2003, Decreto nº 5.123/2004, R-105 do Exército Brasileiro
+        e demais normas aplicáveis.
       </p>
 
       <div className="border-t border-gray-200 pt-8 mt-8 space-y-8 text-xs">
         <p className="text-center">
-          E, por estarem justas e contratadas, firmam o presente em 02 (duas) vias, na presença
-          das testemunhas.
+          E, por estarem justas e contratadas, firmam o presente em 02 (duas)
+          vias, na presença das testemunhas.
         </p>
         <div className="grid grid-cols-2 gap-8">
           <SigBlock
@@ -785,7 +866,8 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
           })}
         </p>
         <p className="text-center text-gray-400">
-          Rua General Andrade Neves, 622, Grajaú, CEP 30431-128 — Belo Horizonte/MG
+          Rua General Andrade Neves, 622, Grajaú, CEP 30431-128 — Belo
+          Horizonte/MG
           <br />
           clube@grupoprotect.com.br · grupoprotect.com.br · (31) 3371-8500
         </p>
@@ -808,23 +890,56 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
             onClick={handlePrint}
             disabled={printing}
             title={printing ? "Preparando impressão..." : "Imprimir contrato"}
-            className={`flex items-center gap-1.5 px-2.5 py-1.5 text-[11px] transition rounded-sm ${printing ? "text-gray-300 bg-gray-100 opacity-50 cursor-not-allowed" : "text-gray-900 bg-gray-100 hover:bg-gray-200 cursor-pointer"}`}
+            className={`flex items-center gap-1.5 px-2.5 py-1.5 text-[11px] transition rounded-sm ${
+              printing
+                ? "text-gray-300 bg-gray-100 opacity-50 cursor-not-allowed"
+                : "text-gray-900 bg-gray-100 hover:bg-gray-200 cursor-pointer"
+            }`}
           >
-            <svg className="w-[13px] h-[13px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4H9a2 2 0 00-2 2v2a2 2 0 002 2h6a2 2 0 002-2v-2a2 2 0 00-2-2z" />
+            <svg
+              className="w-[13px] h-[13px]"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4H9a2 2 0 00-2 2v2a2 2 0 002 2h6a2 2 0 002-2v-2a2 2 0 00-2-2z"
+              />
             </svg>
-            <span className="hidden sm:inline">{printing ? "..." : "Imprimir"}</span>
+            <span className="hidden sm:inline">
+              {printing ? "..." : "Imprimir"}
+            </span>
           </button>
           <button
             type="button"
-            disabled
-            title="Função desabilitada"
-            className="flex items-center gap-1.5 px-2.5 py-1.5 text-[11px] text-gray-900 bg-gray-200 opacity-50 cursor-not-allowed transition rounded-sm"
+            onClick={handleSavePDF}
+            disabled={saving}
+            title={saving ? "Gerando PDF..." : "Salvar PDF"}
+            className={`flex items-center gap-1.5 px-2.5 py-1.5 text-[11px] transition rounded-sm ${
+              saving
+                ? "text-gray-300 bg-gray-100 opacity-50 cursor-not-allowed"
+                : "text-gray-900 bg-gray-100 hover:bg-gray-200 cursor-pointer"
+            }`}
           >
-            <svg className="w-[13px] h-[13px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+            <svg
+              className="w-[13px] h-[13px]"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+              />
             </svg>
-            <span className="hidden sm:inline">Salvar PDF</span>
+            <span className="hidden sm:inline">
+              {saving ? "..." : "Salvar PDF"}
+            </span>
           </button>
           <div className="w-px h-4 bg-gray-200 mx-1 hidden md:block" />
           <button
@@ -837,10 +952,11 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto bg-gray-50 px-4 md:px-6 py-8" ref={scrollRef}>
-        <div ref={refProp}>
-          {contractContent}
-        </div>
+      <div
+        className="flex-1 overflow-y-auto bg-gray-50 px-4 md:px-6 py-8"
+        ref={scrollRef}
+      >
+        <div ref={refProp}>{contractContent}</div>
       </div>
     </div>
   );
@@ -870,19 +986,31 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
                 <button
                   key={key}
                   type="button"
-                  onClick={() => { setPlano(key); setAccepted(false); }}
-                  className={`flex flex-col items-start px-3 py-2.5 border text-left transition-all cursor-pointer rounded-sm ${active
-                    ? "border-gray-900 bg-gray-900 text-white"
-                    : "border-gray-200 hover:border-gray-400 text-gray-700"
-                    }`}
+                  onClick={() => {
+                    setPlano(key);
+                    setAccepted(false);
+                  }}
+                  className={`flex flex-col items-start px-3 py-2.5 border text-left transition-all cursor-pointer rounded-sm ${
+                    active
+                      ? "border-gray-900 bg-gray-900 text-white"
+                      : "border-gray-200 hover:border-gray-400 text-gray-700"
+                  }`}
                 >
                   <span className="text-xs font-bold uppercase tracking-wider">
                     {op.label}
                   </span>
-                  <span className={`text-[11px] mt-0.5 ${active ? "text-gray-300" : "text-gray-400"}`}>
+                  <span
+                    className={`text-[11px] mt-0.5 ${
+                      active ? "text-gray-300" : "text-gray-400"
+                    }`}
+                  >
                     {op.parcela}/ano
                   </span>
-                  <span className={`text-[10px] mt-1 font-semibold ${active ? "text-gray-200" : "text-gray-500"}`}>
+                  <span
+                    className={`text-[10px] mt-1 font-semibold ${
+                      active ? "text-gray-200" : "text-gray-500"
+                    }`}
+                  >
                     Total: {op.total}
                   </span>
                 </button>
@@ -907,7 +1035,10 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
             className={field}
             value={formData.nome}
             onChange={(e) =>
-              setFormData((prev) => ({ ...prev, nome: e.target.value.toUpperCase() }))
+              setFormData((prev) => ({
+                ...prev,
+                nome: e.target.value.toUpperCase(),
+              }))
             }
           />
         </div>
@@ -950,11 +1081,16 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
               maxLength={14}
               value={formData.cpf}
               onChange={(e) =>
-                setFormData((prev) => ({ ...prev, cpf: formatCPF(e.target.value) }))
+                setFormData((prev) => ({
+                  ...prev,
+                  cpf: formatCPF(e.target.value),
+                }))
               }
               onBlur={(e) => {
                 const digits = e.target.value.replace(/\D/g, "");
-                e.target.setCustomValidity(digits.length !== 11 ? "CPF inválido" : "");
+                e.target.setCustomValidity(
+                  digits.length !== 11 ? "CPF inválido" : ""
+                );
                 if (digits.length !== 11) e.target.reportValidity();
               }}
             />
@@ -971,7 +1107,10 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
               className={field}
               value={formData.naturalidade}
               onChange={(e) =>
-                setFormData((prev) => ({ ...prev, naturalidade: e.target.value }))
+                setFormData((prev) => ({
+                  ...prev,
+                  naturalidade: e.target.value,
+                }))
               }
             />
           </div>
@@ -983,11 +1122,16 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
               inputMode="numeric"
               placeholder="dd/mm/aaaa"
               maxLength={10}
-              className={`${field} ${dateError ? "border-red-400 focus:border-red-500" : ""}`}
+              className={`${field} ${
+                dateError ? "border-red-400 focus:border-red-500" : ""
+              }`}
               value={formData.nascimento}
               onChange={(e) => handleDateChange(e.target.value)}
               onBlur={() => {
-                if (formData.nascimento.length > 0 && formData.nascimento.length < 10)
+                if (
+                  formData.nascimento.length > 0 &&
+                  formData.nascimento.length < 10
+                )
                   setDateError("Data incompleta");
               }}
             />
@@ -1027,10 +1171,10 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
               className="mt-0.5 w-4 h-4 accent-gray-800 shrink-0 cursor-pointer"
             />
             <span className="text-xs text-gray-600 leading-relaxed">
-              Li e concordo integralmente com todos os termos e cláusulas do contrato,
-              incluindo as condições de pagamento, rescisão e responsabilidades.
-              Ao assinar, seus dados serão registrados com segurança e protegidos
-              de acordo com a LGPD (Lei nº 13.709/2018).
+              Li e concordo integralmente com todos os termos e cláusulas do
+              contrato, incluindo as condições de pagamento, rescisão e
+              responsabilidades. Ao assinar, seus dados serão registrados com
+              segurança e protegidos de acordo com a LGPD (Lei nº 13.709/2018).
             </span>
           </label>
           <button
@@ -1057,7 +1201,9 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
         </div>
 
         <div className="border-t border-gray-100 pt-4 mt-2">
-          <p className="text-[11px] uppercase tracking-widest text-gray-400 mb-2">Resumo</p>
+          <p className="text-[11px] uppercase tracking-widest text-gray-400 mb-2">
+            Resumo
+          </p>
           <div className="bg-gray-50 border border-gray-100 rounded-sm px-3 py-2.5 space-y-1.5 text-xs text-gray-600">
             {(
               [
@@ -1089,13 +1235,17 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
                 />
               </div>
               <div className="text-center space-y-0.5">
-                <p className="text-[11px] font-semibold text-gray-700">PIX CNPJ</p>
+                <p className="text-[11px] font-semibold text-gray-700">
+                  PIX CNPJ
+                </p>
                 <p className="text-[11px] text-gray-500 font-mono select-all cursor-copy">
                   01.244.200/0001-52
                 </p>
                 <p className="text-[11px] text-gray-400 mt-1">
                   Valor:{" "}
-                  <span className="font-semibold text-gray-700">{p.parcela}</span>
+                  <span className="font-semibold text-gray-700">
+                    {p.parcela}
+                  </span>
                 </p>
               </div>
               <div className="w-full border border-gray-100 bg-gray-50 rounded-sm px-3 py-2.5 space-y-1.5 text-[11px] text-gray-600">
@@ -1155,7 +1305,9 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
           email={formData.email}
           onClose={handleSuccessClose}
           onPrint={handlePrint}
+          onSave={handleSavePDF}
           printing={printing}
+          saving={saving}
         />
       )}
 
@@ -1178,20 +1330,22 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
             <button
               type="button"
               onClick={() => setMobileTab("contrato")}
-              className={`flex-1 flex items-center justify-center gap-2 py-3.5 text-xs font-semibold uppercase tracking-widest transition-colors cursor-pointer ${mobileTab === "contrato"
-                ? "text-gray-900 border-b-2 border-gray-900"
-                : "text-gray-400 hover:text-gray-600"
-                }`}
+              className={`flex-1 flex items-center justify-center gap-2 py-3.5 text-xs font-semibold uppercase tracking-widest transition-colors cursor-pointer ${
+                mobileTab === "contrato"
+                  ? "text-gray-900 border-b-2 border-gray-900"
+                  : "text-gray-400 hover:text-gray-600"
+              }`}
             >
               <AlignLeft size={14} /> Contrato
             </button>
             <button
               type="button"
               onClick={() => setMobileTab("dados")}
-              className={`flex-1 flex items-center justify-center gap-2 py-3.5 text-xs font-semibold uppercase tracking-widest transition-colors cursor-pointer ${mobileTab === "dados"
-                ? "text-gray-900 border-b-2 border-gray-900"
-                : "text-gray-400 hover:text-gray-600"
-                }`}
+              className={`flex-1 flex items-center justify-center gap-2 py-3.5 text-xs font-semibold uppercase tracking-widest transition-colors cursor-pointer ${
+                mobileTab === "dados"
+                  ? "text-gray-900 border-b-2 border-gray-900"
+                  : "text-gray-400 hover:text-gray-600"
+              }`}
             >
               <PenLine size={14} /> Preencher
             </button>

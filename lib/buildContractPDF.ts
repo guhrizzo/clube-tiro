@@ -232,6 +232,93 @@ export async function generateContractPDFFromServerPage(
   }
 }
 
+export async function downloadContractPDF(
+  contractElement: HTMLElement,
+  filename: string
+): Promise<void> {
+  const domtoimage = (await import("dom-to-image-more")).default;
+  const jsPDFModule = (await import("jspdf")).default;
+
+  const imgs = contractElement.querySelectorAll("img");
+  await Promise.all(
+    Array.from(imgs).map(
+      (img) =>
+        new Promise<void>((resolve) => {
+          if ((img as HTMLImageElement).complete) resolve();
+          else { img.onload = () => resolve(); img.onerror = () => resolve(); }
+        })
+    )
+  );
+
+  const scale = 2;
+  const dataUrl = await domtoimage.toJpeg(contractElement, {
+    quality: 0.95,
+    bgcolor: "#ffffff",
+    width: contractElement.offsetWidth * scale,
+    height: contractElement.offsetHeight * scale,
+    style: {
+      transform: `scale(${scale})`,
+      transformOrigin: "top left",
+      width: contractElement.offsetWidth + "px",
+      height: contractElement.offsetHeight + "px",
+    },
+  });
+
+  const capturedImg = await new Promise<HTMLImageElement>((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = reject;
+    img.src = dataUrl;
+  });
+
+  const pageWidthMm = 210;
+  const pageHeightMm = 297;
+  const marginMm = 10;
+  const usableWidthMm = pageWidthMm - marginMm * 2;
+  const usableHeightMm = pageHeightMm - marginMm * 2;
+
+  const pxPerMm = capturedImg.width / usableWidthMm;
+  const safePageHeightPx = (usableHeightMm - 15.3) * pxPerMm; // mesma margem do print
+
+  const totalPages = Math.ceil(capturedImg.height / safePageHeightPx);
+
+  const pdf = new jsPDFModule({
+    unit: "mm",
+    format: "a4",
+    orientation: "portrait",
+    compress: true,
+  });
+
+  for (let pageIndex = 0; pageIndex < totalPages; pageIndex++) {
+    if (pageIndex > 0) pdf.addPage();
+
+    const srcY = Math.round(pageIndex * safePageHeightPx);
+    const srcH = Math.min(safePageHeightPx, capturedImg.height - srcY);
+
+    const slice = document.createElement("canvas");
+    slice.width = capturedImg.width;
+    slice.height = Math.round(srcH);
+    const ctx = slice.getContext("2d")!;
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, slice.width, slice.height);
+    ctx.drawImage(capturedImg, 0, srcY, capturedImg.width, srcH, 0, 0, capturedImg.width, srcH);
+
+    const sliceDataUrl = slice.toDataURL("image/jpeg", 0.92);
+    const sliceHeightMm = srcH / pxPerMm;
+
+    pdf.addImage(sliceDataUrl, "JPEG", marginMm, marginMm, usableWidthMm, sliceHeightMm);
+  }
+
+  // Download direto — sem abrir nova aba
+  const blob = pdf.output("blob");
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
 /**
  * Abre a página /contrato-pdf em nova janela para impressão
  */
@@ -635,20 +722,20 @@ export async function generateContractPDFMobile(contract: ContractData): Promise
     const inlinePaddingTop = el.style.paddingTop;
 
     // Zera tudo
-    el.style.border       = "none";
-    el.style.borderTop    = "none";
+    el.style.border = "none";
+    el.style.borderTop = "none";
     el.style.borderBottom = "none";
-    el.style.borderLeft   = "none";
-    el.style.borderRight  = "none";
+    el.style.borderLeft = "none";
+    el.style.borderRight = "none";
     el.style.borderRadius = "0";
-    el.style.boxShadow    = "none";
-    el.style.outline      = "none";
+    el.style.boxShadow = "none";
+    el.style.outline = "none";
 
     // Restaura border-top apenas nas linhas de assinatura
     // (têm border-top E padding-top definidos inline)
     if (inlineBorderTop && inlineBorderTop !== "none" && inlinePaddingTop) {
-      el.style.borderTop    = inlineBorderTop;
-      el.style.paddingTop   = inlinePaddingTop;
+      el.style.borderTop = inlineBorderTop;
+      el.style.paddingTop = inlinePaddingTop;
     }
 
     Array.from(el.children).forEach(cleanBorders);
@@ -696,10 +783,10 @@ export async function generateContractPDFMobile(contract: ContractData): Promise
   });
 
   // Paginação A4
-  const pageWidthMm   = 210;
-  const pageHeightMm  = 297;
-  const marginMm      = 10;
-  const usableWidthMm = pageWidthMm  - marginMm * 2;
+  const pageWidthMm = 210;
+  const pageHeightMm = 297;
+  const marginMm = 10;
+  const usableWidthMm = pageWidthMm - marginMm * 2;
   const usableHeightMm = pageHeightMm - marginMm * 2;
 
   const pxPerMm = capturedImg.width / usableWidthMm;
@@ -723,14 +810,14 @@ export async function generateContractPDFMobile(contract: ContractData): Promise
     const srcH = Math.min(safePageHeightPx, capturedImg.height - srcY);
 
     const slice = document.createElement("canvas");
-    slice.width  = capturedImg.width;
+    slice.width = capturedImg.width;
     slice.height = Math.round(srcH);
     const ctx = slice.getContext("2d")!;
     ctx.fillStyle = "#ffffff";
     ctx.fillRect(0, 0, slice.width, slice.height);
     ctx.drawImage(capturedImg, 0, srcY, capturedImg.width, srcH, 0, 0, capturedImg.width, srcH);
 
-    const sliceDataUrl  = slice.toDataURL("image/jpeg", 0.92);
+    const sliceDataUrl = slice.toDataURL("image/jpeg", 0.92);
     const sliceHeightMm = srcH / pxPerMm;
 
     pdf.addImage(sliceDataUrl, "JPEG", marginMm, marginMm, usableWidthMm, sliceHeightMm);
@@ -869,10 +956,10 @@ export async function generateContractPDFBase64FromElement(element: HTMLElement)
     img.src = dataUrl;
   });
 
-  const pageWidthMm   = 210;
-  const pageHeightMm  = 297;
-  const marginMm      = 10;
-  const usableWidthMm = pageWidthMm  - marginMm * 2;
+  const pageWidthMm = 210;
+  const pageHeightMm = 297;
+  const marginMm = 10;
+  const usableWidthMm = pageWidthMm - marginMm * 2;
   const usableHeightMm = pageHeightMm - marginMm * 2;
 
   const pxPerMm = capturedImg.width / usableWidthMm;
@@ -894,14 +981,14 @@ export async function generateContractPDFBase64FromElement(element: HTMLElement)
     const srcH = Math.min(safePageHeightPx, capturedImg.height - srcY);
 
     const slice = document.createElement("canvas");
-    slice.width  = capturedImg.width;
+    slice.width = capturedImg.width;
     slice.height = Math.round(srcH);
     const ctx = slice.getContext("2d")!;
     ctx.fillStyle = "#ffffff";
     ctx.fillRect(0, 0, slice.width, slice.height);
     ctx.drawImage(capturedImg, 0, srcY, capturedImg.width, srcH, 0, 0, capturedImg.width, srcH);
 
-    const sliceDataUrl  = slice.toDataURL("image/jpeg", 0.92);
+    const sliceDataUrl = slice.toDataURL("image/jpeg", 0.92);
     const sliceHeightMm = srcH / pxPerMm;
 
     pdf.addImage(sliceDataUrl, "JPEG", marginMm, marginMm, usableWidthMm, sliceHeightMm);
@@ -1266,7 +1353,7 @@ export function buildPDFContent(
   const sigH = 14;
   const sigW = 35;
 
-  try { pdf.addImage(sigs.s2, "PNG", ML, y, sigW, sigH, undefined, "FAST"); } catch (_) {}
+  try { pdf.addImage(sigs.s2, "PNG", ML, y, sigW, sigH, undefined, "FAST"); } catch (_) { }
   y += sigH;
 
   pdf.setDrawColor(80, 80, 80);
@@ -1283,8 +1370,8 @@ export function buildPDFContent(
   text("ANTONIO C. COSTA JUNIOR", ML, y, { size: 7, color: [100, 100, 100] });
   y += 14;
 
-  try { pdf.addImage(sigs.s1, "PNG", ML, y, sigW, sigH, undefined, "FAST"); } catch (_) {}
-  try { pdf.addImage(sigs.s3, "PNG", ML + col + 6, y, sigW, sigH, undefined, "FAST"); } catch (_) {}
+  try { pdf.addImage(sigs.s1, "PNG", ML, y, sigW, sigH, undefined, "FAST"); } catch (_) { }
+  try { pdf.addImage(sigs.s3, "PNG", ML + col + 6, y, sigW, sigH, undefined, "FAST"); } catch (_) { }
   y += sigH;
 
   pdf.line(ML, y, ML + col, y);
@@ -1449,6 +1536,8 @@ export async function openContractVisualElementForPrinting(
         })
     )
   );
+
+
 
   const scale = 2;
   const dataUrl = await domtoimage.toJpeg(contractElement, {
