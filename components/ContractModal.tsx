@@ -280,11 +280,13 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const modalRef = useRef<HTMLDivElement>(null);
 
+  // contractRefDesktop é SEMPRE usado para geração de PDF,
+  // inclusive no mobile — o elemento fica no DOM fora da tela.
   const contractRefDesktop = useRef<HTMLDivElement>(null);
   const contractRefMobile = useRef<HTMLDivElement>(null);
 
-  const getActiveContractRef = () =>
-    window.innerWidth >= 768 ? contractRefDesktop : contractRefMobile;
+  // Sempre usa o ref desktop para PDF (largura fixa = 4 páginas A4 consistentes)
+  const getActiveContractRef = () => contractRefDesktop;
 
   const previousFocusRef = useRef<HTMLElement | null>(null);
 
@@ -415,6 +417,7 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
       });
 
       try {
+        // Sempre usa contractRefDesktop para geração do PDF
         const contractElement = getActiveContractRef().current;
         if (!contractElement) throw new Error("Elemento do contrato não encontrado");
 
@@ -449,6 +452,7 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
   const handlePrint = async () => {
     setPrinting(true);
     try {
+      // Sempre usa contractRefDesktop para impressão
       const contractElement = getActiveContractRef().current;
       if (!contractElement) throw new Error("Elemento do contrato não encontrado");
 
@@ -467,6 +471,7 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
   const handleSavePDF = async () => {
     setSaving(true);
     try {
+      // Sempre usa contractRefDesktop para download — garante 4 páginas A4 no mobile também
       const contractElement = getActiveContractRef().current;
       if (!contractElement) throw new Error("Elemento não encontrado");
 
@@ -1365,8 +1370,27 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
               : renderFormPanel()}
           </div>
 
-          {/* DESKTOP: side-by-side */}
-          <div className="hidden md:flex flex-1 overflow-hidden flex-row">
+          {/*
+           * DESKTOP: side-by-side layout.
+           *
+           * IMPORTANTE: Este bloco usa `flex` em vez de `hidden md:flex` para que o
+           * contractRefDesktop SEMPRE esteja montado no DOM, mesmo no mobile.
+           * No mobile ele fica posicionado fora da tela via `absolute -left-[9999px]`,
+           * com `visibility: hidden` e `pointer-events: none` para não interferir
+           * na UI nem na acessibilidade. Isso garante que o offsetWidth do elemento
+           * seja calculado corretamente na hora de gerar o PDF — produzindo sempre
+           * 4 páginas A4 independente do dispositivo.
+           */}
+          <div
+            aria-hidden="true"
+            className="
+              flex flex-1 overflow-hidden flex-row
+              absolute md:relative
+              -left-[9999px] md:left-auto
+              invisible md:visible
+              pointer-events-none md:pointer-events-auto
+            "
+          >
             {renderDocumentPanel(contractRefDesktop)}
             {renderFormPanel()}
           </div>
