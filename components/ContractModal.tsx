@@ -99,38 +99,24 @@ function formatCPF(v: string): string {
 }
 
 function SigBlock({
-  imgSrc,
-  imgAlt,
   label,
   lines,
   borderColor = "border-gray-400",
 }: {
-  imgSrc?: string;
-  imgAlt?: string;
   label?: string;
   lines: string[];
   borderColor?: string;
 }) {
   return (
     <div>
-      <div className="h-16 flex -pb-4 justify-center">
-        {imgSrc && (
-          <img
-            src={imgSrc}
-            alt={imgAlt}
-            crossOrigin="anonymous"
-            className="max-h-20 max-w-full object-contain object-left"
-          />
-        )}
-      </div>
+      <div className="h-12 flex -pb-4 justify-center" />
       <div className={`border-t ${borderColor} pt-2`}>
-        {label && <p className="text-gray-500">{label}</p>}
+        {label && <p className="text-gray-500 text-xs">{label}</p>}
         {lines.map((line, i) => (
           <p
             key={i}
-            className={
-              i === 0 && !label ? "font-bold" : i > 0 ? "text-gray-500" : ""
-            }
+            className={`text-xs ${i === 0 && !label ? "font-bold" : i > 0 ? "text-gray-500" : ""
+              }`}
           >
             {line}
           </p>
@@ -207,11 +193,10 @@ function SuccessModal({
               onClick={onPrint}
               disabled={printing}
               title={printing ? "Preparando impressão..." : "Imprimir contrato"}
-              className={`flex items-center justify-center gap-1.5 py-2.5 border text-xs font-medium transition-all rounded-sm ${
-                printing
-                  ? "opacity-50 cursor-not-allowed border-gray-100 text-gray-300 bg-gray-50"
-                  : "border-gray-300 text-gray-700 bg-white hover:bg-gray-50 hover:border-gray-400 cursor-pointer"
-              }`}
+              className={`flex items-center justify-center gap-1.5 py-2.5 border text-xs font-medium transition-all rounded-sm ${printing
+                ? "opacity-50 cursor-not-allowed border-gray-100 text-gray-300 bg-gray-50"
+                : "border-gray-300 text-gray-700 bg-white hover:bg-gray-50 hover:border-gray-400 cursor-pointer"
+                }`}
             >
               <svg
                 className="w-[13px] h-[13px]"
@@ -233,11 +218,10 @@ function SuccessModal({
               onClick={onSave}
               disabled={saving}
               title={saving ? "Gerando PDF..." : "Salvar PDF"}
-              className={`flex items-center justify-center gap-1.5 py-2.5 border text-xs font-medium transition-all rounded-sm ${
-                saving
-                  ? "opacity-50 cursor-not-allowed border-gray-100 text-gray-300 bg-gray-50"
-                  : "border-gray-300 text-gray-700 bg-white hover:bg-gray-50 hover:border-gray-400 cursor-pointer"
-              }`}
+              className={`flex items-center justify-center gap-1.5 py-2.5 border text-xs font-medium transition-all rounded-sm ${saving
+                ? "opacity-50 cursor-not-allowed border-gray-100 text-gray-300 bg-gray-50"
+                : "border-gray-300 text-gray-700 bg-white hover:bg-gray-50 hover:border-gray-400 cursor-pointer"
+                }`}
             >
               <svg
                 className="w-[13px] h-[13px]"
@@ -284,9 +268,6 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
   // inclusive no mobile — o elemento fica no DOM fora da tela.
   const contractRefDesktop = useRef<HTMLDivElement>(null);
   const contractRefMobile = useRef<HTMLDivElement>(null);
-
-  // Sempre usa o ref desktop para PDF (largura fixa = 4 páginas A4 consistentes)
-  const getActiveContractRef = () => contractRefDesktop;
 
   const previousFocusRef = useRef<HTMLElement | null>(null);
 
@@ -351,31 +332,6 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
 
   const p = PLANOS[plano];
 
-  // Utilitário compartilhado: clona o elemento e remove bordas desnecessárias
-  const cloneAndClean = (contractElement: HTMLElement): HTMLElement => {
-    const clone = contractElement.cloneNode(true) as HTMLElement;
-    clone.style.cssText = `
-      position: fixed;
-      top: -99999px;
-      left: 0;
-      width: ${contractElement.offsetWidth}px;
-      background: white;
-      z-index: -9999;
-    `;
-    const removeBorders = (el: HTMLElement) => {
-      const hasBorderT = el.classList.contains("border-t");
-      el.style.border = "none";
-      el.style.boxShadow = "none";
-      el.style.outline = "none";
-      if (hasBorderT) el.style.borderTop = "1px solid #9ca3af";
-      Array.from(el.children).forEach((child) => {
-        if (child instanceof HTMLElement) removeBorders(child);
-      });
-    };
-    removeBorders(clone);
-    return clone;
-  };
-
   const handleConfirm = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!accepted) {
@@ -417,8 +373,8 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
       });
 
       try {
-        // Sempre usa contractRefDesktop para geração do PDF
-        const contractElement = getActiveContractRef().current;
+        // Usa contractRefDesktop para geração do PDF
+        const contractElement = contractRefDesktop.current;
         if (!contractElement) throw new Error("Elemento do contrato não encontrado");
 
         const pdfBase64 = await generateContractPDFFromVisualElement(
@@ -451,60 +407,580 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
 
   const handlePrint = async () => {
     setPrinting(true);
-    let clone: HTMLElement | null = null;
     try {
-      // Sempre usa contractRefDesktop para impressão
-      const contractElement = getActiveContractRef().current;
+      // Pega o elemento correto (desktop ou mobile)
+      const contractElement = mobileTab === "contrato"
+        ? contractRefMobile.current
+        : contractRefDesktop.current;
+
       if (!contractElement) throw new Error("Elemento do contrato não encontrado");
 
-      clone = cloneAndClean(contractElement);
-      document.body.appendChild(clone);
-      await openContractVisualElementForPrinting(clone);
+      // Estratégia simples: abre a janela de impressão do navegador
+      const printWindow = window.open("", "", "width=800,height=600");
+      if (!printWindow) throw new Error("Não foi possível abrir janela de impressão");
+
+      // Copia o HTML sem imagens
+      let html = contractElement.innerHTML;
+      // NÃO remove as imagens de assinatura - só remove outras imagens problema
+      html = html.replace(/<img[^>]*src="(?!\/assinatura)[^"]*"[^>]*>/g, "");
+
+      printWindow.document.write(`
+        <!DOCTYPE html>
+        <html lang="pt-BR">
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Contrato PROTECT</title>
+          <style>
+            * {
+              margin: 0;
+              padding: 0;
+              box-sizing: border-box;
+            }
+            
+            body {
+              font-family: Georgia, serif;
+              font-size: 13px;
+              line-height: 1.6;
+              color: #1f2937;
+              background: white;
+              padding: 20px;
+            }
+            
+            @page {
+              margin: 15mm;
+              size: A4;
+            }
+            
+            @media print {
+              body {
+                padding: 0;
+                margin: 0;
+              }
+              .contract-content {
+                page-break-after: always;
+              }
+            }
+            
+            .max-w-2xl {
+              max-width: 65ch;
+              margin: 0 auto;
+            }
+            
+            .bg-white {
+              background-color: white;
+            }
+            
+            .border {
+              border: 1px solid #e5e7eb;
+            }
+            
+            .px-6, .px-10 {
+              padding-left: 1.5rem;
+              padding-right: 1.5rem;
+            }
+            
+            .px-10 {
+              padding-left: 2.5rem;
+              padding-right: 2.5rem;
+            }
+            
+            .py-12 {
+              padding-top: 3rem;
+              padding-bottom: 3rem;
+            }
+            
+            .text-center {
+              text-align: center;
+            }
+            
+            .mb-8 {
+              margin-bottom: 2rem;
+            }
+            
+            .pb-6 {
+              padding-bottom: 1.5rem;
+            }
+            
+            .border-b {
+              border-bottom: 1px solid #e5e7eb;
+            }
+            
+            .border-t {
+              border-top: 1px solid #d1d5db;
+            }
+            
+            .pt-2 {
+              padding-top: 0.5rem;
+            }
+            
+            .text-\[11px\] {
+              font-size: 11px;
+            }
+            
+            .text-\[13px\] {
+              font-size: 13px;
+            }
+            
+            .text-xs {
+              font-size: 12px;
+            }
+            
+            .text-sm {
+              font-size: 14px;
+            }
+            
+            .text-base {
+              font-size: 16px;
+            }
+            
+            .uppercase {
+              text-transform: uppercase;
+            }
+            
+            .tracking-\[0\.25em\] {
+              letter-spacing: 0.25em;
+            }
+            
+            .tracking-widest {
+              letter-spacing: 0.1em;
+            }
+            
+            .font-bold {
+              font-weight: bold;
+            }
+            
+            .font-semibold {
+              font-weight: 600;
+            }
+            
+            .font-medium {
+              font-weight: 500;
+            }
+            
+            .leading-snug {
+              line-height: 1.375;
+            }
+            
+            .leading-relaxed {
+              line-height: 1.625;
+            }
+            
+            .text-gray-500 {
+              color: #6b7280;
+            }
+            
+            .text-gray-400 {
+              color: #9ca3af;
+            }
+            
+            .text-gray-800 {
+              color: #1f2937;
+            }
+            
+            .text-gray-600 {
+              color: #4b5563;
+            }
+            
+            .text-justify {
+              text-align: justify;
+            }
+            
+            .mb-3 {
+              margin-bottom: 0.75rem;
+            }
+            
+            .mb-4 {
+              margin-bottom: 1rem;
+            }
+            
+            .mb-6 {
+              margin-bottom: 1.5rem;
+            }
+            
+            .mt-2 {
+              margin-top: 0.5rem;
+            }
+            
+            .mt-4 {
+              margin-top: 1rem;
+            }
+            
+            .mt-6 {
+              margin-top: 1.5rem;
+            }
+            
+            .mt-8 {
+              margin-top: 2rem;
+            }
+            
+            .space-y-8 > * + * {
+              margin-top: 2rem;
+            }
+            
+            .space-y-6 > * + * {
+              margin-top: 1.5rem;
+            }
+            
+            .grid {
+              display: grid;
+            }
+            
+            .grid-cols-2 {
+              grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+            
+            .gap-8 {
+              gap: 2rem;
+            }
+            
+            .inline-block {
+              display: inline-block;
+            }
+            
+            h1 {
+              font-size: 16px;
+              font-weight: bold;
+              text-transform: uppercase;
+            }
+            
+            h2 {
+              font-size: 14px;
+              font-weight: bold;
+              text-transform: uppercase;
+              margin: 1.5rem 0 0.75rem 0;
+            }
+            
+            p {
+              margin-bottom: 0.75rem;
+            }
+            
+            strong {
+              font-weight: bold;
+            }
+            
+            .shadow-sm {
+              box-shadow: none;
+            }
+            
+            .text-center img {
+              max-width: 100%;
+              height: auto;
+              margin: 0 auto;
+            }
+            
+            img[alt*="Assinatura"] {
+              max-height: 60px;
+              object-fit: contain;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="contract-content">${html}</div>
+        </body>
+        </html>
+      `);
+
+      printWindow.document.close();
+      printWindow.focus();
+
+      // Aguarda o documento carregar
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      // Abre o diálogo de impressão
+      printWindow.print();
+
+      // Fecha a janela após imprimir
+      setTimeout(() => printWindow.close(), 1000);
+
     } catch (err) {
       console.error("Erro ao abrir para impressão:", err);
       alert("Erro ao preparar contrato para impressão. Tente novamente.");
     } finally {
-      // Remove o clone do DOM de forma segura
-      if (clone && clone.parentNode) {
-        try {
-          document.body.removeChild(clone);
-        } catch {
-          /* ignore se já foi removido */
-        }
-      }
       setPrinting(false);
     }
   };
 
   const handleSavePDF = async () => {
     setSaving(true);
-    let clone: HTMLElement | null = null;
     try {
-      // Sempre usa contractRefDesktop para download — garante 4 páginas A4 no mobile também
-      const contractElement = getActiveContractRef().current;
+      // Pega o elemento correto (desktop ou mobile)
+      const contractElement = mobileTab === "contrato"
+        ? contractRefMobile.current
+        : contractRefDesktop.current;
+
       if (!contractElement) throw new Error("Elemento não encontrado");
 
-      clone = cloneAndClean(contractElement);
-      document.body.appendChild(clone);
+      // Extrai o HTML sem imagens problematicas
+      let html = contractElement.innerHTML;
+      // NÃO remove as imagens de assinatura - só remove outras imagens problema
+      html = html.replace(/<img[^>]*src="(?!\/assinatura)[^"]*"[^>]*>/g, "");
 
-      const filename = `Contrato_PROTECT_${(formData.nome || "socio")
+      // CSS compartilhado para manter formatação
+      const cssStyles = `
+        * {
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
+        }
+        
+        body {
+          font-family: Georgia, serif;
+          font-size: 13px;
+          line-height: 1.6;
+          color: #1f2937;
+          background: white;
+          padding: 20mm;
+        }
+        
+        @page {
+          margin: 15mm;
+          size: A4;
+        }
+        
+        @media print {
+          body {
+            padding: 0;
+            margin: 0;
+          }
+        }
+        
+        .max-w-2xl {
+          max-width: 65ch;
+          margin: 0 auto;
+        }
+        
+        .bg-white {
+          background-color: white;
+        }
+        
+        .border {
+          border: 1px solid #e5e7eb;
+        }
+        
+        .px-6, .px-10 {
+          padding-left: 1.5rem;
+          padding-right: 1.5rem;
+        }
+        
+        .px-10 {
+          padding-left: 2.5rem;
+          padding-right: 2.5rem;
+        }
+        
+        .py-12 {
+          padding-top: 3rem;
+          padding-bottom: 3rem;
+        }
+        
+        .text-center {
+          text-align: center;
+        }
+        
+        .mb-8 {
+          margin-bottom: 2rem;
+        }
+        
+        .pb-6 {
+          padding-bottom: 1.5rem;
+        }
+        
+        .border-b {
+          border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .border-t {
+          border-top: 1px solid #d1d5db;
+        }
+        
+        .pt-2 {
+          padding-top: 0.5rem;
+        }
+        
+        .text-\\[11px\\] {
+          font-size: 11px;
+        }
+        
+        .text-xs {
+          font-size: 12px;
+        }
+        
+        .text-sm {
+          font-size: 14px;
+        }
+        
+        .text-base {
+          font-size: 16px;
+        }
+        
+        .uppercase {
+          text-transform: uppercase;
+        }
+        
+        .tracking-\\[0\\.25em\\] {
+          letter-spacing: 0.25em;
+        }
+        
+        .tracking-widest {
+          letter-spacing: 0.1em;
+        }
+        
+        .font-bold {
+          font-weight: bold;
+        }
+        
+        .font-semibold {
+          font-weight: 600;
+        }
+        
+        .font-medium {
+          font-weight: 500;
+        }
+        
+        .leading-snug {
+          line-height: 1.375;
+        }
+        
+        .leading-relaxed {
+          line-height: 1.625;
+        }
+        
+        .text-gray-500 {
+          color: #6b7280;
+        }
+        
+        .text-gray-400 {
+          color: #9ca3af;
+        }
+        
+        .text-gray-800 {
+          color: #1f2937;
+        }
+        
+        .text-gray-600 {
+          color: #4b5563;
+        }
+        
+        .text-justify {
+          text-align: justify;
+        }
+        
+        .mb-3 {
+          margin-bottom: 0.75rem;
+        }
+        
+        .mb-4 {
+          margin-bottom: 1rem;
+        }
+        
+        .mb-6 {
+          margin-bottom: 1.5rem;
+        }
+        
+        .mt-2 {
+          margin-top: 0.5rem;
+        }
+        
+        .mt-4 {
+          margin-top: 1rem;
+        }
+        
+        .mt-6 {
+          margin-top: 1.5rem;
+        }
+        
+        .mt-8 {
+          margin-top: 2rem;
+        }
+        
+        .space-y-8 > * + * {
+          margin-top: 2rem;
+        }
+        
+        .grid {
+          display: grid;
+        }
+        
+        .grid-cols-2 {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+        
+        .gap-8 {
+          gap: 2rem;
+        }
+        
+        .inline-block {
+          display: inline-block;
+        }
+        
+        h1 {
+          font-size: 16px;
+          font-weight: bold;
+          text-transform: uppercase;
+        }
+        
+        h2 {
+          font-size: 14px;
+          font-weight: bold;
+          text-transform: uppercase;
+          margin: 1.5rem 0 0.75rem 0;
+        }
+        
+        p {
+          margin-bottom: 0.75rem;
+        }
+        
+        strong {
+          font-weight: bold;
+        }
+        
+        .text-center img {
+          max-width: 100%;
+          height: auto;
+          margin: 0 auto;
+        }
+        
+        img[alt*="Assinatura"] {
+          max-height: 60px;
+          object-fit: contain;
+        }
+      `;
+
+      // Cria o HTML completo com CSS
+      const fullHtml = `
+        <!DOCTYPE html>
+        <html lang="pt-BR">
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Contrato PROTECT</title>
+          <style>${cssStyles}</style>
+        </head>
+        <body>
+          <div class="contract-content">${html}</div>
+        </body>
+        </html>
+      `;
+
+      // Download como HTML (que pode ser impresso como PDF)
+      const blob = new Blob([fullHtml], { type: "text/html;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `Contrato_PROTECT_${(formData.nome || "socio")
         .replace(/\s+/g, "_")
         .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")}.pdf`;
+        .replace(/[\u0300-\u036f]/g, "")}.html`;
 
-      await downloadContractPDF(clone, filename);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
     } catch (err) {
       console.error("Erro ao salvar PDF:", err);
       alert("Erro ao gerar PDF. Tente novamente.");
     } finally {
-      // Remove o clone do DOM de forma segura
-      if (clone && clone.parentNode) {
-        try {
-          document.body.removeChild(clone);
-        } catch {
-          /* ignore se já foi removido */
-        }
-      }
       setSaving(false);
     }
   };
@@ -848,35 +1324,71 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
           vias, na presença das testemunhas.
         </p>
         <div className="grid grid-cols-2 gap-8">
-          <SigBlock
-            imgSrc="/assinatura2.png"
-            imgAlt="Assinatura Protect"
-            lines={[
-              "PROTECT CLUBE MINEIRO DE TIRO",
-              "CNPJ: 01.244.200/0001-52",
-              "ANTONIO C. COSTA JUNIOR",
-            ]}
-          />
-          <SigBlock
-            lines={[
-              formData.nome || "SÓCIO USUÁRIO (COLABORADOR)",
-              `CPF: ${formData.cpf || "___________________________"}`,
-            ]}
-          />
+          <div className="text-center">
+            <div className="h-16 flex items-center justify-center">
+              <img
+                src="/assinatura2.png"
+                alt="Assinatura PROTECT"
+                className="h-12 object-contain"
+              />
+            </div>
+            <div className="border-t border-gray-400 pt-2">
+              <p className="font-bold">PROTECT CLUBE MINEIRO DE TIRO</p>
+              <p className="text-gray-500 text-[10px]">CNPJ: 01.244.200/0001-52</p>
+              <p className="text-gray-500 text-[10px]">ANTONIO C. COSTA JUNIOR</p>
+            </div>
+          </div>
+          <div className="text-center">
+            <img
+              src="/assinatura5.png"
+              alt="Assinatura PROTECT"
+              className="-z-10 opacity-0"
+            />
+            <div className="lg:-h-0 lg:-mt-13.5 h-3 border-b border-gray-400 z-9999999" />
+
+            <div className="pt-2">
+              <p className="font-bold">
+                {formData.nome || "SÓCIO USUÁRIO (COLABORADOR)"}
+              </p>
+              <p className="text-gray-500 text-[10px]">
+                CPF: {formData.cpf || "___________________________"}
+              </p>
+            </div>
+          </div>
         </div>
         <div className="grid grid-cols-2 gap-8">
-          <SigBlock
-            imgSrc="/assinatura1.png"
-            imgAlt="Assinatura Testemunha 1"
-            label="TESTEMUNHA 1"
-            lines={["EMMERSON N. DO CARMO", "CPF: 001.583.866-80"]}
-          />
-          <SigBlock
-            imgSrc="/assinatura3.png"
-            imgAlt="Assinatura Testemunha 2"
-            label="TESTEMUNHA 2"
-            lines={["NEWTON C. BAPTISTON", "CPF: 584.978.896-49"]}
-          />
+          <div className="text-center">
+            <div className="h-16 flex items-center justify-center">
+              <img
+                src="/assinatura1.png"
+                alt="Assinatura Testemunha 1"
+                className="h-12 object-contain"
+              />
+            </div>
+            <div className="border-t border-gray-400 pt-2">
+              <p className="text-gray-500 text-[10px] font-semibold">
+                TESTEMUNHA 1
+              </p>
+              <p className="font-bold text-[10px]">EMMERSON N. DO CARMO</p>
+              <p className="text-gray-500 text-[10px]">CPF: 001.583.866-80</p>
+            </div>
+          </div>
+          <div className="text-center">
+            <div className="h-16 flex items-center justify-center">
+              <img
+                src="/assinatura3.png"
+                alt="Assinatura Testemunha 2"
+                className="h-12 object-contain"
+              />
+            </div>
+            <div className="border-t border-gray-400 pt-2">
+              <p className="text-gray-500 text-[10px] font-semibold">
+                TESTEMUNHA 2
+              </p>
+              <p className="font-bold text-[10px]">NEWTON C. BAPTISTON</p>
+              <p className="text-gray-500 text-[10px]">CPF: 584.978.896-49</p>
+            </div>
+          </div>
         </div>
         <p className="text-center text-gray-500">
           Belo Horizonte/MG,{" "}
@@ -911,11 +1423,10 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
             onClick={handlePrint}
             disabled={printing}
             title={printing ? "Preparando impressão..." : "Imprimir contrato"}
-            className={`flex items-center gap-1.5 px-2.5 py-1.5 text-[11px] transition rounded-sm ${
-              printing
-                ? "text-gray-300 bg-gray-100 opacity-50 cursor-not-allowed"
-                : "text-gray-900 bg-gray-100 hover:bg-gray-200 cursor-pointer"
-            }`}
+            className={`flex items-center gap-1.5 px-2.5 py-1.5 text-[11px] transition rounded-sm ${printing
+              ? "text-gray-300 bg-gray-100 opacity-50 cursor-not-allowed"
+              : "text-gray-900 bg-gray-100 hover:bg-gray-200 cursor-pointer"
+              }`}
           >
             <svg
               className="w-[13px] h-[13px]"
@@ -939,11 +1450,10 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
             onClick={handleSavePDF}
             disabled={saving}
             title={saving ? "Gerando PDF..." : "Salvar PDF"}
-            className={`flex items-center gap-1.5 px-2.5 py-1.5 text-[11px] transition rounded-sm ${
-              saving
-                ? "text-gray-300 bg-gray-100 opacity-50 cursor-not-allowed"
-                : "text-gray-900 bg-gray-100 hover:bg-gray-200 cursor-pointer"
-            }`}
+            className={`flex items-center gap-1.5 px-2.5 py-1.5 text-[11px] transition rounded-sm ${saving
+              ? "text-gray-300 bg-gray-100 opacity-50 cursor-not-allowed"
+              : "text-gray-900 bg-gray-100 hover:bg-gray-200 cursor-pointer"
+              }`}
           >
             <svg
               className="w-[13px] h-[13px]"
@@ -1011,26 +1521,23 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
                     setPlano(key);
                     setAccepted(false);
                   }}
-                  className={`flex flex-col items-start px-3 py-2.5 border text-left transition-all cursor-pointer rounded-sm ${
-                    active
-                      ? "border-gray-900 bg-gray-900 text-white"
-                      : "border-gray-200 hover:border-gray-400 text-gray-700"
-                  }`}
+                  className={`flex flex-col items-start px-3 py-2.5 border text-left transition-all cursor-pointer rounded-sm ${active
+                    ? "border-gray-900 bg-gray-900 text-white"
+                    : "border-gray-200 hover:border-gray-400 text-gray-700"
+                    }`}
                 >
                   <span className="text-xs font-bold uppercase tracking-wider">
                     {op.label}
                   </span>
                   <span
-                    className={`text-[11px] mt-0.5 ${
-                      active ? "text-gray-300" : "text-gray-400"
-                    }`}
+                    className={`text-[11px] mt-0.5 ${active ? "text-gray-300" : "text-gray-400"
+                      }`}
                   >
                     {op.parcela}/ano
                   </span>
                   <span
-                    className={`text-[10px] mt-1 font-semibold ${
-                      active ? "text-gray-200" : "text-gray-500"
-                    }`}
+                    className={`text-[10px] mt-1 font-semibold ${active ? "text-gray-200" : "text-gray-500"
+                      }`}
                   >
                     Total: {op.total}
                   </span>
@@ -1143,9 +1650,8 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
               inputMode="numeric"
               placeholder="dd/mm/aaaa"
               maxLength={10}
-              className={`${field} ${
-                dateError ? "border-red-400 focus:border-red-500" : ""
-              }`}
+              className={`${field} ${dateError ? "border-red-400 focus:border-red-500" : ""
+                }`}
               value={formData.nascimento}
               onChange={(e) => handleDateChange(e.target.value)}
               onBlur={() => {
@@ -1246,15 +1752,6 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
               Pagamento via PIX
             </p>
             <div className="flex flex-col items-center gap-3">
-              <div className="border border-gray-200 p-2 bg-white shadow-sm">
-                <img
-                  src="/frame.png"
-                  alt="QR Code PIX"
-                  width={140}
-                  height={140}
-                  className="block"
-                />
-              </div>
               <div className="text-center space-y-0.5">
                 <p className="text-[11px] font-semibold text-gray-700">
                   PIX CNPJ
@@ -1351,22 +1848,20 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
             <button
               type="button"
               onClick={() => setMobileTab("contrato")}
-              className={`flex-1 flex items-center justify-center gap-2 py-3.5 text-xs font-semibold uppercase tracking-widest transition-colors cursor-pointer ${
-                mobileTab === "contrato"
-                  ? "text-gray-900 border-b-2 border-gray-900"
-                  : "text-gray-400 hover:text-gray-600"
-              }`}
+              className={`flex-1 flex items-center justify-center gap-2 py-3.5 text-xs font-semibold uppercase tracking-widest transition-colors cursor-pointer ${mobileTab === "contrato"
+                ? "text-gray-900 border-b-2 border-gray-900"
+                : "text-gray-400 hover:text-gray-600"
+                }`}
             >
               <AlignLeft size={14} /> Contrato
             </button>
             <button
               type="button"
               onClick={() => setMobileTab("dados")}
-              className={`flex-1 flex items-center justify-center gap-2 py-3.5 text-xs font-semibold uppercase tracking-widest transition-colors cursor-pointer ${
-                mobileTab === "dados"
-                  ? "text-gray-900 border-b-2 border-gray-900"
-                  : "text-gray-400 hover:text-gray-600"
-              }`}
+              className={`flex-1 flex items-center justify-center gap-2 py-3.5 text-xs font-semibold uppercase tracking-widest transition-colors cursor-pointer ${mobileTab === "dados"
+                ? "text-gray-900 border-b-2 border-gray-900"
+                : "text-gray-400 hover:text-gray-600"
+                }`}
             >
               <PenLine size={14} /> Preencher
             </button>
