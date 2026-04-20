@@ -422,7 +422,7 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
       // Copia o HTML sem imagens
       let html = contractElement.innerHTML;
       // NÃO remove as imagens de assinatura - só remove outras imagens problema
-      html = html.replace(/<img[^>]*src="(?!\/assinatura)[^"]*"[^>]*>/g, "");
+      html = html.replace(/<img[^>]*src="(?!.*assinatura)[^"]*"[^>]*>/g, "");
 
       printWindow.document.write(`
         <!DOCTYPE html>
@@ -701,282 +701,83 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
     }
   };
 
+
+
+  // Função auxiliar — adicione antes do handleSavePDF
+  const cloneWithInlinedImages = async (element: HTMLElement): Promise<HTMLElement> => {
+    const clone = element.cloneNode(true) as HTMLElement;
+
+    const toBase64 = (src: string): Promise<string> =>
+      new Promise((resolve) => {
+        const img = new Image();
+        img.crossOrigin = "anonymous";
+        img.onload = () => {
+          const canvas = document.createElement("canvas");
+          canvas.width = img.naturalWidth || 200;
+          canvas.height = img.naturalHeight || 80;
+          canvas.getContext("2d")!.drawImage(img, 0, 0);
+          resolve(canvas.toDataURL("image/png"));
+        };
+        img.onerror = () => resolve(""); // ignora se falhar
+        img.src = src.startsWith("http") ? src : `${window.location.origin}${src}`;
+      });
+
+    const imgs = Array.from(clone.querySelectorAll("img")) as HTMLImageElement[];
+    await Promise.all(
+      imgs.map(async (img) => {
+        if (img.src && !img.src.startsWith("data:")) {
+          const b64 = await toBase64(img.src);
+          if (b64) img.src = b64;
+        }
+      })
+    );
+
+    return clone;
+  };
+
   const handleSavePDF = async () => {
     setSaving(true);
     try {
-      // Pega o elemento correto (desktop ou mobile)
-      const contractElement = mobileTab === "contrato"
-        ? contractRefMobile.current
-        : contractRefDesktop.current;
-
+      const contractElement = contractRefDesktop.current;
       if (!contractElement) throw new Error("Elemento não encontrado");
 
-      // Extrai o HTML sem imagens problematicas
-      let html = contractElement.innerHTML;
-      // NÃO remove as imagens de assinatura - só remove outras imagens problema
-      html = html.replace(/<img[^>]*src="(?!\/assinatura)[^"]*"[^>]*>/g, "");
+      // Clona com imagens já em base64 para evitar erro de CORS/visibilidade no mobile
+      const cloneWithImages = await cloneWithInlinedImages(contractElement);
+      cloneWithImages.style.cssText = `
+      position: fixed;
+      top: -99999px;
+      left: 0;
+      width: ${contractElement.offsetWidth || 800}px;
+      background: white;
+      z-index: -9999;
+      visibility: visible;
+    `;
+      document.body.appendChild(cloneWithImages);
 
-      // CSS compartilhado para manter formatação
-      const cssStyles = `
-        * {
-          margin: 0;
-          padding: 0;
-          box-sizing: border-box;
-        }
-        
-        body {
-          font-family: Georgia, serif;
-          font-size: 13px;
-          line-height: 1.6;
-          color: #1f2937;
-          background: white;
-          padding: 20mm;
-        }
-        
-        @page {
-          margin: 15mm;
-          size: A4;
-        }
-        
-        @media print {
-          body {
-            padding: 0;
-            margin: 0;
-          }
-        }
-        
-        .max-w-2xl {
-          max-width: 65ch;
-          margin: 0 auto;
-        }
-        
-        .bg-white {
-          background-color: white;
-        }
-        
-        .border {
-          border: 1px solid #e5e7eb;
-        }
-        
-        .px-6, .px-10 {
-          padding-left: 1.5rem;
-          padding-right: 1.5rem;
-        }
-        
-        .px-10 {
-          padding-left: 2.5rem;
-          padding-right: 2.5rem;
-        }
-        
-        .py-12 {
-          padding-top: 3rem;
-          padding-bottom: 3rem;
-        }
-        
-        .text-center {
-          text-align: center;
-        }
-        
-        .mb-8 {
-          margin-bottom: 2rem;
-        }
-        
-        .pb-6 {
-          padding-bottom: 1.5rem;
-        }
-        
-        .border-b {
-          border-bottom: 1px solid #e5e7eb;
-        }
-        
-        .border-t {
-          border-top: 1px solid #d1d5db;
-        }
-        
-        .pt-2 {
-          padding-top: 0.5rem;
-        }
-        
-        .text-\\[11px\\] {
-          font-size: 11px;
-        }
-        
-        .text-xs {
-          font-size: 12px;
-        }
-        
-        .text-sm {
-          font-size: 14px;
-        }
-        
-        .text-base {
-          font-size: 16px;
-        }
-        
-        .uppercase {
-          text-transform: uppercase;
-        }
-        
-        .tracking-\\[0\\.25em\\] {
-          letter-spacing: 0.25em;
-        }
-        
-        .tracking-widest {
-          letter-spacing: 0.1em;
-        }
-        
-        .font-bold {
-          font-weight: bold;
-        }
-        
-        .font-semibold {
-          font-weight: 600;
-        }
-        
-        .font-medium {
-          font-weight: 500;
-        }
-        
-        .leading-snug {
-          line-height: 1.375;
-        }
-        
-        .leading-relaxed {
-          line-height: 1.625;
-        }
-        
-        .text-gray-500 {
-          color: #6b7280;
-        }
-        
-        .text-gray-400 {
-          color: #9ca3af;
-        }
-        
-        .text-gray-800 {
-          color: #1f2937;
-        }
-        
-        .text-gray-600 {
-          color: #4b5563;
-        }
-        
-        .text-justify {
-          text-align: justify;
-        }
-        
-        .mb-3 {
-          margin-bottom: 0.75rem;
-        }
-        
-        .mb-4 {
-          margin-bottom: 1rem;
-        }
-        
-        .mb-6 {
-          margin-bottom: 1.5rem;
-        }
-        
-        .mt-2 {
-          margin-top: 0.5rem;
-        }
-        
-        .mt-4 {
-          margin-top: 1rem;
-        }
-        
-        .mt-6 {
-          margin-top: 1.5rem;
-        }
-        
-        .mt-8 {
-          margin-top: 2rem;
-        }
-        
-        .space-y-8 > * + * {
-          margin-top: 2rem;
-        }
-        
-        .grid {
-          display: grid;
-        }
-        
-        .grid-cols-2 {
-          grid-template-columns: repeat(2, minmax(0, 1fr));
-        }
-        
-        .gap-8 {
-          gap: 2rem;
-        }
-        
-        .inline-block {
-          display: inline-block;
-        }
-        
-        h1 {
-          font-size: 16px;
-          font-weight: bold;
-          text-transform: uppercase;
-        }
-        
-        h2 {
-          font-size: 14px;
-          font-weight: bold;
-          text-transform: uppercase;
-          margin: 1.5rem 0 0.75rem 0;
-        }
-        
-        p {
-          margin-bottom: 0.75rem;
-        }
-        
-        strong {
-          font-weight: bold;
-        }
-        
-        .text-center img {
-          max-width: 100%;
-          height: auto;
-          margin: 0 auto;
-        }
-        
-        img[alt*="Assinatura"] {
-          max-height: 60px;
-          object-fit: contain;
-        }
-      `;
+      try {
+        const base64 = await generateContractPDFFromVisualElement(
+          cloneWithImages,
+          { nome: formData.nome, cpf: formData.cpf, plano: `${plano} anos` }
+        );
 
-      // Cria o HTML completo com CSS
-      const fullHtml = `
-        <!DOCTYPE html>
-        <html lang="pt-BR">
-        <head>
-          <meta charset="UTF-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>Contrato PROTECT</title>
-          <style>${cssStyles}</style>
-        </head>
-        <body>
-          <div class="contract-content">${html}</div>
-        </body>
-        </html>
-      `;
-
-      // Download como HTML (que pode ser impresso como PDF)
-      const blob = new Blob([fullHtml], { type: "text/html;charset=utf-8" });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = `Contrato_PROTECT_${(formData.nome || "socio")
-        .replace(/\s+/g, "_")
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")}.html`;
-
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
-
+        const binary = atob(base64);
+        const bytes = new Uint8Array(binary.length);
+        for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+        const blob = new Blob([bytes], { type: "application/pdf" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `Contrato_PROTECT_${(formData.nome || "socio")
+          .replace(/\s+/g, "_")
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")}.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      } finally {
+        document.body.removeChild(cloneWithImages);
+      }
     } catch (err) {
       console.error("Erro ao salvar PDF:", err);
       alert("Erro ao gerar PDF. Tente novamente.");
@@ -1339,13 +1140,8 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
             </div>
           </div>
           <div className="text-center">
-            <img
-              src="/assinatura5.png"
-              alt="Assinatura PROTECT"
-              className="-z-10 opacity-0"
-            />
-            <div className="lg:-h-0 lg:-mt-13.5 h-3 border-b border-gray-400 z-9999999" />
-
+            {/* Linha de assinatura real — sem imagem fantasma */}
+            <div style={{ height: "65px", borderBottom: "1px solid #9ca3af", marginBottom: "8px" }} />
             <div className="pt-2">
               <p className="font-bold">
                 {formData.nome || "SÓCIO USUÁRIO (COLABORADOR)"}

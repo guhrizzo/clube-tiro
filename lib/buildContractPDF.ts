@@ -62,6 +62,12 @@ async function captureElementToPDFBase64(
   const domtoimage = (await import("dom-to-image-more")).default;
   const jsPDFModule = (await import("jspdf")).default;
 
+  // Pré-carrega as imagens de assinatura
+  const signatureImages = await preloadSignatureImages();
+  
+  // Injeta as imagens base64 diretamente no elemento
+  injectSignaturesToElement(element, signatureImages);
+
   // Aguarda imagens
   const imgs = element.querySelectorAll("img");
   await Promise.all(
@@ -405,6 +411,45 @@ const loadImageAsBase64 = (src: string): Promise<string> =>
     img.src = src;
   });
 
+// Pré-carrega e converte imagens de assinatura para base64
+const preloadSignatureImages = async (): Promise<{
+  [key: string]: string;
+}> => {
+  const signatures: { [key: string]: string } = {};
+  const paths = ["/assinatura1.png", "/assinatura2.png", "/assinatura3.png"];
+  
+  for (const path of paths) {
+    try {
+      signatures[path] = await loadImageAsBase64(path);
+    } catch (err) {
+      console.warn(`Falha ao pré-carregar ${path}:`, err);
+      signatures[path] = "";
+    }
+  }
+  
+  return signatures;
+};
+
+// Injeta imagens base64 diretamente no HTML
+const injectSignaturesToElement = (
+  element: HTMLElement,
+  sigs: { [key: string]: string }
+): void => {
+  const images = element.querySelectorAll(
+    'img[src="/assinatura1.png"], img[src="/assinatura2.png"], img[src="/assinatura3.png"]'
+  );
+  
+  images.forEach((img) => {
+    const src = (img as HTMLImageElement).src;
+    for (const [path, base64] of Object.entries(sigs)) {
+      if (src.includes(path.replace("/", ""))) {
+        (img as HTMLImageElement).src = base64;
+        break;
+      }
+    }
+  });
+};
+
 export async function generateContractPDFBase64(
   contract: ContractData
 ): Promise<string> {
@@ -432,6 +477,12 @@ export async function generateContractPDFBase64(
 
     contractDiv.innerHTML = getContractHTML(contract);
     document.body.appendChild(contractDiv);
+
+    // Pré-carrega as imagens de assinatura
+    const signatureImages = await preloadSignatureImages();
+    
+    // Injeta as imagens base64 diretamente no elemento
+    injectSignaturesToElement(contractDiv, signatureImages);
 
     const imgs = contractDiv.querySelectorAll("img");
     await Promise.all(
@@ -548,6 +599,12 @@ export async function generateContractPDFMobile(
 
   container.innerHTML = getContractHTML(contract);
   document.body.appendChild(container);
+
+  // Pré-carrega as imagens de assinatura
+  const signatureImages = await preloadSignatureImages();
+  
+  // Injeta as imagens base64 diretamente no elemento
+  injectSignaturesToElement(container, signatureImages);
 
   const cleanBorders = (el: Element): void => {
     if (!(el instanceof HTMLElement)) return;
