@@ -987,7 +987,7 @@ function getContractHTML(contract: ContractData): string {
 
       <div style="margin-top: 32px; display: flex; gap: 24px;">
         <div style="flex: 1; display: flex; flex-direction: column;">
-          <div style="height: 60px; display: flex; margin-bottom: 40px; align-items: flex-end; justify-content: center;">
+          <div style="height: 60px; display: flex; align-items: flex-end; justify-content: center;">
             <img src="/assinatura4.png" alt="PROTECT" style="height: 100%; max-width: 95%; object-fit: scale-down;" crossorigin="anonymous" />
           </div>
           <div style="border-top: 1px solid #4b5563; padding-top: 8px;">

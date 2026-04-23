@@ -264,8 +264,6 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const modalRef = useRef<HTMLDivElement>(null);
 
-  // contractRefDesktop é SEMPRE usado para geração de PDF,
-  // inclusive no mobile — o elemento fica no DOM fora da tela.
   const contractRefDesktop = useRef<HTMLDivElement>(null);
   const contractRefMobile = useRef<HTMLDivElement>(null);
 
@@ -373,7 +371,6 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
       });
 
       try {
-        // Usa contractRefDesktop para geração do PDF
         const contractElement = contractRefDesktop.current;
         if (!contractElement) throw new Error("Elemento do contrato não encontrado");
 
@@ -408,20 +405,16 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
   const handlePrint = async () => {
     setPrinting(true);
     try {
-      // Pega o elemento correto (desktop ou mobile)
       const contractElement = mobileTab === "contrato"
         ? contractRefMobile.current
         : contractRefDesktop.current;
 
       if (!contractElement) throw new Error("Elemento do contrato não encontrado");
 
-      // Estratégia simples: abre a janela de impressão do navegador
       const printWindow = window.open("", "", "width=800,height=600");
       if (!printWindow) throw new Error("Não foi possível abrir janela de impressão");
 
-      // Copia o HTML sem imagens
       let html = contractElement.innerHTML;
-      // NÃO remove as imagens de assinatura - só remove outras imagens problema
       html = html.replace(/<img[^>]*src="(?!.*assinatura)[^"]*"[^>]*>/g, "");
 
       printWindow.document.write(`
@@ -653,6 +646,7 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
             
             p {
               margin-bottom: 0.75rem;
+              page-break-inside: avoid;
             }
             
             strong {
@@ -674,11 +668,16 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
               object-fit: contain;
             }
 
-            /* Evita que o bloco de assinaturas quebre entre páginas */
+            /* IMPORTANTE: Evita quebras de página em seções críticas */
             .space-y-8 > div:last-child,
             .grid.grid-cols-2 {
               page-break-inside: avoid;
               break-inside: avoid;
+            }
+            
+            /* Seção de assinaturas não quebra */
+            .border-t[class*="pt-8"] {
+              page-break-inside: avoid;
             }
           </style>
         </head>
@@ -691,13 +690,10 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
       printWindow.document.close();
       printWindow.focus();
 
-      // Aguarda o documento carregar
       await new Promise(resolve => setTimeout(resolve, 500));
 
-      // Abre o diálogo de impressão
       printWindow.print();
 
-      // Fecha a janela após imprimir
       setTimeout(() => printWindow.close(), 1000);
 
     } catch (err) {
@@ -708,9 +704,6 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
     }
   };
 
-
-
-  // Função auxiliar — adicione antes do handleSavePDF
   const cloneWithInlinedImages = async (element: HTMLElement): Promise<HTMLElement> => {
     const clone = element.cloneNode(true) as HTMLElement;
 
@@ -725,7 +718,7 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
           canvas.getContext("2d")!.drawImage(img, 0, 0);
           resolve(canvas.toDataURL("image/png"));
         };
-        img.onerror = () => resolve(""); // ignora se falhar
+        img.onerror = () => resolve("");
         img.src = src.startsWith("http") ? src : `${window.location.origin}${src}`;
       });
 
@@ -748,7 +741,6 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
       const contractElement = contractRefDesktop.current;
       if (!contractElement) throw new Error("Elemento não encontrado");
 
-      // Clona com imagens já em base64 para evitar erro de CORS/visibilidade no mobile
       const cloneWithImages = await cloneWithInlinedImages(contractElement);
       cloneWithImages.style.cssText = `
       position: fixed;
@@ -828,6 +820,7 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
       </span>
     );
 
+  // IMPORTANTE: Todos os parágrafos agora têm style={{ pageBreakInside: 'avoid' }}
   const contractContent = (
     <div className="max-w-2xl mx-auto bg-white border border-gray-200 px-6 md:px-10 py-12 text-[13px] text-gray-800 leading-relaxed font-serif shadow-sm">
       <div className="text-center mb-8 pb-6 border-b border-gray-200">
@@ -848,7 +841,7 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
         </div>
       </div>
 
-      <p className="mb-4 text-justify">
+      <p className="mb-4 text-justify" style={{ pageBreakInside: 'avoid' }}>
         Pelo presente instrumento particular de{" "}
         <strong>CONTRATO DE ADESÃO DE SÓCIO USUÁRIO (COLABORADOR)</strong>, de
         um lado, <strong>Protect Clube Mineiro de Tiro</strong>, pessoa jurídica
@@ -871,7 +864,7 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
         acordo com as condições especificadas nesta contratação/adesão e na
         legislação vigente.
       </p>
-      <p className="mb-6 text-justify">
+      <p className="mb-6 text-justify" style={{ pageBreakInside: 'avoid' }}>
         O proponente declara aceitar as cláusulas deste contrato sem restrições,
         bem como a eleição do foro da Comarca de Belo Horizonte/MG para dirimir
         quaisquer pendências relativas ao presente instrumento.
@@ -880,18 +873,18 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
       <h2 className="font-bold text-sm uppercase mb-3 mt-6">
         1. Do Preço e da Forma de Pagamento
       </h2>
-      <p className="mb-3">
+      <p className="mb-3" style={{ pageBreakInside: 'avoid' }}>
         <strong>CLÁUSULA PRIMEIRA:</strong> O valor total do contrato,
         correspondente à cota {p.nomeContrato} (vigente por {p.nomePrazo} anos),
         é de <strong>{p.total}</strong>, ficando isento o pagamento de taxa de
         contribuição social mensal.
       </p>
-      <p className="mb-3">
+      <p className="mb-3" style={{ pageBreakInside: 'avoid' }}>
         <strong>PARÁGRAFO PRIMEIRO:</strong> Declara o sócio usuário
         (colaborador), neste ato, ter ciência de que a revalidação do CR
         (Certificado de Registro) é feita, atualmente, de três em três anos.
       </p>
-      <p className="mb-3">
+      <p className="mb-3" style={{ pageBreakInside: 'avoid' }}>
         <strong>PARÁGRAFO SEGUNDO:</strong> O pagamento deverá ser efetuado no
         ato da assinatura deste contrato, no valor de {p.parcela} (anuidade),
         correspondente à primeira parcela, salvo eventual desconto ou condição
@@ -902,26 +895,26 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
         mediante comprovação de depósito via PIX CNPJ nº 01.244.200/0001-52 ou
         por link de cartão de crédito do clube.
       </p>
-      <p className="mb-3">
+      <p className="mb-3" style={{ pageBreakInside: 'avoid' }}>
         <strong>PARÁGRAFO TERCEIRO:</strong> Caso a contratação seja realizada
         em mês diverso de janeiro, o contrato permanecerá vigente até o mesmo
         mês de janeiro, {p.nomePrazo} anos após o ingresso, sendo que as
         parcelas remanescentes também vencerão até o dia 10 daquele mês, em cada
         um dos {p.nomePrazo} anos subsequentes.
       </p>
-      <p className="mb-3">
+      <p className="mb-3" style={{ pageBreakInside: 'avoid' }}>
         <strong>PARÁGRAFO QUARTO:</strong> Será considerado inadimplente o sócio
         usuário (colaborador) que atrasar qualquer pagamento por período superior
         a <strong>30 (trinta) dias</strong> do vencimento, ficando expressamente
         suspensos os direitos previstos nas cláusulas sexta e sétima,
         independentemente de comunicação prévia, até a quitação do débito.
       </p>
-      <p className="mb-3">
+      <p className="mb-3" style={{ pageBreakInside: 'avoid' }}>
         <strong>PARÁGRAFO QUINTO:</strong> Nos casos de parcelamento, a cobrança
         se dará mediante emissão de boleto bancário. O não recebimento do boleto
         não exime o sócio de realizar o pagamento na data acordada.
       </p>
-      <p className="mb-3">
+      <p className="mb-3" style={{ pageBreakInside: 'avoid' }}>
         <strong>PARÁGRAFO SEXTO:</strong> Em caso de atraso superior a 60
         (sessenta) dias, o sócio será notificado e terá 10 (dez) dias para
         liquidação. Persistindo a pendência, a PROTECT poderá encaminhar o nome
@@ -935,14 +928,14 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
       <h2 className="font-bold text-sm uppercase mb-3 mt-6">
         2. Das Obrigações da Contratada Protect
       </h2>
-      <p className="mb-3">
+      <p className="mb-3" style={{ pageBreakInside: 'avoid' }}>
         <strong>CLÁUSULA SEGUNDA:</strong> Permitir a frequência do sócio
         usuário (colaborador) às áreas comuns do Clube PROTECT dentro do horário
         de funcionamento, bem como a utilização dos estandes de tiro, ressalvada
         a hipótese de o local estar sendo utilizado por determinadas categorias
         profissionais ou para cursos e capacitação.
       </p>
-      <p className="mb-3">
+      <p className="mb-3" style={{ pageBreakInside: 'avoid' }}>
         <strong>CLÁUSULA TERCEIRA:</strong> Oferecer condições adequadas para a
         realização de cursos, testes de tiro e capacitação técnica, atividades
         sociais, culturais, recreativas e desportivas, bem como manter
@@ -950,7 +943,7 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
         ressalvando que os serviços documentais e de despachante serão cobrados
         separadamente.
       </p>
-      <p className="mb-3">
+      <p className="mb-3" style={{ pageBreakInside: 'avoid' }}>
         <strong>CLÁUSULA QUARTA:</strong> Manter as instalações limpas e em
         permanentes condições de uso; disponibilizar, a título oneroso, alvos e
         equipamentos obrigatórios para testes e cursos; e disponibilizar, a
@@ -958,7 +951,7 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
         abafadores de ouvido e armas do acervo do clube para atiradores com CR
         válido.
       </p>
-      <p className="mb-3">
+      <p className="mb-3" style={{ pageBreakInside: 'avoid' }}>
         <strong>CLÁUSULA QUINTA:</strong> Ofertar ao sócio usuário (colaborador),
         armas de fogo, munição, acessórios, equipamentos de proteção e defesa
         individual, armas de ar comprimido, airsoft e outros itens para compra ou
@@ -969,15 +962,15 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
       <h2 className="font-bold text-sm uppercase mb-3 mt-6">
         3. Dos Direitos do Sócio Usuário (Colaborador)
       </h2>
-      <p className="mb-3">
+      <p className="mb-3" style={{ pageBreakInside: 'avoid' }}>
         <strong>CLÁUSULA SEXTA:</strong> Frequentar, utilizar e participar de
         todas as opções recreativas, desportivas e culturais, desde que esteja em
         dia com o pagamento da anuidade. O sócio declara ter ciência de que
-        cursos, testes de capacitação e tiro, bem como algumas opções
+        cursos, testes de capacitação técnica e tiro, bem como algumas opções
         recreativas, serão disponibilizados a título oneroso, a ser calculado
         evento a evento.
       </p>
-      <p className="mb-3">
+      <p className="mb-3" style={{ pageBreakInside: 'avoid' }}>
         <strong>CLÁUSULA SÉTIMA:</strong> Ter prioridade na tramitação de
         pleitos junto ao Exército e à Polícia Federal; na utilização de estandes;
         para realização de testes de tiro e capacitação técnica; nas vagas para
@@ -985,21 +978,21 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
         utilização de equipamentos de proteção individual e armas do acervo do
         clube.
       </p>
-      <p className="mb-3">
+      <p className="mb-3" style={{ pageBreakInside: 'avoid' }}>
         <strong>CLÁUSULA OITAVA:</strong> Caso a legislação vigente permita,
         fazer-se acompanhar de terceiros nas dependências do clube PROTECT,
         mediante preenchimento e assinatura de termo de compromisso, respondendo
         o sócio usuário (colaborador) por aqueles convidados que agirem com
         imperícia, imprudência ou negligência.
       </p>
-      <p className="mb-3">
+      <p className="mb-3" style={{ pageBreakInside: 'avoid' }}>
         <strong>CLÁUSULA NONA:</strong> Fazer requerimento para obtenção de CR
         de Colecionador, Atirador ou Caçador, observados os requisitos elencados
         pelo Estatuto do Desarmamento e portarias vigentes da Polícia Federal e
         do Exército, sendo necessário ter 25 anos. Antes disso, o interessado
         poderá obter autorização judicial.
       </p>
-      <p className="mb-3">
+      <p className="mb-3" style={{ pageBreakInside: 'avoid' }}>
         <strong>CLÁUSULA DÉCIMA:</strong> Zelar pelo patrimônio do clube,
         responsabilizando-se por si e por seus convidados, inclusive por danos ou
         despesas que venham a causar. É{" "}
@@ -1007,23 +1000,23 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
         utilizem ou portem qualquer tipo de arma de fogo, à exceção daqueles com
         autorização judicial.
       </p>
-      <p className="mb-3">
+      <p className="mb-3" style={{ pageBreakInside: 'avoid' }}>
         <strong>CLÁUSULA ONZE:</strong> Pagar pontualmente as parcelas para
         quitação do título {p.nomeContrato} de sócio usuário (colaborador),
         quando parcelado.
       </p>
-      <p className="mb-3">
+      <p className="mb-3" style={{ pageBreakInside: 'avoid' }}>
         <strong>CLÁUSULA DOZE:</strong> Obedecer às normas disciplinares e aos
         horários de frequência às dependências do clube, sendo proibida a
         ingestão de bebidas alcoólicas e/ou drogas ilícitas nas áreas de tiro.
       </p>
-      <p className="mb-3">
+      <p className="mb-3" style={{ pageBreakInside: 'avoid' }}>
         <strong>CLÁUSULA TREZE:</strong> O ingresso às áreas de tiro se fará
         mediante identificação facial e/ou apresentação da carteira social. A
         condição de sócio usuário (colaborador) não confere direito de
         propriedade sobre qualquer parcela do patrimônio do clube.
       </p>
-      <p className="mb-3">
+      <p className="mb-3" style={{ pageBreakInside: 'avoid' }}>
         <strong>CLÁUSULA QUATORZE:</strong> O teste de manuseio e capacitação
         técnica constitui espécie de curso com testes escritos e práticos,
         ministrados por instrutores credenciados pela Polícia Federal, dos quais
@@ -1034,26 +1027,26 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
       <h2 className="font-bold text-sm uppercase mb-3 mt-6">
         4. Disposições Gerais e Condições Específicas
       </h2>
-      <p className="mb-3">
+      <p className="mb-3" style={{ pageBreakInside: 'avoid' }}>
         <strong>CLÁUSULA DEZESSEIS:</strong> O sócio usuário (colaborador) que
         desejar adquirir uma arma para defesa no comércio deverá obter
         autorização da Polícia Federal ou do Exército e apresentar Prova de
         Aptidão e Manuseio de Armas e Teste Psicológico.
       </p>
-      <p className="mb-3">
+      <p className="mb-3" style={{ pageBreakInside: 'avoid' }}>
         <strong>CLÁUSULA DEZESSETE:</strong> O sócio declara ter ciência de que
         a legislação que controla os CACs é diferente daquela que rege as armas
         em mãos de cidadãos comuns. Essas normas constam no R-105, Decreto nº
         3.665/2000 e Portaria COLOG nº 051/2015.
       </p>
-      <p className="mb-3">
+      <p className="mb-3" style={{ pageBreakInside: 'avoid' }}>
         <strong>CLÁUSULA DEZOITO:</strong> O sócio declara ter ciência de que
         CACs <strong>não possuem autorização para PORTE de arma</strong>, e sim,
         alguns deles, para POSSE e TRANSPORTE da arma, munições e acessórios de
         casa até os locais de competição, clubes de tiro, treinamentos e outros,
         autorizados pelas GUIAS DE TRÁFEGO.
       </p>
-      <p className="mb-3">
+      <p className="mb-3" style={{ pageBreakInside: 'avoid' }}>
         <strong>CLÁUSULA VINTE:</strong> É expressamente proibido ao sócio
         usuário (colaborador) utilizar armas de fogo sem registro, bem como
         utilizar os postos de tiro sem equipamentos de proteção auricular e
@@ -1063,18 +1056,18 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
       <h2 className="font-bold text-sm uppercase mb-3 mt-6">
         5. Da Rescisão do Contrato
       </h2>
-      <p className="mb-3">
+      <p className="mb-3" style={{ pageBreakInside: 'avoid' }}>
         <strong>CLÁUSULA VINTE E UM:</strong> A rescisão ou cancelamento do
         presente contrato poderá se dar, em qualquer momento, por qualquer uma
         das partes, mediante termo expresso.
       </p>
-      <p className="mb-3">
+      <p className="mb-3" style={{ pageBreakInside: 'avoid' }}>
         <strong>PARÁGRAFO PRIMEIRO:</strong> Não será considerada motivação
         válida para rescisão contratual a não aprovação do sócio usuário
         (colaborador) nos testes de capacitação técnica e manuseio de armas de
         fogo e nos testes psicotécnicos pertinentes.
       </p>
-      <p className="mb-3">
+      <p className="mb-3" style={{ pageBreakInside: 'avoid' }}>
         <strong>PARÁGRAFO SEGUNDO:</strong> Em caso de rescisão ou cancelamento
         deste contrato, a parte que der ensejo à rescisão deverá pagar à outra
         parte <strong>30% (trinta por cento)</strong> do valor da cota{" "}
@@ -1082,13 +1075,13 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
         entrada e/ou das parcelas pagas, quantia que será liquidada no ato da
         rescisão ou do cancelamento.
       </p>
-      <p className="mb-3">
+      <p className="mb-3" style={{ pageBreakInside: 'avoid' }}>
         <strong>PARÁGRAFO TERCEIRO:</strong> O presente contrato reveste-se e é
         aceito pelos contratantes com força de{" "}
         <strong>título executivo extrajudicial</strong>, constituindo dívida
         líquida, certa e exigível.
       </p>
-      <p className="mb-6">
+      <p className="mb-6" style={{ pageBreakInside: 'avoid' }}>
         <strong>PARÁGRAFO QUARTO:</strong> A contratada PROTECT não se
         responsabiliza por promessas ou acordos que não façam parte deste
         contrato.
@@ -1097,7 +1090,7 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
       <h2 className="font-bold text-sm uppercase mb-3 mt-6">
         6. Termo de Responsabilidade para Uso dos Espaços de Tiro
       </h2>
-      <p className="mb-3 text-justify">
+      <p className="mb-3 text-justify" style={{ pageBreakInside: 'avoid' }}>
         É expressamente proibido o ingresso e a utilização de armas sem registro
         no SIGMA ou no SINARM. Qualquer sócio, monitor ou instrutor poderá
         solicitar aos sócios os documentos relativos às armas trazidas ao clube.
@@ -1106,16 +1099,16 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
         de atividades de tiro por menores de 18 anos deverá ser autorizada
         judicialmente e acompanhada do responsável legal.
       </p>
-      <p className="mb-3 text-justify">
+      <p className="mb-3 text-justify" style={{ pageBreakInside: 'avoid' }}>
         Quando da prática da modalidade de tiro, deverão ser observadas as normas
         de conduta e segurança, bem como as orientações expedidas pelo Exército
         Brasileiro, sendo obrigatório o uso de óculos e protetores auriculares.
       </p>
-      <p className="mb-6 text-justify font-semibold">
+      <p className="mb-6 text-justify font-semibold" style={{ pageBreakInside: 'avoid' }}>
         É EXPRESSAMENTE PROIBIDO O INGRESSO E A UTILIZAÇÃO DE ARMAS E MUNIÇÕES
         SEM PROCEDÊNCIA LEGAL E JUSTIFICADA.
       </p>
-      <p className="mb-8 text-justify">
+      <p className="mb-8 text-justify" style={{ pageBreakInside: 'avoid' }}>
         Eu, que abaixo assino, declaro ter recebido instruções de segurança e ter
         tomado conhecimento das normas legais estabelecidas em legislação
         pertinente, assumindo o compromisso pela minha participação nas atividades
@@ -1126,7 +1119,7 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
         e demais normas aplicáveis.
       </p>
 
-      <div className="border-t border-gray-200 pt-8 mt-8 space-y-8 text-xs">
+      <div className="border-t border-gray-200 pt-8 mt-8 space-y-8 text-xs" style={{ pageBreakInside: 'avoid' }}>
         <p className="text-center">
           E, por estarem justas e contratadas, firmam o presente em 02 (duas)
           vias, na presença das testemunhas.
@@ -1147,7 +1140,6 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
             </div>
           </div>
           <div className="text-center">
-            {/* Linha de assinatura real — sem imagem fantasma */}
             <div style={{ height: "65px", borderBottom: "1px solid #9ca3af", marginBottom: "8px" }} />
             <div className="pt-2">
               <p className="font-bold">
@@ -1684,17 +1676,7 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
               : renderFormPanel()}
           </div>
 
-          {/*
-           * DESKTOP: side-by-side layout.
-           *
-           * IMPORTANTE: Este bloco usa `flex` em vez de `hidden md:flex` para que o
-           * contractRefDesktop SEMPRE esteja montado no DOM, mesmo no mobile.
-           * No mobile ele fica posicionado fora da tela via `absolute -left-[9999px]`,
-           * com `visibility: hidden` e `pointer-events: none` para não interferir
-           * na UI nem na acessibilidade. Isso garante que o offsetWidth do elemento
-           * seja calculado corretamente na hora de gerar o PDF — produzindo sempre
-           * 4 páginas A4 independente do dispositivo.
-           */}
+          {/* DESKTOP: side-by-side layout */}
           <div
             aria-hidden="true"
             className="
