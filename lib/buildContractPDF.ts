@@ -33,6 +33,7 @@ function cloneAndClean(contractElement: HTMLElement): HTMLElement {
     width: ${contractElement.offsetWidth}px;
     background: white;
     z-index: -9999;
+    padding-bottom: 40px;
   `;
 
   const removeBorders = (el: HTMLElement) => {
@@ -57,7 +58,7 @@ function cloneAndClean(contractElement: HTMLElement): HTMLElement {
 // ─────────────────────────────────────────────────────────────────────────────
 async function captureElementToPDFBase64(
   element: HTMLElement,
-  safeMarginMm = 22
+  safeMarginMm = 3
 ): Promise<string> {
   const domtoimage = (await import("dom-to-image-more")).default;
   const jsPDFModule = (await import("jspdf")).default;
@@ -172,7 +173,7 @@ export async function generateContractPDFFromVisualElement(
   const clone = cloneAndClean(contractElement);
   document.body.appendChild(clone);
   try {
-    return await captureElementToPDFBase64(clone, 22);
+    return await captureElementToPDFBase64(clone, 30);
   } finally {
     document.body.removeChild(clone);
   }
@@ -187,7 +188,7 @@ export async function openContractVisualElementForPrinting(
   const clone = cloneAndClean(contractElement);
   document.body.appendChild(clone);
   try {
-    const base64 = await captureElementToPDFBase64(clone, 22);
+    const base64 = await captureElementToPDFBase64(clone, 30);
     const binary = atob(base64);
     const bytes = new Uint8Array(binary.length);
     for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
@@ -211,7 +212,7 @@ export async function downloadContractPDF(
   // mas precisamos appendá-lo ao body para o offsetWidth funcionar.
   document.body.appendChild(contractElement);
   try {
-    const base64 = await captureElementToPDFBase64(contractElement, 22);
+    const base64 = await captureElementToPDFBase64(contractElement, 30);
     const binary = atob(base64);
     const bytes = new Uint8Array(binary.length);
     for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
@@ -357,21 +358,21 @@ export async function generateContractPDFFromServerPage(
       img.src = dataUrl;
     });
 
-    const pageWidthMm = 210;
-    const pageHeightMm = 297;
-    const marginMm = 10;
-    const usableWidthMm = pageWidthMm - marginMm * 2;
-    const usableHeightMm = pageHeightMm - marginMm * 2;
-    const pxPerMm = capturedImg.width / usableWidthMm;
-    const safePageHeightPx = (usableHeightMm - 8) * pxPerMm;
-    const totalPages = Math.ceil(capturedImg.height / safePageHeightPx);
+  const pageWidthMm = 210;
+  const pageHeightMm = 297;
+  const marginMm = 10;
+  const usableWidthMm = pageWidthMm - marginMm * 2;
+  const usableHeightMm = pageHeightMm - marginMm * 2;
+  const pxPerMm = capturedImg.width / usableWidthMm;
+  const safePageHeightPx = (usableHeightMm - 30) * pxPerMm;
+  const totalPages = Math.ceil(capturedImg.height / safePageHeightPx);
 
-    const pdf = new jsPDFModule({
-      unit: "mm",
-      format: "a4",
-      orientation: "portrait",
-      compress: true,
-    });
+  const pdf = new jsPDFModule({
+    unit: "mm",
+    format: "a4",
+    orientation: "portrait",
+    compress: true,
+  });
 
     for (let pageIndex = 0; pageIndex < totalPages; pageIndex++) {
       if (pageIndex > 0) pdf.addPage();
@@ -530,7 +531,7 @@ export async function generateContractPDFBase64(
     const pageHeightMm = 297;
     const usableHeightMm = pageHeightMm - marginMm * 2;
     const pxPerMm = capturedImg.width / usableWidthMm;
-    const safePageHeightPx = (usableHeightMm - 8) * pxPerMm;
+    const safePageHeightPx = (usableHeightMm - 30) * pxPerMm;
     const totalPages = Math.ceil(capturedImg.height / safePageHeightPx);
 
     const pdf = new jsPDF({
