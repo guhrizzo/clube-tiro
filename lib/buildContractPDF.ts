@@ -33,7 +33,6 @@ function cloneAndClean(contractElement: HTMLElement): HTMLElement {
     width: ${contractElement.offsetWidth}px;
     background: white;
     z-index: -9999;
-    padding-bottom: 40px;
   `;
 
   const removeBorders = (el: HTMLElement) => {
@@ -173,7 +172,7 @@ export async function generateContractPDFFromVisualElement(
   const clone = cloneAndClean(contractElement);
   document.body.appendChild(clone);
   try {
-    return await captureElementToPDFBase64(clone, 30);
+    return await captureElementToPDFBase64(clone, 15);
   } finally {
     document.body.removeChild(clone);
   }
@@ -188,7 +187,7 @@ export async function openContractVisualElementForPrinting(
   const clone = cloneAndClean(contractElement);
   document.body.appendChild(clone);
   try {
-    const base64 = await captureElementToPDFBase64(clone, 30);
+    const base64 = await captureElementToPDFBase64(clone, 15);
     const binary = atob(base64);
     const bytes = new Uint8Array(binary.length);
     for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
@@ -212,7 +211,7 @@ export async function downloadContractPDF(
   // mas precisamos appendá-lo ao body para o offsetWidth funcionar.
   document.body.appendChild(contractElement);
   try {
-    const base64 = await captureElementToPDFBase64(contractElement, 30);
+    const base64 = await captureElementToPDFBase64(contractElement, 15);
     const binary = atob(base64);
     const bytes = new Uint8Array(binary.length);
     for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
@@ -364,7 +363,7 @@ export async function generateContractPDFFromServerPage(
   const usableWidthMm = pageWidthMm - marginMm * 2;
   const usableHeightMm = pageHeightMm - marginMm * 2;
   const pxPerMm = capturedImg.width / usableWidthMm;
-  const safePageHeightPx = (usableHeightMm - 30) * pxPerMm;
+  const safePageHeightPx = (usableHeightMm - 15) * pxPerMm;
   const totalPages = Math.ceil(capturedImg.height / safePageHeightPx);
 
   const pdf = new jsPDFModule({
@@ -531,7 +530,7 @@ export async function generateContractPDFBase64(
     const pageHeightMm = 297;
     const usableHeightMm = pageHeightMm - marginMm * 2;
     const pxPerMm = capturedImg.width / usableWidthMm;
-    const safePageHeightPx = (usableHeightMm - 30) * pxPerMm;
+    const safePageHeightPx = (usableHeightMm - 15) * pxPerMm;
     const totalPages = Math.ceil(capturedImg.height / safePageHeightPx);
 
     const pdf = new jsPDF({
@@ -1031,7 +1030,7 @@ function getContractHTML(contract: ContractData): string {
         </div>
       </div>
 
-      <div style="margin-top: 32px; text-align: center; padding-top: 16px;">
+      <div style="margin-top: 32px; text-align: center; padding-top: 16px; padding-bottom: 60px;">
         <p style="margin: 0 0 8px; font-size: 12px; color: #4b5563;">
           Belo Horizonte/MG, ${dataAtual}
         </p>
