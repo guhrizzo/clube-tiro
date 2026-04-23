@@ -57,7 +57,7 @@ function cloneAndClean(contractElement: HTMLElement): HTMLElement {
 // ─────────────────────────────────────────────────────────────────────────────
 async function captureElementToPDFBase64(
   element: HTMLElement,
-  safeMarginMm = 15.3
+  safeMarginMm = 22
 ): Promise<string> {
   const domtoimage = (await import("dom-to-image-more")).default;
   const jsPDFModule = (await import("jspdf")).default;
@@ -172,7 +172,7 @@ export async function generateContractPDFFromVisualElement(
   const clone = cloneAndClean(contractElement);
   document.body.appendChild(clone);
   try {
-    return await captureElementToPDFBase64(clone, 15.3);
+    return await captureElementToPDFBase64(clone, 22);
   } finally {
     document.body.removeChild(clone);
   }
@@ -187,7 +187,7 @@ export async function openContractVisualElementForPrinting(
   const clone = cloneAndClean(contractElement);
   document.body.appendChild(clone);
   try {
-    const base64 = await captureElementToPDFBase64(clone, 15.3);
+    const base64 = await captureElementToPDFBase64(clone, 22);
     const binary = atob(base64);
     const bytes = new Uint8Array(binary.length);
     for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
@@ -211,7 +211,7 @@ export async function downloadContractPDF(
   // mas precisamos appendá-lo ao body para o offsetWidth funcionar.
   document.body.appendChild(contractElement);
   try {
-    const base64 = await captureElementToPDFBase64(contractElement, 15.3);
+    const base64 = await captureElementToPDFBase64(contractElement, 22);
     const binary = atob(base64);
     const bytes = new Uint8Array(binary.length);
     for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
@@ -416,7 +416,7 @@ const preloadSignatureImages = async (): Promise<{
   [key: string]: string;
 }> => {
   const signatures: { [key: string]: string } = {};
-  const paths = ["/assinatura1.png", "/assinatura2.png", "/assinatura3.png"];
+  const paths = ["/assinatura1.png", "/assinatura4.png", "/assinatura3.png"];
   
   for (const path of paths) {
     try {
@@ -436,7 +436,7 @@ const injectSignaturesToElement = (
   sigs: { [key: string]: string }
 ): void => {
   const images = element.querySelectorAll(
-    'img[src="/assinatura1.png"], img[src="/assinatura2.png"], img[src="/assinatura3.png"]'
+    'img[src="/assinatura1.png"], img[src="/assinatura4.png"], img[src="/assinatura3.png"]'
   );
   
   images.forEach((img) => {
@@ -561,7 +561,7 @@ export async function generateContractPDFBase64(
     console.error("Erro ao gerar PDF com dom-to-image, usando fallback:", err);
     const [s1, s2, s3] = await Promise.all([
       loadImageAsBase64("/assinatura1.png"),
-      loadImageAsBase64("/assinatura2.png"),
+      loadImageAsBase64("/assinatura4.png"),
       loadImageAsBase64("/assinatura3.png"),
     ]);
     const pdf = new jsPDF("p", "mm", "a4");
@@ -987,8 +987,8 @@ function getContractHTML(contract: ContractData): string {
 
       <div style="margin-top: 32px; display: flex; gap: 24px;">
         <div style="flex: 1; display: flex; flex-direction: column;">
-          <div style="height: 60px; margin-bottom: 12px; display: flex; align-items: flex-end; justify-content: center;">
-            <img src="/assinatura2.png" alt="PROTECT" style="height: 100%; max-width: 95%; object-fit: scale-down;" crossorigin="anonymous" />
+          <div style="height: 60px; display: flex; margin-bottom: 40px; align-items: flex-end; justify-content: center;">
+            <img src="/assinatura4.png" alt="PROTECT" style="height: 100%; max-width: 95%; object-fit: scale-down;" crossorigin="anonymous" />
           </div>
           <div style="border-top: 1px solid #4b5563; padding-top: 8px;">
             <p style="margin: 0; font-weight: bold; font-size: 13px;">PROTECT CLUBE MINEIRO DE TIRO</p>
@@ -1254,7 +1254,7 @@ export function buildPDFContent(
   para("É EXPRESSAMENTE PROIBIDO O INGRESSO E A UTILIZAÇÃO DE ARMAS E MUNIÇÕES SEM PROCEDÊNCIA LEGAL E JUSTIFICADA.", { bold: true, size: 8.5 });
   para("Eu, que abaixo assino, declaro ter recebido instruções de segurança e ter tomado conhecimento das normas legais estabelecidas em legislação pertinente, assumindo o compromisso pela minha participação nas atividades e pela minha permanência nas dependências da PROTECT. Declaro, ainda, que não possuo registro de antecedentes criminais e que os dados constantes nesta ficha são verdadeiros. Declaro ter ciência da necessidade de cumprir a Lei nº 10.826/2003, Decreto nº 5.123/2004, R-105 do Exército Brasileiro e demais normas aplicáveis.", { size: 8.5 });
 
-  newPageIfNeeded(90);
+  newPageIfNeeded(110);
   y += 5;
   para("E, por estarem justas e contratadas, firmam o presente em 02 (duas) vias, na presença das testemunhas.");
   y += 6;

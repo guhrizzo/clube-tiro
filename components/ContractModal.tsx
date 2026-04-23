@@ -444,11 +444,11 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
               line-height: 1.6;
               color: #1f2937;
               background: white;
-              padding: 20px;
+              padding: 18mm;
             }
             
             @page {
-              margin: 15mm;
+              margin: 0;
               size: A4;
             }
             
@@ -672,6 +672,13 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
             img[alt*="Assinatura"] {
               max-height: 60px;
               object-fit: contain;
+            }
+
+            /* Evita que o bloco de assinaturas quebre entre páginas */
+            .space-y-8 > div:last-child,
+            .grid.grid-cols-2 {
+              page-break-inside: avoid;
+              break-inside: avoid;
             }
           </style>
         </head>
@@ -1128,12 +1135,12 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
           <div className="text-center">
             <div className="h-16 flex items-center justify-center">
               <img
-                src="/assinatura2.png"
+                src="/assinatura4.png"
                 alt="Assinatura PROTECT"
-                className="h-12 object-contain"
+                className="h-15 w-full object-contain"
               />
             </div>
-            <div className="border-t border-gray-400 pt-2">
+            <div className="">
               <p className="font-bold">PROTECT CLUBE MINEIRO DE TIRO</p>
               <p className="text-gray-500 text-[10px]">CNPJ: 01.244.200/0001-52</p>
               <p className="text-gray-500 text-[10px]">ANTONIO C. COSTA JUNIOR</p>
@@ -1158,10 +1165,10 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
               <img
                 src="/assinatura1.png"
                 alt="Assinatura Testemunha 1"
-                className="h-12 object-contain"
+                className="h-16 object-contain"
               />
             </div>
-            <div className="border-t border-gray-400 pt-2">
+            <div className="">
               <p className="text-gray-500 text-[10px] font-semibold">
                 TESTEMUNHA 1
               </p>
@@ -1177,7 +1184,7 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
                 className="h-12 object-contain"
               />
             </div>
-            <div className="border-t border-gray-400 pt-2">
+            <div className="">
               <p className="text-gray-500 text-[10px] font-semibold">
                 TESTEMUNHA 2
               </p>
