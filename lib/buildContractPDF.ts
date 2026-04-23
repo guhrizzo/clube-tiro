@@ -172,7 +172,7 @@ export async function generateContractPDFFromVisualElement(
   const clone = cloneAndClean(contractElement);
   document.body.appendChild(clone);
   try {
-    return await captureElementToPDFBase64(clone, 18);
+    return await captureElementToPDFBase64(clone, 17);
   } finally {
     document.body.removeChild(clone);
   }
@@ -187,7 +187,7 @@ export async function openContractVisualElementForPrinting(
   const clone = cloneAndClean(contractElement);
   document.body.appendChild(clone);
   try {
-    const base64 = await captureElementToPDFBase64(clone, 18);
+    const base64 = await captureElementToPDFBase64(clone, 17);
     const binary = atob(base64);
     const bytes = new Uint8Array(binary.length);
     for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
@@ -211,7 +211,7 @@ export async function downloadContractPDF(
   // mas precisamos appendá-lo ao body para o offsetWidth funcionar.
   document.body.appendChild(contractElement);
   try {
-    const base64 = await captureElementToPDFBase64(contractElement, 18);
+    const base64 = await captureElementToPDFBase64(contractElement, 17);
     const binary = atob(base64);
     const bytes = new Uint8Array(binary.length);
     for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
@@ -363,7 +363,7 @@ export async function generateContractPDFFromServerPage(
   const usableWidthMm = pageWidthMm - marginMm * 2;
   const usableHeightMm = pageHeightMm - marginMm * 2;
   const pxPerMm = capturedImg.width / usableWidthMm;
-  const safePageHeightPx = (usableHeightMm - 18) * pxPerMm;
+  const safePageHeightPx = (usableHeightMm - 17) * pxPerMm;
   const totalPages = Math.ceil(capturedImg.height / safePageHeightPx);
 
   const pdf = new jsPDFModule({
@@ -530,7 +530,7 @@ export async function generateContractPDFBase64(
     const pageHeightMm = 297;
     const usableHeightMm = pageHeightMm - marginMm * 2;
     const pxPerMm = capturedImg.width / usableWidthMm;
-    const safePageHeightPx = (usableHeightMm - 18) * pxPerMm;
+    const safePageHeightPx = (usableHeightMm - 17) * pxPerMm;
     const totalPages = Math.ceil(capturedImg.height / safePageHeightPx);
 
     const pdf = new jsPDF({
