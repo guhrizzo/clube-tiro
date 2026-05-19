@@ -459,6 +459,27 @@ export const dictionaries = {
             bhLabel: "Belo Horizonte – Gutierrez/Grajaú",
             novaLimaLabel: "Nova Lima – Região Alphaville"
         },
+        comunicado: {
+            badge: "Comunicado Importante",
+            title: "Aquisição de Arma de Fogo no Grupo Protect",
+            intro_sinarm: "Sistema SINARM",
+            intro_law: "Lei 10.826/2003",
+            intro: "No Brasil, armas de fogo para inclusão no {sinarm} podem ser comercializadas para todos os cidadãos brasileiros ou estrangeiros que preencham os requisitos legais, conforme a {law}:",
+            requisitos: [
+              { titulo: "Idade mínima",                    desc: "25 anos (exceto cargos do art. 28 da Lei 10.826/03)" },
+              { titulo: "Documentação",                    desc: "RG, CPF e comprovante de residência" },
+              { titulo: "Idoneidade",                      desc: "Certidões negativas criminais (Federal, Estadual, Militar e Eleitoral)" },
+              { titulo: "Ocupação lícita",                 desc: "Holerite, contrato social, carteira profissional etc." },
+              { titulo: "Capacidade técnica e psicológica",desc: "Atestado por instrutor credenciado e psicólogo (máx. 1 ano)" },
+              { titulo: "Taxa",                            desc: "R$ 88,00 conforme art. 11, I e Anexo da Lei 10.826/03" },
+              { titulo: "Declaração de necessidade",       desc: "Exposição de fatos e circunstâncias que justifiquem o pedido" },
+              { titulo: "Foto",                            desc: "1 (uma) foto 3×4 recente" },
+            ],
+            cac_title: "Para inclusão no Sistema SICOVEM:",
+            cac_desc: "É necessário que o adquirente possua Certificado de Registro de CAC (Caçador, Atirador e Colecionador) e solicite o apostilamento do armamento em seu nome.",
+            footer: "O {group} auxiliará em todos os trâmites de aquisição e registro legal.",
+            group_name: "Grupo Protect",
+          },
     },
     en: {
         about: {
@@ -914,7 +935,28 @@ export const dictionaries = {
             description: "Select the unit you want to contact on WhatsApp:",
             bhLabel: "Belo Horizonte – Gutierrez/Grajaú",
             novaLimaLabel: "Nova Lima – Alphaville Region"
-        }
+        },
+        comunicado: {
+            badge: "Important Notice",
+            title: "Firearm Acquisition at Grupo Protect",
+            intro_sinarm: "SINARM System",
+            intro_law: "Law 10,826/2003",
+            intro: "In Brazil, firearms for inclusion in the {sinarm} may be sold to all Brazilian or foreign citizens who meet the legal requirements, pursuant to {law}:",
+            requisitos: [
+              { titulo: "Minimum age",                     desc: "25 years old (except positions under art. 28 of Law 10,826/03)" },
+              { titulo: "Documentation",                   desc: "National ID, CPF, and proof of residence" },
+              { titulo: "Good standing",                   desc: "Criminal background checks (Federal, State, Military, and Electoral courts)" },
+              { titulo: "Lawful occupation",               desc: "Pay stub, articles of incorporation, professional ID, etc." },
+              { titulo: "Technical & psychological fitness",desc: "Certificate from a credentialed instructor and psychologist (max. 1 year)" },
+              { titulo: "Fee",                             desc: "R$ 88.00 per art. 11, I and Annex of Law 10,826/03" },
+              { titulo: "Declaration of need",             desc: "Statement of facts and circumstances justifying the request" },
+              { titulo: "Photo",                           desc: "1 (one) recent 3×4 passport photo" },
+            ],
+            cac_title: "For inclusion in the SICOVEM System:",
+            cac_desc: "The buyer must hold a CAC Registration Certificate (Hunter, Sport Shooter, and Collector) and request the apostille of the firearm in their name.",
+            footer: "{group} will assist with all acquisition and legal registration procedures.",
+            group_name: "Grupo Protect",
+          },
     },
     es: {
         about: {
@@ -1382,8 +1424,27 @@ export const dictionaries = {
             description: "Seleccione la unidad que desea contactar por WhatsApp:",
             bhLabel: "Belo Horizonte – Gutierrez/Grajaú",
             novaLimaLabel: "Nova Lima – Región Alphaville"
-        }
-
+        },comunicado: {
+            badge: "Comunicado Importante",
+            title: "Adquisición de Arma de Fuego en el Grupo Protect",
+            intro_sinarm: "Sistema SINARM",
+            intro_law: "Ley 10.826/2003",
+            intro: "En Brasil, las armas de fuego para inclusión en el {sinarm} pueden ser comercializadas para todos los ciudadanos brasileños o extranjeros que cumplan los requisitos legales, conforme a la {law}:",
+            requisitos: [
+              { titulo: "Edad mínima",                       desc: "25 años (excepto cargos del art. 28 de la Ley 10.826/03)" },
+              { titulo: "Documentación",                     desc: "DNI, CPF y comprobante de domicilio" },
+              { titulo: "Idoneidad",                         desc: "Certificados de antecedentes penales (Federal, Estatal, Militar y Electoral)" },
+              { titulo: "Ocupación lícita",                  desc: "Recibo de sueldo, contrato social, carnet profesional, etc." },
+              { titulo: "Capacidad técnica y psicológica",   desc: "Certificado de instructor habilitado y psicólogo (máx. 1 año)" },
+              { titulo: "Tasa",                              desc: "R$ 88,00 según art. 11, I y Anexo de la Ley 10.826/03" },
+              { titulo: "Declaración de necesidad",          desc: "Exposición de hechos y circunstancias que justifiquen la solicitud" },
+              { titulo: "Foto",                              desc: "1 (una) foto 3×4 reciente" },
+            ],
+            cac_title: "Para inclusión en el Sistema SICOVEM:",
+            cac_desc: "El adquirente debe poseer Certificado de Registro de CAC (Cazador, Tirador y Coleccionista) y solicitar el apostillado del armamento a su nombre.",
+            footer: "El {group} asistirá en todos los trámites de adquisición y registro legal.",
+            group_name: "Grupo Protect",
+          },
     }
 };
 
