@@ -55,6 +55,10 @@ const dictionaries = {
       invoice: "2ª Via de Boleto",
       tracking: "Tecnologia",
       units: "Unidades",
+      championships: "Área dos Campeonatos",
+      seasonCalendar: "Campeonatos",
+      stages: "Etapas",
+      affiliation: "Filiação de Atleta",
       contract: "Contrato de Adesão",
     },
   },
@@ -93,6 +97,10 @@ const dictionaries = {
       invoice: "Invoice Copy",
       tracking: "Technology",
       units: "Units",
+      championships: "Championships Area",
+      seasonCalendar: "Championships",
+      stages: "Stages",
+      affiliation: "Athlete Affiliation",
       contract: "Adhesion Contract",
     },
   },
@@ -131,6 +139,10 @@ const dictionaries = {
       invoice: "Segunda vía de Recibo",
       tracking: "Tecnología",
       units: "Unidades",
+      championships: "Área de Campeonatos",
+      seasonCalendar: "Campeonatos",
+      stages: "Etapas",
+      affiliation: "Afiliación de Atleta",
       contract: "Contrato de Adhesión",
     },
   },
@@ -174,7 +186,6 @@ export default function NavBar() {
   const router = useRouter();
   const [isScrolled, setIsScrolled] = useState(false);
   const pathname = usePathname();
-  const [showUtilities, setShowUtilities] = useState(false);
   const [showContract, setShowContract] = useState(false);
 
   useEffect(() => {
@@ -214,11 +225,17 @@ export default function NavBar() {
     return path.startsWith(`/${currentLang}`) ? path : `/${currentLang}${path}`;
   };
 
+  interface UtilitySubItem {
+    key: string;
+    href: string;
+  }
+
   interface UtilityItem {
     key: string;
     icon: React.ReactNode;
     href?: string;
     isAction?: boolean;
+    children?: UtilitySubItem[];
   }
 
   const utilityItems: UtilityItem[] = [
@@ -226,6 +243,15 @@ export default function NavBar() {
     { key: "validate", icon: <BadgeCheck size={14} />, href: "http://app.shootinghouse.com.br/" },
     { key: "secretariat", icon: <LayoutDashboard size={14} />, href: "http://app.shootinghouse.com.br/" },
     { key: "invoice", icon: <Printer size={14} />, href: "http://app.shootinghouse.com.br/" },
+    {
+      key: "championships",
+      icon: <Target size={14} />,
+      children: [
+        { key: "seasonCalendar", href: "https://www.sistema.grupoprotect.com.br/campeonato/temporada/2026/" },
+        { key: "stages", href: "https://www.sistema.grupoprotect.com.br/etapa/temporada/2026/?campeonato=&mesDe=&mesAte=" },
+        { key: "affiliation", href: "https://www.sistema.grupoprotect.com.br/filiacao-atleta/" },
+      ],
+    },
     { key: "contract", icon: <FileSignature size={14} />, isAction: true },
   ];
 
@@ -307,10 +333,9 @@ export default function NavBar() {
                 <FlagBtn lang="es" active={currentLang === "es"} onClick={() => changeLang("es")} />
               </div>
 
-              <div className="relative">
+              <div className="relative group">
                 <button
-                  onClick={() => setShowUtilities(!showUtilities)}
-                  className="group relative overflow-hidden flex items-center gap-2 bg-[#1a1a1a] text-[#ffb703]
+                  className="relative overflow-hidden flex items-center gap-2 bg-[#1a1a1a] text-[#ffb703]
                     px-5 py-2.5 rounded-md font-bold text-sm cursor-pointer shadow-md transition-all duration-300
                     hover:bg-black hover:shadow-lg hover:shadow-[#ffb703]/20 active:scale-95"
                 >
@@ -318,62 +343,76 @@ export default function NavBar() {
                   <span className="relative z-10">{t.accessCAC}</span>
                   <ChevronDown
                     size={14}
-                    className={`relative z-10 transition-transform duration-300 ${showUtilities ? "rotate-180" : ""
-                      }`}
+                    className="relative z-10 transition-transform duration-300 group-hover:rotate-180"
                   />
                 </button>
 
-                {showUtilities && (
-                  <>
-                    <div
-                      className="fixed inset-0 z-40 cursor-pointer"
-                      onClick={() => setShowUtilities(false)}
-                    />
-                    <div className="absolute right-0 mt-3 w-64 bg-white border border-gray-100 shadow-2xl rounded-xl py-3 z-50 animate-in fade-in zoom-in duration-200">
-                      <div className="px-4 py-2 border-b border-gray-50 mb-2">
-                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-                          Links de Acesso
-                        </span>
-                      </div>
-
-                      {/* Items — contract excluded from tutorial */}
-                      {utilityItems.map((item: UtilityItem) =>
-                        item.isAction ? (
-                          <button
-                            key={item.key}
-                            onClick={() => {
-                              setShowContract(true);
-                              setShowUtilities(false);
-                              setOpen(false);
-                            }}
-                            className="flex w-full items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-[#ffb703]/10 hover:text-black transition-colors border-b border-gray-100 last:border-0 cursor-pointer"
-                          >
-                            <span className="text-[#ffb703]">{item.icon}</span>
-                            <span className="font-semibold uppercase text-[11px] tracking-wider">
-                              {u[item.key]}
-                            </span>
-                          </button>
-                        ) : (
-                          <a
-                            key={item.key}
-                            href={item.href}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-[#ffb703]/10 hover:text-black transition-colors border-b border-gray-100 last:border-0"
-                          >
-                            <span className="text-[#ffb703]">{item.icon}</span>
-                            <span className="font-semibold uppercase text-[11px] tracking-wider">
-                              {u[item.key]}
-                            </span>
-                          </a>
-                        )
-                      )}
-
-                      {/* Tutorial — desktop (light) */}
-                      <YoutubeTutorialBlock dark={false} />
+                <div className="absolute right-0 top-full pt-3 w-64 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
+                  <div className="bg-white border border-gray-100 shadow-2xl rounded-xl py-3">
+                    <div className="px-4 py-2 border-b border-gray-50 mb-2">
+                      <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                        Links de Acesso
+                      </span>
                     </div>
-                  </>
-                )}
+
+                    {/* Items — contract excluded from tutorial */}
+                    {utilityItems.map((item: UtilityItem) =>
+                      item.isAction ? (
+                        <button
+                          key={item.key}
+                          onClick={() => {
+                            setShowContract(true);
+                            setOpen(false);
+                          }}
+                          className="flex w-full items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-[#ffb703]/10 hover:text-black transition-colors border-b border-gray-100 last:border-0 cursor-pointer"
+                        >
+                          <span className="text-[#ffb703]">{item.icon}</span>
+                          <span className="font-semibold uppercase text-[11px] tracking-wider">
+                            {u[item.key]}
+                          </span>
+                        </button>
+                      ) : item.children ? (
+                        <div key={item.key} className="border-b border-gray-100 last:border-0">
+                          <div className="flex items-center gap-3 px-4 py-3 text-sm text-gray-700">
+                            <span className="text-[#ffb703]">{item.icon}</span>
+                            <span className="font-semibold uppercase text-[11px] tracking-wider">
+                              {u[item.key]}
+                            </span>
+                          </div>
+                          <div className="pb-2">
+                            {item.children.map((sub) => (
+                              <a
+                                key={sub.key}
+                                href={sub.href}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex items-center gap-2 pl-11 pr-4 py-2 text-xs text-gray-600 hover:text-black hover:bg-[#ffb703]/10 transition-colors"
+                              >
+                                {u[sub.key]}
+                              </a>
+                            ))}
+                          </div>
+                        </div>
+                      ) : (
+                        <a
+                          key={item.key}
+                          href={item.href}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-[#ffb703]/10 hover:text-black transition-colors border-b border-gray-100 last:border-0"
+                        >
+                          <span className="text-[#ffb703]">{item.icon}</span>
+                          <span className="font-semibold uppercase text-[11px] tracking-wider">
+                            {u[item.key]}
+                          </span>
+                        </a>
+                      )
+                    )}
+
+                    {/* Tutorial — desktop (light) */}
+                    <YoutubeTutorialBlock dark={false} />
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -504,7 +543,6 @@ export default function NavBar() {
                         key={item.key}
                         onClick={() => {
                           setShowContract(true);
-                          setShowUtilities(false);
                           setOpen(false);
                         }}
                         className="flex w-full items-center gap-3 px-4 py-3 text-sm text-white/90 hover:bg-[#ffb703]/20 hover:text-[#ffb703] transition-colors rounded-lg"
@@ -514,6 +552,28 @@ export default function NavBar() {
                           {u[item.key]}
                         </span>
                       </button>
+                    ) : item.children ? (
+                      <div key={item.key} className="rounded-lg">
+                        <div className="flex items-center gap-3 px-4 py-3 text-sm text-white/90">
+                          <span className="text-[#ffb703]">{item.icon}</span>
+                          <span className="font-semibold uppercase text-[11px] tracking-wider">
+                            {u[item.key]}
+                          </span>
+                        </div>
+                        <div className="flex flex-col gap-1 pb-1">
+                          {item.children.map((sub) => (
+                            <a
+                              key={sub.key}
+                              href={sub.href}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex items-center gap-2 pl-11 pr-4 py-2 text-xs text-white/70 hover:text-[#ffb703] hover:bg-white/5 transition-colors rounded-lg"
+                            >
+                              {u[sub.key]}
+                            </a>
+                          ))}
+                        </div>
+                      </div>
                     ) : (
                       <a
                         key={item.key}
