@@ -5,7 +5,7 @@ import { Camera, Maximize2, X, ChevronLeft, ChevronRight, Loader2 } from "lucide
 
 // Importações do Firebase
 import { db } from "../../../../../lib/firebase";
-import { collection, onSnapshot, query, orderBy } from "firebase/firestore";
+import { collection, onSnapshot } from "firebase/firestore";
 import NavBar from "../../../../../components/NavBar";
 import ScrollToTop from "../../../../../components/BackTop";
 
@@ -25,19 +25,41 @@ export default function PhotoGallerySection() {
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState<number | null>(null);
 
   useEffect(() => {
-    // 1. Criar a query para buscar fotos do Firebase
-    const q = query(collection(db, "galeria"), orderBy("createdAt", "desc"));
+    // 1. Buscar todas as fotos da coleção "galeria".
+    // Obs: NÃO usamos orderBy("createdAt") na query, pois o Firestore
+    // exclui da consulta qualquer documento que não tenha esse campo
+    // (ex.: fotos cadastradas manualmente pelo console sem "createdAt"),
+    // o que fazia a galeria aparecer vazia mesmo com fotos cadastradas.
+    const q = collection(db, "galeria");
 
     // 2. Escutar mudanças em tempo real
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const data = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      })) as PhotoItem[];
-      
-      setPhotos(data);
-      setLoading(false);
-    });
+    const unsubscribe = onSnapshot(
+      q,
+      (snapshot) => {
+        const data = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        })) as PhotoItem[];
+
+        // Ordena no cliente: mais recentes primeiro; fotos sem
+        // "createdAt" vão para o final em vez de sumirem.
+        data.sort((a: any, b: any) => {
+          const aTime = a.createdAt?.toMillis?.() ?? 0;
+          const bTime = b.createdAt?.toMillis?.() ?? 0;
+          return bTime - aTime;
+        });
+
+        setPhotos(data);
+        setLoading(false);
+      },
+      (error) => {
+        // Antes um erro aqui (ex.: regra de segurança do Firestore
+        // bloqueando a leitura) deixava o spinner girando para sempre,
+        // sem nenhuma mensagem.
+        console.error("Erro ao carregar galeria de fotos:", error);
+        setLoading(false);
+      }
+    );
 
     return () => unsubscribe();
   }, []);
@@ -124,6 +146,12 @@ export default function PhotoGallerySection() {
                 <img
                   src={photo.url}
                   alt={photo.title}
+                  loading="lazy"
+                  onError={(e) => {
+                    // Evita ícone de imagem quebrada quando a URL está
+                    // inválida/expirada; some com o card em vez de poluir a grade.
+                    (e.currentTarget.closest(".break-inside-avoid") as HTMLElement)?.style.setProperty("display", "none");
+                  }}
                   className="w-full h-auto object-cover transition-transform duration-700 group-hover:scale-105"
                 />
                 
