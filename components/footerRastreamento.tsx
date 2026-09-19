@@ -46,7 +46,7 @@ export default function FooterRastreamentoLight() {
     { icon: FaInstagram, href: "https://www.instagram.com/protect.rastreamento/" },
     { icon: FaWhatsapp, action: () => setOpenWhatsModal(true) },
     { icon: FaLinkedinIn, href: "https://www.linkedin.com/in/protect-rastreamento-a97106350" },
-    { icon: FaYoutube, href: "https://www.youtube.com/channel/UCkYfFOWKdC77C9Vw07R1WUQ" },
+    { icon: FaYoutube, href: "https://www.youtube.com/channel/UCPUJFE7N0vcoAm_wUZ5v_Pw" },
   ];
 
   return (
