@@ -442,22 +442,40 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
             }
             
             @page {
-              margin: 0;
+              margin: 20mm 18mm;
               size: A4;
             }
-            
+
             @media print {
               body {
                 padding: 0;
                 margin: 0;
               }
               .contract-content {
-                page-break-after: always;
+                width: 100%;
+                max-width: 100%;
+              }
+              .px-6, .px-10 {
+                padding-left: 0;
+                padding-right: 0;
+              }
+              .py-12 {
+                padding-top: 0;
+                padding-bottom: 0;
+              }
+              .border {
+                border: none;
               }
             }
-            
+
+            .contract-content, .contract-content * {
+              max-width: 100%;
+              overflow-wrap: break-word;
+              word-wrap: break-word;
+            }
+
             .max-w-2xl {
-              max-width: 65ch;
+              max-width: 100%;
               margin: 0 auto;
             }
             
