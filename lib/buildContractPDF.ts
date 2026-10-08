@@ -83,6 +83,20 @@ async function captureElementToPDFBase64(
     )
   );
 
+  // Posições (em px CSS, relativas ao topo do elemento) dos blocos de texto,
+  // usadas para quebrar páginas entre blocos em vez de cortar linhas ao meio.
+  const elTop = element.getBoundingClientRect().top;
+  const blocks = Array.from(
+    element.querySelectorAll("p, h1, h2, h3, li, img, hr")
+  ).map((el) => {
+    const r = el.getBoundingClientRect();
+    return {
+      top: r.top - elTop,
+      bottom: r.bottom - elTop,
+      heading: /^H[1-3]$/.test(el.tagName),
+    };
+  });
+
   const scale = 2;
   const dataUrl = await domtoimage.toJpeg(element, {
     quality: 0.95,
@@ -112,7 +126,35 @@ async function captureElementToPDFBase64(
 
   const pxPerMm = capturedImg.width / usableWidthMm;
   const safePageHeightPx = (usableHeightMm - safeMarginMm) * pxPerMm;
-  const totalPages = Math.ceil(capturedImg.height / safePageHeightPx);
+
+  // Converte as posições dos blocos para px da imagem capturada
+  const imgPerCss = capturedImg.width / element.offsetWidth;
+  const blockBoxes = blocks.map((b) => ({
+    top: b.top * imgPerCss,
+    bottom: b.bottom * imgPerCss,
+    heading: b.heading,
+  }));
+
+  // Define o ponto de quebra de cada página: o fim do último bloco que cabe
+  // (ou o início dele, se for título, para não deixá-lo sozinho no rodapé).
+  const breaks: number[] = [0];
+  while (breaks[breaks.length - 1] < capturedImg.height - 1) {
+    const start = breaks[breaks.length - 1];
+    const limit = start + safePageHeightPx;
+    if (limit >= capturedImg.height) {
+      breaks.push(capturedImg.height);
+      break;
+    }
+    const minEnd = start + safePageHeightPx * 0.4;
+    let end = limit;
+    const fitting = blockBoxes.filter((b) => b.bottom <= limit && b.bottom > minEnd);
+    if (fitting.length > 0) {
+      const last = fitting.reduce((a, b) => (b.bottom > a.bottom ? b : a));
+      end = last.heading && last.top > minEnd ? last.top : last.bottom;
+    }
+    breaks.push(Math.round(end));
+  }
+  const totalPages = breaks.length - 1;
 
   const pdf = new jsPDFModule({
     unit: "mm",
@@ -124,8 +166,8 @@ async function captureElementToPDFBase64(
   for (let pageIndex = 0; pageIndex < totalPages; pageIndex++) {
     if (pageIndex > 0) pdf.addPage();
 
-    const srcY = Math.round(pageIndex * safePageHeightPx);
-    const srcH = Math.min(safePageHeightPx, capturedImg.height - srcY);
+    const srcY = breaks[pageIndex];
+    const srcH = breaks[pageIndex + 1] - srcY;
 
     const slice = document.createElement("canvas");
     slice.width = capturedImg.width;
