@@ -932,7 +932,11 @@ function getContractHTML(contract: ContractData): string {
 
   const dataAssinatura =
     contract.dataAssinatura?.toDate?.() ||
-    new Date(contract.dataAssinaturaString || new Date());
+    new Date(
+      contract.dataAssinaturaString
+        ? `${contract.dataAssinaturaString}T12:00:00`
+        : new Date()
+    );
   const dataAtual = dataAssinatura.toLocaleDateString("pt-BR", {
     day: "numeric",
     month: "long",
@@ -1119,7 +1123,8 @@ export function buildPDFContent(
 
   const getContractDate = (): Date => {
     if (contract.dataAssinatura?.toDate) return contract.dataAssinatura.toDate();
-    if (contract.dataAssinaturaString) return new Date(contract.dataAssinaturaString);
+    if (contract.dataAssinaturaString)
+      return new Date(`${contract.dataAssinaturaString}T12:00:00`);
     return new Date();
   };
 

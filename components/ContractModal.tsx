@@ -91,6 +91,22 @@ function dateToISO(ddmmyyyy: string): string {
   return `${yyyy}-${mm}-${dd}`;
 }
 
+function todayISO(): string {
+  const d = new Date();
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const dd = String(d.getDate()).padStart(2, "0");
+  return `${d.getFullYear()}-${mm}-${dd}`;
+}
+
+function formatLongDate(iso: string): string {
+  const base = /^\d{4}-\d{2}-\d{2}$/.test(iso) ? iso : todayISO();
+  return new Date(`${base}T12:00:00`).toLocaleDateString("pt-BR", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+}
+
 function formatCPF(v: string): string {
   return v
     .replace(/\D/g, "")
@@ -261,6 +277,7 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
   const [showSuccess, setShowSuccess] = useState(false);
   const [mobileTab, setMobileTab] = useState<"contrato" | "dados">("dados");
   const [dateError, setDateError] = useState<string | null>(null);
+  const [dataContrato, setDataContrato] = useState<string>(() => todayISO());
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const modalRef = useRef<HTMLDivElement>(null);
@@ -351,7 +368,8 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
         planoKey: plano,
         valorTotal: p.totalRaw,
         valorParcela: p.parcelaRaw,
-        dataAssinatura: new Date().toISOString(),
+        dataAssinatura: new Date(`${dataContrato}T12:00:00`).toISOString(),
+        dataAssinaturaString: dataContrato,
         versaoContrato: p.versao,
         hash: Math.random().toString(36).substring(2, 15),
       };
@@ -365,8 +383,8 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
         tipoContrato: `adesão_sócio - ${plano} anos`,
         status: "ativo",
         dataAssinatura: Timestamp.now(),
-        dataAssinaturaString: new Date().toISOString().split("T")[0],
-        descricao: `✓ Li e concordo integralmente com todos os termos e cláusulas do contrato de adesão ${p.nomeContrato} (${plano} anos), incluindo as condições de pagamento, rescisão e responsabilidades. Contrato assinado digitalmente em ${new Date().toLocaleDateString("pt-BR")} às ${new Date().toLocaleTimeString("pt-BR")}. Valor total: ${p.total} (${p.parcela}/ano). RG: ${formData.rg} | Profissão: ${formData.profissao} | Naturalidade: ${formData.naturalidade}.`,
+        dataAssinaturaString: dataContrato,
+        descricao: `✓ Li e concordo integralmente com todos os termos e cláusulas do contrato de adesão ${p.nomeContrato} (${plano} anos), incluindo as condições de pagamento, rescisão e responsabilidades. Contrato datado de ${new Date(`${dataContrato}T12:00:00`).toLocaleDateString("pt-BR")}, assinado digitalmente em ${new Date().toLocaleDateString("pt-BR")} às ${new Date().toLocaleTimeString("pt-BR")}. Valor total: ${p.total} (${p.parcela}/ano). RG: ${formData.rg} | Profissão: ${formData.profissao} | Naturalidade: ${formData.naturalidade}.`,
         createdAt: Timestamp.now(),
         updatedAt: Timestamp.now(),
       });
@@ -1219,11 +1237,7 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
         </div>
         <p className="text-center text-gray-500">
           Belo Horizonte/MG,{" "}
-          {new Date().toLocaleDateString("pt-BR", {
-            day: "numeric",
-            month: "long",
-            year: "numeric",
-          })}
+          {formatLongDate(dataContrato)}
         </p>
         <p className="text-center text-gray-400">
           Rua General Andrade Neves, 622, Grajaú, CEP 30431-128 — Belo
@@ -1500,6 +1514,17 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
             Contato
           </span>
           <div className="flex-1 h-px bg-gray-100" />
+        </div>
+
+        <div>
+          <label className={labelCls}>Data do contrato</label>
+          <input
+            required
+            type="date"
+            className={field}
+            value={dataContrato}
+            onChange={(e) => setDataContrato(e.target.value || todayISO())}
+          />
         </div>
 
         <div>
