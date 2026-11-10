@@ -3,7 +3,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import ContractPages from "./ContractPages";
-import { PLANOS, type PlanoKey } from "../lib/contractPlans";
+import { PLANOS } from "../lib/contractPlans";
 import {
   X,
   CheckCircle,
@@ -256,7 +256,11 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
   const [printing, setPrinting] = useState(false);
   const [saving, setSaving] = useState(false);
   const [accepted, setAccepted] = useState(false);
-  const [plano, setPlano] = useState<PlanoKey>("3");
+  const [plano, setPlano] = useState<"3" | "5">("5");
+  const [planPassword, setPlanPassword] = useState("");
+  const [planChecking, setPlanChecking] = useState(false);
+  const [planError, setPlanError] = useState("");
+  const planRequest = useRef<AbortController | null>(null);
   const [showSuccess, setShowSuccess] = useState(false);
   const [mobileTab, setMobileTab] = useState<"contrato" | "dados">("dados");
   const [dateError, setDateError] = useState<string | null>(null);
@@ -303,9 +307,48 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
     }
   }, [isOpen, onClose]);
 
+  useEffect(() => {
+    if (isOpen) return;
+    planRequest.current?.abort();
+    setPlano("5");
+    setAccepted(false);
+    setPlanPassword("");
+    setPlanError("");
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   const p = PLANOS[plano];
+  const unlockPlan = async () => {
+    if (!planPassword || planChecking || loading) return;
+    const request = new AbortController();
+    planRequest.current = request;
+    setPlanChecking(true);
+    setPlanError("");
+    try {
+      const response = await fetch("/api/authorize-contract-plan", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password: planPassword }),
+        signal: request.signal,
+      });
+      if (request.signal.aborted) return;
+      if (response.status === 204) {
+        setPlano("3");
+        setAccepted(false);
+      } else {
+        setPlanError(response.status === 401 ? "Senha especial incorreta." : "A opção especial está indisponível.");
+      }
+    } catch {
+      if (!request.signal.aborted) {
+        setPlanError("Não foi possível verificar a senha. Tente novamente.");
+      }
+    } finally {
+      planRequest.current = null;
+      setPlanPassword("");
+      setPlanChecking(false);
+    }
+  };
   const isAuthorized = authorizedAction === contractAction;
   const { nome, profissao, rg, naturalidade, cpf, nascimento, email } = formData;
   const canExport =
@@ -314,7 +357,8 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
     /^\d{2}\/\d{2}\/\d{4}$/.test(nascimento) &&
     !validateDateInput(nascimento) &&
     /^[^\s@]+@[^\s@]+$/.test(email?.trim() ?? "") &&
-    dataContrato >= todayISO();
+    dataContrato >= todayISO() &&
+    !planChecking;
 
   const requestAuthorization = (action: keyof typeof CONTRACT_ACTIONS) => {
     if (!canExport) return;
@@ -1380,42 +1424,55 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
       >
         <div>
           <p className={labelCls}>Plano de adesão</p>
-          <div className="grid grid-cols-1 gap-2 mt-1">
-            {(Object.keys(PLANOS) as PlanoKey[]).map((key) => {
-              const op = PLANOS[key];
-              const active = plano === key;
-              return (
-                <button
-                  key={key}
-                  type="button"
-                  onClick={() => {
-                    setPlano(key);
-                    setAccepted(false);
-                  }}
-                  className={`flex flex-col items-start px-3 py-2.5 border text-left transition-all cursor-pointer rounded-sm ${active
-                    ? "border-gray-900 bg-gray-900 text-white"
-                    : "border-gray-200 hover:border-gray-400 text-gray-700"
-                    }`}
-                >
-                  <span className="text-xs font-bold uppercase tracking-wider">
-                    {op.label}
-                  </span>
-                  <span
-                    className={`text-[11px] mt-0.5 ${active ? "text-gray-300" : "text-gray-400"
-                      }`}
-                  >
-                    {op.parcela}/ano
-                  </span>
-                  <span
-                    className={`text-[10px] mt-1 font-semibold ${active ? "text-gray-200" : "text-gray-500"
-                      }`}
-                  >
-                    Total: {op.total}
-                  </span>
-                </button>
-              );
-            })}
+          <div className="mt-1 flex flex-col rounded-sm border border-gray-900 bg-gray-900 px-3 py-2.5 text-white">
+            <span className="text-xs font-bold uppercase tracking-wider">{p.label}</span>
+            <span className="mt-0.5 text-[11px] text-gray-300">{p.parcela}/ano</span>
+            <span className="mt-1 text-[10px] font-semibold text-gray-200">Total: {p.total}</span>
           </div>
+          {plano === "5" ? (
+            <details className="mt-3 text-xs text-gray-600">
+              <summary className="cursor-pointer">Tenho uma senha especial</summary>
+              <label className="mt-2 block">
+                Senha especial
+                <input
+                  type="password"
+                  autoComplete="off"
+                  maxLength={1024}
+                  disabled={planChecking || loading}
+                  value={planPassword}
+                  onChange={(event) => setPlanPassword(event.target.value)}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter") {
+                      event.preventDefault();
+                      void unlockPlan();
+                    }
+                  }}
+                  className={field}
+                />
+              </label>
+              <button
+                type="button"
+                disabled={!planPassword || planChecking || loading}
+                onClick={() => void unlockPlan()}
+                className="mt-2 cursor-pointer rounded bg-gray-900 px-3 py-2 text-white disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {planChecking ? "Verificando…" : "Aplicar senha"}
+              </button>
+              {planError && <p role="alert" className="mt-2 text-red-700">{planError}</p>}
+            </details>
+          ) : (
+            <button
+              type="button"
+              disabled={loading}
+              className="mt-2 cursor-pointer text-xs text-gray-600 underline disabled:cursor-not-allowed disabled:opacity-50"
+              onClick={() => {
+                setPlano("5");
+                setAccepted(false);
+              }}
+            >
+              Voltar ao plano de 5 anos
+            </button>
+          )}
         </div>
 
         <div className="flex items-center gap-2 pt-1">
@@ -1589,7 +1646,7 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
           </label>
           <button
             type="submit"
-            disabled={loading || !accepted || !!dateError}
+            disabled={loading || planChecking || !accepted || !!dateError}
             className="w-full py-3 bg-gray-900 text-white text-sm font-medium tracking-widest uppercase hover:bg-gray-700 disabled:opacity-30 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 cursor-pointer rounded-sm"
           >
             {loading ? (
