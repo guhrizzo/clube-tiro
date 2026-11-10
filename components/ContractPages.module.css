@@ -1,0 +1,27 @@
+.preview [data-contract-signature] {
+  background: url("/LOGO1.png") center / auto 80% no-repeat;
+}
+
+.preview [data-contract-signature] > img {
+  visibility: hidden;
+}
+
+.preview [data-contract-tax-id] {
+  position: relative;
+  display: inline-block;
+  background: #f3f4f6;
+  border-radius: 2px;
+}
+
+.preview [data-contract-tax-id]::after {
+  content: "••••••";
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: #4b5563;
+}
+
+.preview [data-contract-tax-id] > span {
+  visibility: hidden;
+}

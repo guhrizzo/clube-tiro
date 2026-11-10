@@ -1,4 +1,5 @@
 import jsPDF from "jspdf";
+import { getContractPlanKey, PLANOS } from "./contractPlans";
 
 export interface ContractData {
   id?: string;
@@ -296,7 +297,7 @@ export async function generateContractPDFFromServerPage(
               profissao: contractData.profissao || "",
               naturalidade: contractData.naturalidade || "",
               nascimento: contractData.nascimento || "",
-              plano: contractData.plano?.includes("5") ? "5" : "3",
+              plano: getContractPlanKey(contractData.plano),
             })
           );
         }
@@ -922,13 +923,8 @@ function getContractHTML(contract: ContractData): string {
     ? contract.nascimento.split("-").reverse().join("/")
     : "__/__/____";
 
-  const planoStr = contract.plano || "3 anos";
-  const isPlano5 = planoStr.includes("5");
-  const nomeContrato = isPlano5 ? "quinquenal" : "trienal";
-  const nomePrazo = isPlano5 ? "cinco" : "três";
-  const total = isPlano5 ? "R$ 6.000,00" : "R$ 3.600,00";
-  const parcela = "R$ 1.200,00";
-  const vigencia = isPlano5 ? "5 anos" : "3 anos";
+  const { nomeContrato, nomePrazo, total, parcela, vigencia } =
+    PLANOS[getContractPlanKey(contract.plano)];
 
   const dataAssinatura =
     contract.dataAssinatura?.toDate?.() ||
@@ -1113,13 +1109,8 @@ export function buildPDFContent(
     ? contract.nascimento.split("-").reverse().join("/")
     : "__/__/____";
 
-  const planoStr = contract.plano || "3 anos";
-  const isPlano5 = planoStr.includes("5");
-  const nomeContrato = isPlano5 ? "quinquenal" : "trienal";
-  const nomePrazo = isPlano5 ? "cinco" : "três";
-  const total = isPlano5 ? "R$ 6.000,00" : "R$ 3.600,00";
-  const parcela = "R$ 1.200,00";
-  const vigencia = isPlano5 ? "5 anos" : "3 anos";
+  const { nomeContrato, nomePrazo, total, parcela, vigencia } =
+    PLANOS[getContractPlanKey(contract.plano)];
 
   const getContractDate = (): Date => {
     if (contract.dataAssinatura?.toDate) return contract.dataAssinatura.toDate();

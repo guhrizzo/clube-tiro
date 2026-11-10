@@ -2,9 +2,13 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import ContractPages from "./ContractPages";
+import { PLANOS, type PlanoKey } from "../lib/contractPlans";
 import {
   X,
   CheckCircle,
+  Eye,
+  EyeOff,
   FileText,
   Lock,
   Mail,
@@ -37,34 +41,11 @@ interface FormData {
   nascimento: string;
 }
 
-const STORAGE_KEY = "protect_contract_form";
-
-const PLANOS = {
-  "3": {
-    label: "3 anos",
-    nomeContrato: "trienal",
-    nomePrazo: "três",
-    total: "R$ 3.600,00",
-    totalRaw: 3600,
-    parcela: "R$ 1.200,00",
-    parcelaRaw: 1200,
-    versao: "v2026.1-3anos",
-    vigencia: "3 anos",
-  },
-  "5": {
-    label: "5 anos",
-    nomeContrato: "quinquenal",
-    nomePrazo: "cinco",
-    total: "R$ 6.000,00",
-    totalRaw: 6000,
-    parcela: "R$ 1.200,00",
-    parcelaRaw: 1200,
-    versao: "v2026.1-5anos",
-    vigencia: "5 anos",
-  },
-} as const;
-
-type PlanoKey = keyof typeof PLANOS;
+const CONTRACT_ACTIONS = {
+  print: { title: "Imprimir contrato", label: "Imprimir" },
+  save: { title: "Salvar contrato em PDF", label: "Salvar PDF" },
+  sign: { title: "Assinar contrato", label: "Assinar contrato" },
+};
 
 function maskDate(raw: string): string {
   const digits = raw.replace(/\D/g, "").slice(0, 8);
@@ -150,6 +131,7 @@ function SuccessModal({
   onSave,
   printing,
   saving,
+  canExport,
 }: {
   email: string;
   onClose: () => void;
@@ -157,6 +139,7 @@ function SuccessModal({
   onSave: () => void;
   printing: boolean;
   saving: boolean;
+  canExport: boolean;
 }) {
   return (
     <div
@@ -208,9 +191,9 @@ function SuccessModal({
             <button
               type="button"
               onClick={onPrint}
-              disabled={printing}
+              disabled={!canExport || printing}
               title={printing ? "Preparando impressão..." : "Imprimir contrato"}
-              className={`flex items-center justify-center gap-1.5 py-2.5 border text-xs font-medium transition-all rounded-sm ${printing
+              className={`flex items-center justify-center gap-1.5 py-2.5 border text-xs font-medium transition-all rounded-sm ${!canExport || printing
                 ? "opacity-50 cursor-not-allowed border-gray-100 text-gray-300 bg-gray-50"
                 : "border-gray-300 text-gray-700 bg-white hover:bg-gray-50 hover:border-gray-400 cursor-pointer"
                 }`}
@@ -233,9 +216,9 @@ function SuccessModal({
             <button
               type="button"
               onClick={onSave}
-              disabled={saving}
+              disabled={!canExport || saving}
               title={saving ? "Gerando PDF..." : "Salvar PDF"}
-              className={`flex items-center justify-center gap-1.5 py-2.5 border text-xs font-medium transition-all rounded-sm ${saving
+              className={`flex items-center justify-center gap-1.5 py-2.5 border text-xs font-medium transition-all rounded-sm ${!canExport || saving
                 ? "opacity-50 cursor-not-allowed border-gray-100 text-gray-300 bg-gray-50"
                 : "border-gray-300 text-gray-700 bg-white hover:bg-gray-50 hover:border-gray-400 cursor-pointer"
                 }`}
@@ -278,6 +261,12 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
   const [mobileTab, setMobileTab] = useState<"contrato" | "dados">("dados");
   const [dateError, setDateError] = useState<string | null>(null);
   const [dataContrato, setDataContrato] = useState<string>(() => todayISO());
+  const [contractAction, setContractAction] = useState<keyof typeof CONTRACT_ACTIONS>("print");
+  const [authorizedAction, setAuthorizedAction] = useState<keyof typeof CONTRACT_ACTIONS | null>(null);
+  const [exportChecking, setExportChecking] = useState(false);
+  const [exportError, setExportError] = useState("");
+  const [showExportPassword, setShowExportPassword] = useState(false);
+  const exportDialogRef = useRef<HTMLDialogElement>(null);
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const modalRef = useRef<HTMLDivElement>(null);
@@ -287,45 +276,15 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
 
   const previousFocusRef = useRef<HTMLElement | null>(null);
 
-  const [formData, setFormData] = useState<FormData>(() => {
-    if (typeof window !== "undefined") {
-      try {
-        const saved = localStorage.getItem(STORAGE_KEY);
-        if (saved) {
-          const parsed = JSON.parse(saved) as FormData;
-          if (
-            parsed.nascimento &&
-            /^\d{4}-\d{2}-\d{2}$/.test(parsed.nascimento)
-          ) {
-            const [yyyy, mm, dd] = parsed.nascimento.split("-");
-            parsed.nascimento = `${dd}/${mm}/${yyyy}`;
-          }
-          return parsed;
-        }
-      } catch {
-        /* ignore */
-      }
-    }
-    return {
-      nome: "",
-      email: "",
-      cpf: "",
-      rg: "",
-      profissao: "",
-      naturalidade: "",
-      nascimento: "",
-    };
+  const [formData, setFormData] = useState<FormData>({
+    nome: "",
+    email: "",
+    cpf: "",
+    rg: "",
+    profissao: "",
+    naturalidade: "",
+    nascimento: "",
   });
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(formData));
-      } catch {
-        /* ignore */
-      }
-    }
-  }, [formData]);
 
   useEffect(() => {
     if (isOpen) {
@@ -333,7 +292,7 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
       document.body.style.overflow = "hidden";
       setTimeout(() => modalRef.current?.focus(), 100);
       const handleKeyDown = (e: KeyboardEvent) => {
-        if (e.key === "Escape") onClose();
+        if (e.key === "Escape" && !exportDialogRef.current?.open) onClose();
       };
       document.addEventListener("keydown", handleKeyDown);
       return () => {
@@ -347,9 +306,66 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
   if (!isOpen) return null;
 
   const p = PLANOS[plano];
+  const isAuthorized = authorizedAction === contractAction;
+  const { nome, profissao, rg, naturalidade, cpf, nascimento, email } = formData;
+  const canExport =
+    [nome, profissao, rg, naturalidade].every((value) => Boolean(value?.trim())) &&
+    cpf?.replace(/\D/g, "").length === 11 &&
+    /^\d{2}\/\d{2}\/\d{4}$/.test(nascimento) &&
+    !validateDateInput(nascimento) &&
+    /^[^\s@]+@[^\s@]+$/.test(email?.trim() ?? "") &&
+    dataContrato >= todayISO();
 
-  const handleConfirm = async (e: React.FormEvent) => {
+  const requestAuthorization = (action: keyof typeof CONTRACT_ACTIONS) => {
+    if (!canExport) return;
+    setContractAction(action);
+    setAuthorizedAction(null);
+    setExportError("");
+    setShowExportPassword(false);
+    exportDialogRef.current?.showModal();
+  };
+
+  const authorizeExport = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (exportChecking) return;
+
+    const form = event.currentTarget;
+    const dialog = exportDialogRef.current;
+    const data = new FormData(form);
+    setExportChecking(true);
+    setExportError("");
+
+    try {
+      const response = await fetch("/api/authorize-contract-export", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          username: data.get("username"),
+          password: data.get("password"),
+        }),
+      });
+      if (!dialog?.open || dialog !== exportDialogRef.current) return;
+      if (response.status === 401) {
+        setExportError("Usuário ou senha incorretos.");
+      } else if (response.status === 204) {
+        form.reset();
+        setAuthorizedAction(contractAction);
+      } else {
+        setExportError("A autorização está indisponível. Tente novamente mais tarde.");
+      }
+    } catch {
+      setExportError("Não foi possível verificar as credenciais. Tente novamente.");
+    } finally {
+      setExportChecking(false);
+    }
+  };
+
+  const handleConfirm = (e: React.FormEvent) => {
     e.preventDefault();
+    if (dataContrato < todayISO()) {
+      alert("A data do contrato deve ser hoje ou uma data futura.");
+      return;
+    }
     if (!accepted) {
       alert("Você precisa aceitar os termos.");
       return;
@@ -359,6 +375,15 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
       setDateError(dateErr || "Data incompleta");
       return;
     }
+    if (!canExport) {
+      alert("Preencha todos os dados do contrato corretamente.");
+      return;
+    }
+    requestAuthorization("sign");
+  };
+
+  const handleSign = async () => {
+    if (authorizedAction !== "sign" || loading || !accepted || !canExport || dataContrato < todayISO()) return;
     setLoading(true);
     try {
       const savedData = {
@@ -861,6 +886,10 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
       </span>
     );
 
+  const coverTaxId = (content: React.ReactNode) => (
+    <span data-contract-tax-id><span>{content}</span></span>
+  );
+
   // ========================================================================
   // IMPORTANTE: Todos os parágrafos têm orphans: 3, widows: 3
   // Isso evita que palavras sejam cortadas no final/início de página
@@ -879,12 +908,11 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
         </p>
         <h1
           className="font-bold text-base uppercase leading-snug"
-          id="contract-title"
         >
           Contrato de Adesão de Sócio Usuário (Colaborador)
         </h1>
         <p className="text-xs text-gray-500 mt-2">
-          Protect Clube Mineiro de Tiro — CNPJ 01.244.200/0001-52
+          Protect Clube Mineiro de Tiro — CNPJ {coverTaxId("01.244.200/0001-52")}
         </p>
         <div className="mt-4 inline-flex items-center gap-2 border border-gray-300 px-3 py-1 text-[11px] uppercase tracking-widest text-gray-600">
           Cota {p.nomeContrato} — {p.vigencia}
@@ -896,7 +924,7 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
         <strong>CONTRATO DE ADESÃO DE SÓCIO USUÁRIO (COLABORADOR)</strong>, de
         um lado, <strong>Protect Clube Mineiro de Tiro</strong>, pessoa jurídica
         de direito privado, inscrita no CNPJ sob o nº{" "}
-        <strong>01.244.200/0001-52</strong>, com sede na Rua General Andrade
+        <strong>{coverTaxId("01.244.200/0001-52")}</strong>, com sede na Rua General Andrade
         Neves, 622, Bairro Gutierrez, Belo Horizonte/MG, e posteriormente na Rua
         dos Radialistas, 38, Bairro Balneário Água Limpa, Nova Lima/MG, neste
         ato representada por quem de direito, doravante simplesmente denominada{" "}
@@ -904,7 +932,9 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
         {blank("Nome completo", formData.nome, "min-w-[220px]")}, profissão{" "}
         {blank("Profissão", formData.profissao, "min-w-[140px]")}, inscrito(a)
         no RG nº {blank("RG", formData.rg, "min-w-[120px]")}, portador(a) do
-        CPF nº {blank("CPF", formData.cpf, "min-w-[130px]")}, natural de{" "}
+        CPF nº {formData.cpf
+          ? coverTaxId(blank("CPF", formData.cpf, "min-w-[130px]"))
+          : blank("CPF", "", "min-w-[130px]")}, natural de{" "}
         {blank("Naturalidade", formData.naturalidade, "min-w-[120px]")},
         nascido(a) em{" "}
         {blank("dd/mm/aaaa", nascimentoDisplay, "min-w-[90px]")}, doravante
@@ -942,7 +972,7 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
         reajustado ao final de cada ano pelo IGP-M ou índice substituto.
         Independentemente da data de ingresso, o pagamento será anual e válido
         até o último dia de dezembro. Este contrato também servirá como recibo,
-        mediante comprovação de depósito via PIX CNPJ nº 01.244.200/0001-52 ou
+        mediante comprovação de depósito via PIX CNPJ nº {coverTaxId("01.244.200/0001-52")} ou
         por link de cartão de crédito do clube.
       </p>
       <p className="mb-3" style={{ pageBreakInside: 'avoid', orphans: 3, widows: 3 }}>
@@ -1176,7 +1206,7 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
         </p>
         <div className="grid grid-cols-2 gap-8">
           <div className="text-center">
-            <div className="h-16 flex items-center justify-center">
+            <div data-contract-signature className="h-16 flex items-center justify-center">
               <img
                 src="/assinatura4.png"
                 alt="Assinatura PROTECT"
@@ -1185,7 +1215,7 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
             </div>
             <div className="">
               <p className="font-bold">PROTECT CLUBE MINEIRO DE TIRO</p>
-              <p className="text-gray-500 text-[10px]">CNPJ: 01.244.200/0001-52</p>
+              <p className="text-gray-500 text-[10px]">CNPJ: {coverTaxId("01.244.200/0001-52")}</p>
               <p className="text-gray-500 text-[10px]">ANTONIO C. COSTA JUNIOR</p>
             </div>
           </div>
@@ -1196,14 +1226,14 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
                 {formData.nome || "SÓCIO USUÁRIO (COLABORADOR)"}
               </p>
               <p className="text-gray-500 text-[10px]">
-                CPF: {formData.cpf || "___________________________"}
+                CPF: {formData.cpf ? coverTaxId(formData.cpf) : "___________________________"}
               </p>
             </div>
           </div>
         </div>
         <div className="grid grid-cols-2 gap-8">
           <div className="text-center">
-            <div className="h-16 flex items-center justify-center">
+            <div data-contract-signature className="h-16 flex items-center justify-center">
               <img
                 src="/assinatura1.png"
                 alt="Assinatura Testemunha 1"
@@ -1215,11 +1245,11 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
                 TESTEMUNHA 1
               </p>
               <p className="font-bold text-[10px]">EMMERSON N. DO CARMO</p>
-              <p className="text-gray-500 text-[10px]">CPF: 001.583.866-80</p>
+              <p className="text-gray-500 text-[10px]">CPF: {coverTaxId("001.583.866-80")}</p>
             </div>
           </div>
           <div className="text-center">
-            <div className="h-16 flex items-center justify-center">
+            <div data-contract-signature className="h-16 flex items-center justify-center">
               <img
                 src="/assinatura3.png"
                 alt="Assinatura Testemunha 2"
@@ -1231,7 +1261,7 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
                 TESTEMUNHA 2
               </p>
               <p className="font-bold text-[10px]">NEWTON C. BAPTISTON</p>
-              <p className="text-gray-500 text-[10px]">CPF: 584.978.896-49</p>
+              <p className="text-gray-500 text-[10px]">CPF: {coverTaxId("584.978.896-49")}</p>
             </div>
           </div>
         </div>
@@ -1261,10 +1291,10 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
         <div className="flex items-center gap-1">
           <button
             type="button"
-            onClick={handlePrint}
-            disabled={printing}
-            title={printing ? "Preparando impressão..." : "Imprimir contrato"}
-            className={`flex items-center gap-1.5 px-2.5 py-1.5 text-[11px] transition rounded-sm ${printing
+            onClick={() => requestAuthorization("print")}
+            disabled={!canExport || printing}
+            title={!canExport ? "Preencha os dados para imprimir" : printing ? "Preparando impressão..." : "Imprimir contrato"}
+            className={`flex items-center gap-1.5 px-2.5 py-1.5 text-[11px] transition rounded-sm ${!canExport || printing
               ? "text-gray-300 bg-gray-100 opacity-50 cursor-not-allowed"
               : "text-gray-900 bg-gray-100 hover:bg-gray-200 cursor-pointer"
               }`}
@@ -1288,10 +1318,10 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
           </button>
           <button
             type="button"
-            onClick={handleSavePDF}
-            disabled={saving}
-            title={saving ? "Gerando PDF..." : "Salvar PDF"}
-            className={`flex items-center gap-1.5 px-2.5 py-1.5 text-[11px] transition rounded-sm ${saving
+            onClick={() => requestAuthorization("save")}
+            disabled={!canExport || saving}
+            title={!canExport ? "Preencha os dados para salvar o PDF" : saving ? "Gerando PDF..." : "Salvar PDF"}
+            className={`flex items-center gap-1.5 px-2.5 py-1.5 text-[11px] transition rounded-sm ${!canExport || saving
               ? "text-gray-300 bg-gray-100 opacity-50 cursor-not-allowed"
               : "text-gray-900 bg-gray-100 hover:bg-gray-200 cursor-pointer"
               }`}
@@ -1325,10 +1355,10 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
       </div>
 
       <div
-        className="flex-1 overflow-y-auto bg-gray-50 px-4 md:px-6 py-8"
+        className="min-h-0 flex-1 overflow-y-auto bg-gray-50 px-4 md:px-6 py-8"
         ref={scrollRef}
       >
-        <div ref={refProp}>{contractContent}</div>
+        <ContractPages document={contractContent} exportRef={refProp} />
       </div>
     </div>
   );
@@ -1350,7 +1380,7 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
       >
         <div>
           <p className={labelCls}>Plano de adesão</p>
-          <div className="grid grid-cols-2 gap-2 mt-1">
+          <div className="grid grid-cols-1 gap-2 mt-1">
             {(Object.keys(PLANOS) as PlanoKey[]).map((key) => {
               const op = PLANOS[key];
               const active = plano === key;
@@ -1521,6 +1551,7 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
           <input
             required
             type="date"
+            min={todayISO()}
             className={field}
             value={dataContrato}
             onChange={(e) => setDataContrato(e.target.value || todayISO())}
@@ -1674,18 +1705,116 @@ export default function ContractModal({ isOpen, onClose }: ContractModalProps) {
         <SuccessModal
           email={formData.email}
           onClose={handleSuccessClose}
-          onPrint={handlePrint}
-          onSave={handleSavePDF}
+          onPrint={() => requestAuthorization("print")}
+          onSave={() => requestAuthorization("save")}
           printing={printing}
           saving={saving}
+          canExport={canExport}
         />
       )}
+
+      <dialog
+        ref={exportDialogRef}
+        aria-labelledby="contract-export-title"
+        aria-describedby={isAuthorized ? "contract-authorization-description" : undefined}
+        className="m-auto w-[calc(100%-2rem)] max-w-sm rounded-xl border border-gray-200 bg-white p-6 text-gray-900 shadow-xl backdrop:bg-black/60"
+        onCancel={(event) => {
+          if (exportChecking) event.preventDefault();
+        }}
+        onClose={() => {
+          exportDialogRef.current?.querySelector("form")?.reset();
+          setAuthorizedAction(null);
+        }}
+      >
+        {isAuthorized && (
+          <div className="mb-3 flex items-center gap-2 text-sm font-medium text-emerald-700">
+            <CheckCircle size={18} aria-hidden="true" />
+            Acesso autorizado
+          </div>
+        )}
+        <h2 id="contract-export-title" className="mb-3 text-lg font-semibold">
+          {isAuthorized && contractAction === "sign" ? "Confirmar assinatura" : CONTRACT_ACTIONS[contractAction].title}
+        </h2>
+        {isAuthorized ? (
+          <p id="contract-authorization-description" className="text-sm leading-relaxed text-gray-600">
+            {contractAction === "sign"
+              ? "Ao confirmar, a assinatura será registrada com os dados preenchidos no formulário."
+              : "Confirme abaixo para continuar."}
+          </p>
+        ) : (
+          <form id="contract-authorization-form" onSubmit={authorizeExport} className="space-y-4">
+            <label className="block text-sm">
+              Usuário
+              <input name="username" autoComplete="username" required maxLength={256} className={field} />
+            </label>
+            <div className="text-sm">
+              <label htmlFor="contract-authorization-password" className="block">Senha</label>
+              <div className="relative">
+                <input
+                  id="contract-authorization-password"
+                  name="password"
+                  type={showExportPassword ? "text" : "password"}
+                  autoComplete="current-password"
+                  required
+                  maxLength={1024}
+                  className={`${field} pr-10 [&::-ms-reveal]:hidden`}
+                />
+                <button
+                  type="button"
+                  aria-label={showExportPassword ? "Ocultar senha" : "Mostrar senha"}
+                  className="absolute inset-y-0 right-0 grid w-10 cursor-pointer place-items-center rounded-sm text-gray-600 hover:text-gray-900 focus-visible:outline-2 focus-visible:-outline-offset-2"
+                  onClick={() => setShowExportPassword((visible) => !visible)}
+                >
+                  {showExportPassword ? <EyeOff size={16} aria-hidden="true" /> : <Eye size={16} aria-hidden="true" />}
+                </button>
+              </div>
+            </div>
+            {exportError && <p role="alert" className="text-sm text-red-700">{exportError}</p>}
+          </form>
+        )}
+        <div className="mt-5 flex flex-wrap justify-end gap-3 border-t border-gray-100 pt-4">
+          <button
+            type="button"
+            disabled={exportChecking}
+            onClick={() => exportDialogRef.current?.close()}
+            className="cursor-pointer rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            Cancelar
+          </button>
+          {isAuthorized ? (
+            <button
+              type="button"
+              autoFocus
+              disabled={!canExport}
+              className="cursor-pointer rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700 disabled:cursor-not-allowed disabled:opacity-50"
+              onClick={() => {
+                if (!canExport || authorizedAction !== contractAction) return;
+                setAuthorizedAction(null);
+                exportDialogRef.current?.close();
+                const action = { print: handlePrint, save: handleSavePDF, sign: handleSign };
+                void action[contractAction]();
+              }}
+            >
+              {CONTRACT_ACTIONS[contractAction].label}
+            </button>
+          ) : (
+            <button
+              type="submit"
+              form="contract-authorization-form"
+              disabled={exportChecking}
+              className="cursor-pointer rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {exportChecking ? "Verificando…" : "Autorizar"}
+            </button>
+          )}
+        </div>
+      </dialog>
 
       <div
         className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 p-0 md:p-6 pointer-events-none"
         role="dialog"
         aria-modal="true"
-        aria-labelledby="contract-title"
+        aria-label="Contrato de Adesão de Sócio Usuário (Colaborador)"
         onClick={(e) => {
           if (e.target === e.currentTarget) onClose();
         }}
