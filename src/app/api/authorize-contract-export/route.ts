@@ -8,6 +8,7 @@ function matches(value: string, expected: string) {
 export async function POST(request: Request) {
   const expectedUser = process.env.CONTRACT_EXPORT_USER;
   const expectedPassword = process.env.CONTRACT_EXPORT_PASSWORD;
+  const specialPassword = process.env.CONTRACT_THREE_YEAR_PASSWORD;
   if (!expectedUser || !expectedPassword) {
     return new Response(null, { status: 503 });
   }
@@ -24,5 +25,10 @@ export async function POST(request: Request) {
 
   const validUser = matches(credentials.username, expectedUser);
   const validPassword = matches(credentials.password, expectedPassword);
+  const validSpecial = specialPassword ? matches(credentials.password, specialPassword) : false;
+
+  if (validUser && validSpecial) {
+    return Response.json({ plan: "3" });
+  }
   return new Response(null, { status: validUser && validPassword ? 204 : 401 });
 }
